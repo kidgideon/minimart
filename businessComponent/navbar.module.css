@@ -1,0 +1,120 @@
+
+.verticalNav {
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    width: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: white;
+    border: 1px solid gray;
+    z-index: 200px;
+}
+
+.businessProfile {
+    width: 100%;
+    height: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+
+.businessProfile img {
+    width: 50px;
+}
+
+.businessTabs {
+    width: 100%;
+    height: 70%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-direction: column;
+}
+
+.businessTab {
+    width: 92%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    padding: 10px;
+    margin: 10px 0px;
+    gap: 7px;
+}
+
+.tabIcon {
+    width: 30%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.tabText {
+     width: 70%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.logoutFunction {
+    width: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.logoutFunction button {
+    width: 100%;
+    background-color: gray;
+    padding: 12px 5px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.horizontalNav {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    z-index: 100px;
+} 
+
+.harmburgerSection {
+    width: 48%;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+}
+
+.menuSection {
+     width: 48%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.menu {
+   background-color: rgb(158, 158, 158);
+   color: black;
+   padding: 5px 15px;
+   border-radius: 10px;
+   cursor: pointer;
+   font-size: 15px;
+}

@@ -1,0 +1,26 @@
+.base-colors-for-site {
+   color: #43B5F4;
+   color: #1C2230;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+*{
+    padding: 0px;
+    margin: 0px;
+}
+
+
+/* Left icon (lock) */
+.leftItem {
+  left: 15px;
+}
+
+.rightSide {
+  right: 15px;
+  cursor: pointer;
+}

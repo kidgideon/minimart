@@ -1,0 +1,127 @@
+.interface {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.userFormArea {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.userFormArea button {
+  margin-top: 20px;
+  padding: 10px 30px;
+  background-color: #1c2230;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.userFormArea button:hover {
+   background-color: #2b3347;
+}
+
+.userFormArea input {
+    padding: 10px 20px;
+    width: 100%;
+    max-width: 300px;
+    border: none;
+    outline: none;
+    background-color: #b6b6b6;
+    border-radius: 5px;
+    color: black;
+}
+
+.topIconS i {
+    color: #1c2230;
+    font-size: 500%;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Button style */
+.submitBtn {
+  margin-top: 20px;
+  padding: 10px 30px;
+  background-color: #1c2230;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* Contact Icons */
+.contactIcons {
+  display: flex;
+  gap: 20px;
+  font-size: 24px;
+  margin-top: 10px;
+}
+
+.contactIcons i {
+  cursor: pointer;
+  color: #ccc;
+  transition: 0.2s;
+  font-size: 150%;
+}
+
+.contactIcons i:hover {
+  color: #1c2230;
+}
+
+.activeIcon {
+  color: #1c2230 !important;
+}
+.stepControls {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+}
+
+.stepControls button {
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
+  background-color: #43B5F4;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.stepCounter {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  font-size: 14px;
+  background: white;
+  padding: 5px 12px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.companyLogo {
+    width: 150px
+}

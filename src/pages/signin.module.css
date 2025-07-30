@@ -1,0 +1,137 @@
+.interface {
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.loginForm {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100dvh;
+    gap: 10px;
+}
+
+.loginForm input {
+     padding: 14px 20px;
+    width: 100%;
+    max-width: 300px;
+    border: none;
+    outline: none;
+    background-color: #b6b6b6;
+    border-radius: 5px;
+    color: black;
+}
+
+.forgetPassword {
+    width: 100%;
+    max-width: 300px;
+    text-align: end;
+    margin: 0px 10px;
+}
+.forgetPassword p {
+    cursor: pointer;
+    color: #43B5F4;
+}
+
+.welcomeText {
+    color: #1c2230;
+    margin: 10px 0px;
+    font-size: 200%;
+    font-weight: bold;
+}
+
+.loginForm button {
+  margin-top: 20px;
+  padding: 12px 30px;
+  width: 150px;
+  background-color: #1c2230;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.loginForm a {
+    color: #43B5F4;
+    text-decoration: none;
+}
+.inputWrapper {
+  position: relative;
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 95%;
+}
+
+.inputWrapper input {
+  width: 100%;
+  padding: 14px 40px 14px 40px; /* make space for icons */
+  background-color: #b6b6b6;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+}
+
+.inputWrapper i {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #333;
+  font-size: 16px;
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 350px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modalContent input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modalContent button {
+  padding: 10px;
+  background-color: #1c2230;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.closeModal {
+  color: #999;
+  cursor: pointer;
+  font-size: 14px;
+}
