@@ -8,9 +8,9 @@ const firebaseConfig = {
   apiKey: "AIzaSyD4C2jCZaUxGNYAg7lBNQgbwHaOvoZeTgs",
   authDomain: "minimart-web.firebaseapp.com",
   projectId: "minimart-web",
-  storageBucket: "minimart-web.appspot.com",  
+  storageBucket: "minimart-web.firebasestorage.app",
   messagingSenderId: "424108494420",
-  appId: "1:424108494420:web:2aac33a63aa0b1013fa7c1",
+  appId: "1:424108494420:web:2aac33a63aa0b1013fa7c1"
 };
 
 // Initialize Firebase

@@ -6,7 +6,7 @@ import logo from "../src/images/no_bg.png";
 import NotificationPanel from "./notificationPanel";
 import { auth, db } from "../src/hooks/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 
 const NAV_ITEMS = [
 	{ label: "dashboard", icon: "fa-solid fa-table-columns", path: "/dashboard" },
@@ -42,7 +42,7 @@ const Navbar = () => {
 
 	// Responsive check
 	useEffect(() => {
-		const handleResize = () => setIsMobile(window.innerWidth < 900);
+		const handleResize = () => setIsMobile(window.innerWidth < 1300);
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
@@ -69,87 +69,82 @@ const Navbar = () => {
 		window.addEventListener("popstate", handlePop);
 		return () => window.removeEventListener("popstate", handlePop);
 	}, [notifOpen, isMobile]);
+useEffect(() => {
+  let unsubscribed = false;
 
-	useEffect(() => {
-	let unsubscribed = false;
+  const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+    if (!user || unsubscribed) return;
 
-	const fetchBusiness = async () => {
-		try {
-			const user = auth.currentUser;
-			if (!user) return;
+    try {
+      // Step 1: Get businessId from users collection
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userDocRef);
+      if (!userSnap.exists()) throw new Error("User not found");
 
-			// Step 1: Get businessId from users collection
-			const userDocRef = doc(db, "users", user.uid);
-			const userSnap = await getDoc(userDocRef);
-			if (!userSnap.exists()) throw new Error("User not found");
+      const { businessId } = userSnap.data();
+      if (!businessId) throw new Error("No businessId linked to user");
 
-			const { businessId } = userSnap.data();
-			if (!businessId) throw new Error("No businessId linked to user");
+      // Step 2: Fetch business data using businessId
+      const bizDocRef = doc(db, "businesses", businessId);
+      const bizSnap = await getDoc(bizDocRef);
+      if (!bizSnap.exists()) throw new Error("Business not found");
 
-			// Step 2: Fetch business data using businessId
-			const bizDocRef = doc(db, "businesses", businessId);
-			const bizSnap = await getDoc(bizDocRef);
-			if (!bizSnap.exists()) throw new Error("Business not found");
+      const data = bizSnap.data();
 
-			const data = bizSnap.data();
+      // Business Name
+      setBizName(data.businessName || "");
+      setBizNameLoading(false);
 
-			// Business Name
-			setBizName(data.businessName || "");
-			setBizNameLoading(false);
+      // Plan
+      const planType = data.plan?.plan || "free";
+      setPlan(planType);
+      setPlanLoading(false);
 
-			// Plan
-			const planType = data.plan?.plan || "free";
-			setPlan(planType);
-			setPlanLoading(false);
+      // Theme Colors
+      let primary = DEFAULT_PRIMARY, secondary = DEFAULT_SECONDARY;
+      if (
+        planType === "pro" &&
+        data.customTheme?.primaryColor?.trim() &&
+        data.customTheme?.secondaryColor?.trim()
+      ) {
+        primary = data.customTheme.primaryColor;
+        secondary = data.customTheme.secondaryColor;
+      }
+      setThemeColors({ primary, secondary });
 
-			// Theme Colors
-			let primary = DEFAULT_PRIMARY, secondary = DEFAULT_SECONDARY;
-			if (
-				planType === "pro" &&
-				data.customTheme &&
-				data.customTheme.primaryColor &&
-				data.customTheme.secondaryColor &&
-				data.customTheme.primaryColor.trim() &&
-				data.customTheme.secondaryColor.trim()
-			) {
-				primary = data.customTheme.primaryColor;
-				secondary = data.customTheme.secondaryColor;
-			}
-			setThemeColors({ primary, secondary });
+      // Logo
+      if (data.customTheme?.logo) {
+        const img = new window.Image();
+        img.onload = () => {
+          if (!unsubscribed) {
+            setBizLogo(data.customTheme.logo);
+            setBizLogoLoading(false);
+          }
+        };
+        img.onerror = () => {
+          if (!unsubscribed) {
+            setBizLogo(PLACEHOLDER_LOGO);
+            setBizLogoLoading(false);
+          }
+        };
+        img.src = data.customTheme.logo;
+      } else {
+        setBizLogo(PLACEHOLDER_LOGO);
+        setBizLogoLoading(false);
+      }
+    } catch (e) {
+      console.error("Error fetching business:", e);
+      setBizNameLoading(false);
+      setPlanLoading(false);
+      setBizLogo(PLACEHOLDER_LOGO);
+      setBizLogoLoading(false);
+    }
+  });
 
-			// Logo
-			if (data.customTheme?.logo) {
-				const img = new window.Image();
-				img.onload = () => {
-					if (!unsubscribed) {
-						setBizLogo(data.customTheme.logo);
-						setBizLogoLoading(false);
-					}
-				};
-				img.onerror = () => {
-					if (!unsubscribed) {
-						setBizLogo(PLACEHOLDER_LOGO);
-						setBizLogoLoading(false);
-					}
-				};
-				img.src = data.customTheme.logo;
-			} else {
-				setBizLogo(PLACEHOLDER_LOGO);
-				setBizLogoLoading(false);
-			}
-		} catch (e) {
-			console.error("Error fetching business:", e);
-			setBizNameLoading(false);
-			setPlanLoading(false);
-			setBizLogo(PLACEHOLDER_LOGO);
-			setBizLogoLoading(false);
-		}
-	};
-
-	fetchBusiness();
-	return () => {
-		unsubscribed = true;
-	};
+  return () => {
+    unsubscribed = true;
+    unsubscribeAuth();
+  };
 }, []);
 
 
@@ -376,7 +371,7 @@ const Navbar = () => {
 							onClick={handleLogout}
 							disabled={logoutLoading}
 							style={{
-								background: themeColors.primary,
+								background: themeColors.secondary,
 								color: "#fff",
 								border: "none",
 								borderRadius: 8,

@@ -3,6 +3,7 @@ import { auth, db } from "../src/hooks/firebase";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
 
 const NotificationPanel = () => {
   const [notifications, setNotifications] = useState([]);
@@ -12,14 +13,14 @@ const NotificationPanel = () => {
     secondaryColor: "#43B5F4",
   });
   const navigate = useNavigate();
-  
-useEffect(() => {
-  const fetchNotifications = async () => {
+ useEffect(() => {
+  let unsubscribed = false;
+
+  const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+    if (!user || unsubscribed) return;
+
     setLoading(true);
     try {
-      const user = auth.currentUser;
-      if (!user) return;
-
       // Step 1: Get businessId from user document
       const userDocRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userDocRef);
@@ -41,8 +42,8 @@ useEffect(() => {
       const secondary = data?.customTheme?.secondaryColor || "";
 
       setTheme({
-        primaryColor: plan === "pro" && primary !== "" ? primary : "#1C2230",
-        secondaryColor: plan === "pro" && secondary !== "" ? secondary : "#43B5F4",
+        primaryColor: plan === "pro" && primary.trim() ? primary : "#1C2230",
+        secondaryColor: plan === "pro" && secondary.trim() ? secondary : "#43B5F4",
       });
 
       const sorted = notifications
@@ -54,9 +55,12 @@ useEffect(() => {
       console.error("Error fetching notifications:", err);
     }
     setLoading(false);
-  };
+  });
 
-  fetchNotifications();
+  return () => {
+    unsubscribed = true;
+    unsubscribeAuth();
+  };
 }, []);
 
 
