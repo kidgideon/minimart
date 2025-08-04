@@ -150,4 +150,12 @@
     .Products {
         justify-content: center;
     }
+
+    .searchArea input {
+   padding: 5px 5px;
+    }
+
+    .searchArea select {
+  padding: 5px 5px;
+    }
 }
