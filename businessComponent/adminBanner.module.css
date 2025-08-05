@@ -1,0 +1,286 @@
+.bannerWrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.banner {
+  position: relative;
+  width: 100%;
+}
+
+.bannerImg {
+  width: 100%;
+  height: 50vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.bannerImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.darkOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.texts {
+  position: absolute;
+  z-index: 2;
+  left: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  text-align: left;
+}
+
+.texts h1 {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.texts p {
+  font-size: 1.25rem;
+  margin: 8px 0;
+}
+
+.extraText {
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.editBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 5;
+  color: var(--secondary-color);
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  font-size: 150%;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContent {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.modalContentModern {
+  background: #fff;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 18px;
+  width: 95%;
+  max-width: 480px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  animation: modalPop 0.2s;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.97); opacity: 0.7; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modalTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+.imageEditSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.imageEditPreview {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 16/6;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  background: #f5f5f5;
+  margin-bottom: 0.2rem;
+}
+
+.imageEditPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imageEditBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--primary-color, #0078d4);
+  transition: background 0.15s;
+  z-index: 2;
+}
+
+.imageEditBtn:active {
+  background: #f0f0f0;
+}
+
+.imageEditBtn:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.imageEditHint {
+  font-size: 0.98rem;
+  color: #888;
+  margin-top: 0.1rem;
+  margin-bottom: 0.2rem;
+  text-align: center;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 600px) {
+  .modalContentModern {
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    max-width: 440px;
+  }
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem 1.5rem;
+  }
+}
+
+.modalContentModern label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.modalContentModern input[type="text"]{
+  width: 95%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  margin-top: 2px;
+  background: #f9f9f9;
+  transition: border 0.15s;
+}
+
+.modalContentModern select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  margin-top: 2px;
+  background: #f9f9f9;
+  transition: border 0.15s;
+}
+
+.modalContentModern input[type="text"]:focus,
+.modalContentModern select:focus {
+  border: 1.5px solid var(--primary-color, #0078d4);
+  outline: none;
+  background: #fff;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  margin-top: 0.2rem;
+}
+
+.modalActionsModern {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.modalActionsModern button {
+  padding: 10px 22px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary-color, #0078d4);
+  color: white;
+  font-size: 1rem;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cancelBtn {
+  background: #aaa !important;
+}
+
+.cancelBtnModern {
+  background: #aaa !important;
+  color: #fff !important;
+}
+
+@media (max-width: 480px) {
+  .modalContentModern {
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    max-width: 98vw;
+  }
+}

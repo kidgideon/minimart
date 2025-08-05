@@ -1,0 +1,128 @@
+.interface {
+    width: 97%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.logoArea {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    height: 150px;
+}
+.imageArea {
+    width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+
+.imageArea img {
+    width: 80px;
+    height: 80px;
+    border-radius: 80px;
+}
+
+.colorArea {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.storeText {
+  width: 100%;
+  text-align: start;
+  margin: 10px 0px;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: 90%;
+  max-width: 450px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+}
+
+.warningText {
+  font-size: 14px;
+  color: #a94442;
+  background: #f2dede;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.pickers {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.pickers div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.saveBtn {
+  background: var(--primary-color, #1C2230);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  background: #eee;
+  color: #333;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pageTitle {
+  font-size: 160%;
+  margin: 10px 0px;
+  color: var(--secondary-color);
+  font-weight: bold;
+
+}

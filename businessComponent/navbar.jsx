@@ -18,8 +18,8 @@ const NAV_ITEMS = [
 	{ label: "Settings", icon: "fas fa-cog", path: "/settings" }
 ];
 
-const DEFAULT_PRIMARY = "#43B5F4";
-const DEFAULT_SECONDARY = "#1C2230";
+const DEFAULT_SECONDARY = "#43B5F4";
+const DEFAULT_PRIMARY = "#1C2230";
 const PLACEHOLDER_LOGO = logo; // fallback image import
 
 const Navbar = () => {
@@ -181,31 +181,42 @@ useEffect(() => {
 
 	// Sidebar nav item
 	const NavTab = ({ label, icon, path }) => {
-		const active = location.pathname.startsWith(path);
-		return (
-			<div
-				className={styles.businessTab}
-				style={{
-					background: active ? "var(--primary-color, #43B5F4)" : undefined,
-					color: active ? "#fff" : undefined,
-					cursor: "pointer",
-					transition: "background 0.2s"
-				}}
-				onClick={() => navigate(path)}
-				onMouseEnter={e => {
-					if (!active) e.currentTarget.style.background = "var(--primary-color, #43B5F4)";
-					if (!active) e.currentTarget.style.color = "#fff";
-				}}
-				onMouseLeave={e => {
-					if (!active) e.currentTarget.style.background = "";
-					if (!active) e.currentTarget.style.color = "";
-				}}
-			>
-				<div className={styles.tabIcon}><i className={icon}></i></div>
-				<div className={styles.tabText}><p>{label}</p></div>
-			</div>
-		);
-	};
+    const active = location.pathname.startsWith(path);
+    // Use default primary until themeColors.primary is different from DEFAULT_PRIMARY
+    const hoverColor =
+        themeColors.primary && themeColors.primary !== DEFAULT_PRIMARY
+            ? themeColors.primary
+            : DEFAULT_PRIMARY;
+
+    return (
+        <div
+            className={styles.businessTab}
+            style={{
+                background: active ? `var(--primary-color, ${hoverColor})` : undefined,
+                color: active ? "#fff" : undefined,
+                cursor: "pointer",
+                transition: "background 0.2s"
+            }}
+            onClick={() => navigate(path)}
+           onMouseEnter={e => {
+  if (!active) {
+    e.currentTarget.style.background = themeColors.primary;
+    e.currentTarget.style.color = "#fff";
+  }
+}}
+onMouseLeave={e => {
+  if (!active) {
+    e.currentTarget.style.background = "";
+    e.currentTarget.style.color = "";
+  }
+}}
+
+        >
+            <div className={styles.tabIcon}><i className={icon}></i></div>
+            <div className={styles.tabText}><p>{label}</p></div>
+        </div>
+    );
+};
 
 	// Menu dropdown
 	const MenuDropdown = () => (
@@ -371,7 +382,7 @@ useEffect(() => {
 							onClick={handleLogout}
 							disabled={logoutLoading}
 							style={{
-								background: themeColors.secondary,
+								background: themeColors.primary,
 								color: "#fff",
 								border: "none",
 								borderRadius: 8,
