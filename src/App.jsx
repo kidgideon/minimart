@@ -8,7 +8,7 @@ import Catalogue from '../businessPages/catalogue';
 import Settings from '../businessPages/settings';
 import Appearance from '../businessPages/appearance';
 import Storefront from './pages/store/storefront';
-import Cart from './pages/store/Cart';
+import Cart from './pages/store/cart';
 import Products from '../businessComponent/products';
 import { ThemeProvider } from './ThemeContext';
 import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
