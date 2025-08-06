@@ -10,6 +10,8 @@ import Menu from "./components/menu";
 import Featured from "./components/featured";
 import styles from "./storefront.module.css"
 import Latest from "./components/latest";
+import Products from "./components/products";
+import Services from "./components/services";
 
 const DEFAULT_PRIMARY = "#1C2230";
 const DEFAULT_SECONDARY = "#43B5F4";
@@ -85,6 +87,8 @@ const Storefront = ({ storeId: propStoreId }) => {
       <Menu/>
       <Featured storeId={storeId}/>
       <Latest storeId={storeId}/>
+      <Products storeId={storeId}/>
+      <Services storeId={storeId}/>
     </div>
   );
 };
