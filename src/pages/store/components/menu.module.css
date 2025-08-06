@@ -1,0 +1,37 @@
+.menuArea {
+    width: 100%;
+    display: flex;
+    justify-content:space-around;
+    align-items: center;
+    flex-direction: row;
+    margin: 10px 0px;
+}
+
+.starArea {
+    width: 49%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-direction: row;
+}
+
+.menu {
+    width: 49%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    flex-direction: row;
+}
+
+.menu i {
+    background-color: var(--storePrimary);
+    color: var(--storeSecondary);
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.starArea i{
+  color: yellow;
+  font-size: 100%;
+}

@@ -8,8 +8,8 @@ import Catalogue from '../businessPages/catalogue';
 import Settings from '../businessPages/settings';
 import Appearance from '../businessPages/appearance';
 import Storefront from './pages/store/storefront';
-import Cart from './pages/store/cart';
-import Product from './pages/store/product';
+import Cart from './pages/store/Cart';
+import Products from '../businessComponent/products';
 import { ThemeProvider } from './ThemeContext';
 import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
 
@@ -18,27 +18,25 @@ function App() {
 
   return (
     <Router>
-      {/* Global toaster */} 
       <Toaster position="top-right" richColors />
 
       <Routes>
         {storeId ? (
-          // 👉 Storefront routes for subdomain users
+          // Storefront pathing (subdomain or dev /store/:storeId)
           <>
             <Route path="/" element={<Storefront storeId={storeId} />} />
             <Route path="/cart" element={<Cart storeId={storeId} />} />
-            <Route path="/product/:id" element={<Storefront storeId={storeId} />} />
-            {/* Add more storefront routes here as needed */}
+            <Route path="/product/:id" element={<Products storeId={storeId} />} />
+            {/* fallback if someone uses /store/:storeId style in dev */}
+            <Route path="/store/:storeid/*" element={<Storefront />} />
           </>
         ) : (
-          // 👉 Main app routes for business users and visitors
+          // Main application routes
           <>
-            {/* Public Pages */}
             <Route path="/" element={<Home />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
 
-            {/* Protected Business Pages (wrap in ThemeProvider) */}
             <Route
               path="/dashboard"
               element={
@@ -56,7 +54,7 @@ function App() {
               }
             />
             <Route
-              path="/settings"
+              path="/settings/*"
               element={
                 <ThemeProvider>
                   <Settings />
