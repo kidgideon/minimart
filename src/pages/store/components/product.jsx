@@ -11,6 +11,9 @@ import Services from "./services";
 import ProductCard from "./productCard";
 import Footer from "./footer";
 import useStoreTheme from "../../../hooks/useStoreTheme";
+import { Helmet } from "react-helmet-async";
+import fallback from "../../../images/no_bg.png";
+
 
 const ProductDetail = ({ storeId }) => {
   const { id } = useParams();
@@ -197,6 +200,17 @@ const ProductDetail = ({ storeId }) => {
 }
 
   return (
+    <>
+     <Helmet>
+  <title>{product?.name || "Product"} | {biz?.businessName || "Minimart"}</title>
+  <meta name="description" content={product?.description || "Explore amazing products on Minimart."} />
+  <meta property="og:title" content={`${product?.name || "Product"} | ${biz?.businessName || "Minimart"}`} />
+  <meta property="og:description" content={product?.description || "Check out this product on Minimart."} />
+  <meta property="og:image" content={product?.images?.[0] || fallback} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href={biz?.customTheme?.logo || fallback} />
+</Helmet>
+
     <div className={styles.wrapper}>
       <Navbar storeId={storeId} />
       <div className={styles.top}>
@@ -264,9 +278,10 @@ const ProductDetail = ({ storeId }) => {
         <Featured storeId={storeId} />
         <Products storeId={storeId} />
         <Services storeId={storeId} />
-        <Footer />
+        <Footer storeId={storeId}/>
       </div>
     </div>
+    </>
   );
 };
 
