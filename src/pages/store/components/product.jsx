@@ -1,15 +1,25 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./product.module.css";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../hooks/firebase";
 import { v4 as uuidv4 } from "uuid";
+import { Navigate, Link } from "react-router-dom";
 import Navbar from "./navbar";
 import Featured from "./featured";
 import Products from "./products";
 import Services from "./services";
 import ProductCard from "./productCard";
 import Footer from "./footer";
+
+
+const DEFAULT_PRIMARY = "#1C2230";
+const DEFAULT_SECONDARY = "#43B5F4";
+
+const applyThemeToRoot = (primary, secondary) => {
+  document.documentElement.style.setProperty("--storePrimary", primary || DEFAULT_PRIMARY);
+  document.documentElement.style.setProperty("--storeSecondary", secondary || DEFAULT_SECONDARY);
+};
 
 const ProductDetail = ({ storeId }) => {
   const { id } = useParams();
@@ -20,9 +30,52 @@ const ProductDetail = ({ storeId }) => {
   const [liked, setLiked] = useState(false);
   const [likeDisabled, setLikeDisabled] = useState(false);
   const [quantity, setQuantity] = useState(0);
+  const navigate = useNavigate();
 
   const cartKey = `cart_${storeId}`;
   const localLikeKey = `${product?._ft}_${id}`;
+
+   
+     useEffect(() => {
+       if (!storeId) {
+         navigate("/");
+         return;
+       }
+   
+       const fetch = async () => {
+         try {
+           const bizRef = doc(db, "businesses", storeId);
+           const snap = await getDoc(bizRef);
+           if (!snap.exists()) {
+             toast.error("Store not found.");
+             navigate("/");
+             return;
+           }
+           const data = snap.data();
+           setBusiness(data);
+   
+           // Determine theme colors: if pro with colors, use theirs; else fallback to defaults
+           let primary = DEFAULT_PRIMARY;
+           let secondary = DEFAULT_SECONDARY;
+   
+           if (data.plan?.plan === "pro" && data.customTheme) {
+             if (data.customTheme.primaryColor?.trim()) primary = data.customTheme.primaryColor;
+             if (data.customTheme.secondaryColor?.trim()) secondary = data.customTheme.secondaryColor;
+           }
+   
+           applyThemeToRoot(primary, secondary);
+         } catch (err) {
+           console.error("Error loading storefront:", err);
+           toast.error("Failed to load store.");
+           navigate("/");
+         } finally {
+           setLoading(false);
+         }
+       };
+   
+       fetch();
+     }, [storeId, navigate]);
+   
 
   useEffect(() => {
     const fetchData = async () => {
