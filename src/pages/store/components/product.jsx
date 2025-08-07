@@ -4,7 +4,6 @@ import styles from "./product.module.css";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../hooks/firebase";
 import { v4 as uuidv4 } from "uuid";
-import { Navigate, Link } from "react-router-dom";
 import Navbar from "./navbar";
 import Featured from "./featured";
 import Products from "./products";
