@@ -9,7 +9,7 @@ import Settings from '../businessPages/settings';
 import Appearance from '../businessPages/appearance';
 import Storefront from './pages/store/storefront';
 import Cart from './pages/store/cart';
-import Products from '../businessComponent/products';
+import ProductDetail from './pages/store/components/product';
 import { ThemeProvider } from './ThemeContext';
 import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
 
@@ -26,7 +26,7 @@ function App() {
           <>
             <Route path="/" element={<Storefront storeId={storeId} />} />
             <Route path="/cart" element={<Cart storeId={storeId} />} />
-            <Route path="/product/:id" element={<Products storeId={storeId} />} />
+            <Route path="/product/:id" element={<ProductDetail storeId={storeId} />} />
             {/* fallback if someone uses /store/:storeId style in dev */}
             <Route path="/store/:storeid/*" element={<Storefront />} />
           </>

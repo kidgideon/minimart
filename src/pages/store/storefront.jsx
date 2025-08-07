@@ -12,6 +12,7 @@ import styles from "./storefront.module.css"
 import Latest from "./components/latest";
 import Products from "./components/products";
 import Services from "./components/services";
+import Footer from "./components/footer";
 
 const DEFAULT_PRIMARY = "#1C2230";
 const DEFAULT_SECONDARY = "#43B5F4";
@@ -84,11 +85,12 @@ const Storefront = ({ storeId: propStoreId }) => {
       {/* Example usage: show store name */}
       <Navbar storeId={storeId}/>
       <Banner storeId={storeId}/>
-      <Menu/>
+      <Menu storeId={storeId}/>
       <Featured storeId={storeId}/>
       <Latest storeId={storeId}/>
       <Products storeId={storeId}/>
       <Services storeId={storeId}/>
+      <Footer storeId={storeId}/>
     </div>
   );
 };
