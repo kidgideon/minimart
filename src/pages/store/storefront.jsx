@@ -1,18 +1,16 @@
-// pages/store/Storefront.jsx
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../hooks/firebase"; // adjust path if needed
 import { toast } from "sonner";
 import Navbar from "./components/navbar";
 import Banner from "./components/banner";
 import Menu from "./components/menu";
 import Featured from "./components/featured";
-import styles from "./storefront.module.css"
 import Latest from "./components/latest";
 import Products from "./components/products";
 import Services from "./components/services";
 import Footer from "./components/footer";
+import styles from "./storefront.module.css";
+import useStoreTheme from "../../hooks/useStoreTheme";
 
 const DEFAULT_PRIMARY = "#1C2230";
 const DEFAULT_SECONDARY = "#43B5F4";
@@ -25,72 +23,51 @@ const applyThemeToRoot = (primary, secondary) => {
 const Storefront = ({ storeId: propStoreId }) => {
   const navigate = useNavigate();
   const params = useParams();
-  // support both subdomain and /store/:storeId path
   const storeId = propStoreId || params.storeid;
-  const [loading, setLoading] = useState(true);
-  const [business, setBusiness] = useState(null);
+
+  const { biz, loading, error } = useStoreTheme(storeId);
 
   useEffect(() => {
     if (!storeId) {
       navigate("/");
-      return;
     }
+  }, [storeId]);
 
-    const fetch = async () => {
-      try {
-        const bizRef = doc(db, "businesses", storeId);
-        const snap = await getDoc(bizRef);
-        if (!snap.exists()) {
-          toast.error("Store not found.");
-          navigate("/");
-          return;
-        }
-        const data = snap.data();
-        setBusiness(data);
+  useEffect(() => {
+    if (biz) {
+      const primary = biz.customTheme?.primaryColor?.trim() || DEFAULT_PRIMARY;
+      const secondary = biz.customTheme?.secondaryColor?.trim() || DEFAULT_SECONDARY;
+      applyThemeToRoot(primary, secondary);
+    }
+  }, [biz]);
 
-        // Determine theme colors: if pro with colors, use theirs; else fallback to defaults
-        let primary = DEFAULT_PRIMARY;
-        let secondary = DEFAULT_SECONDARY;
-
-        if (data.plan?.plan === "pro" && data.customTheme) {
-          if (data.customTheme.primaryColor?.trim()) primary = data.customTheme.primaryColor;
-          if (data.customTheme.secondaryColor?.trim()) secondary = data.customTheme.secondaryColor;
-        }
-
-        applyThemeToRoot(primary, secondary);
-      } catch (err) {
-        console.error("Error loading storefront:", err);
-        toast.error("Failed to load store.");
-        navigate("/");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetch();
-  }, [storeId, navigate]);
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load store.");
+      navigate("/");
+    }
+  }, [error]);
 
   if (loading) {
     return (
-      <div style={{ minHeight: "60vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", width: "100%"}}>
         <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 32 }}></i>
       </div>
     );
   }
 
-  if (!business) return null; // redirection already handled
+  if (!biz) return null;
 
   return (
-    <div storeId={storeId} className={styles.storeInterface}>
-      {/* Example usage: show store name */}
-      <Navbar storeId={storeId}/>
-      <Banner storeId={storeId}/>
-      <Menu storeId={storeId}/>
-      <Featured storeId={storeId}/>
-      <Latest storeId={storeId}/>
-      <Products storeId={storeId}/>
-      <Services storeId={storeId}/>
-      <Footer storeId={storeId}/>
+    <div storeid={storeId} className={styles.storeInterface}>
+      <Navbar storeId={storeId} />
+      <Banner storeId={storeId} />
+      <Menu storeId={storeId} />
+      <Featured storeId={storeId} />
+      <Latest storeId={storeId} />
+      <Products storeId={storeId} />
+      <Services storeId={storeId} />
+      <Footer storeId={storeId} />
     </div>
   );
 };

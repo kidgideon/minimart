@@ -22,7 +22,6 @@ function App() {
 
       <Routes>
         {storeId ? (
-          // Storefront pathing (subdomain or dev /store/:storeId)
           <>
             <Route path="/" element={<Storefront storeId={storeId} />} />
             <Route path="/cart" element={<Cart storeId={storeId} />} />

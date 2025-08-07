@@ -10,89 +10,44 @@ import Products from "./products";
 import Services from "./services";
 import ProductCard from "./productCard";
 import Footer from "./footer";
-
-
-const DEFAULT_PRIMARY = "#1C2230";
-const DEFAULT_SECONDARY = "#43B5F4";
-
-const applyThemeToRoot = (primary, secondary) => {
-  document.documentElement.style.setProperty("--storePrimary", primary || DEFAULT_PRIMARY);
-  document.documentElement.style.setProperty("--storeSecondary", secondary || DEFAULT_SECONDARY);
-};
+import useStoreTheme from "../../../hooks/useStoreTheme";
 
 const ProductDetail = ({ storeId }) => {
   const { id } = useParams();
-  const [biz, setBiz] = useState(null);
+  const navigate = useNavigate();
+
   const [product, setProduct] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [curImg, setCurImg] = useState(0);
   const [liked, setLiked] = useState(false);
   const [likeDisabled, setLikeDisabled] = useState(false);
   const [quantity, setQuantity] = useState(0);
-  const navigate = useNavigate();
+
+  const { biz, loading: themeLoading, error: themeError } = useStoreTheme(storeId);
 
   const cartKey = `cart_${storeId}`;
   const localLikeKey = `${product?._ft}_${id}`;
 
-   
-     useEffect(() => {
-       if (!storeId) {
-         navigate("/");
-         return;
-       }
-   
-       const fetch = async () => {
-         try {
-           const bizRef = doc(db, "businesses", storeId);
-           const snap = await getDoc(bizRef);
-           if (!snap.exists()) {
-             toast.error("Store not found.");
-             navigate("/");
-             return;
-           }
-           const data = snap.data();
-           setBusiness(data);
-   
-           // Determine theme colors: if pro with colors, use theirs; else fallback to defaults
-           let primary = DEFAULT_PRIMARY;
-           let secondary = DEFAULT_SECONDARY;
-   
-           if (data.plan?.plan === "pro" && data.customTheme) {
-             if (data.customTheme.primaryColor?.trim()) primary = data.customTheme.primaryColor;
-             if (data.customTheme.secondaryColor?.trim()) secondary = data.customTheme.secondaryColor;
-           }
-   
-           applyThemeToRoot(primary, secondary);
-         } catch (err) {
-           console.error("Error loading storefront:", err);
-           toast.error("Failed to load store.");
-           navigate("/");
-         } finally {
-           setLoading(false);
-         }
-       };
-   
-       fetch();
-     }, [storeId, navigate]);
-   
+  useEffect(() => {
+    if (!storeId) {
+      navigate("/");
+    }
+  }, [storeId]);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!biz) return;
+
       const bizRef = doc(db, "businesses", storeId);
-      const snap = await getDoc(bizRef);
-      if (!snap.exists()) return;
 
-      const data = snap.data();
-      setBiz(data);
-
-      let found = (data.products || []).find(p => p.prodId === id);
+      let found = (biz.products || []).find(p => p.prodId === id);
       if (found) {
         setProduct({ ...found, _ft: "product" });
         await trackView(bizRef, "products", "prodId");
         return;
       }
 
-      found = (data.services || []).find(s => s.serviceId === id);
+      found = (biz.services || []).find(s => s.serviceId === id);
       if (found) {
         setProduct({ ...found, _ft: "service" });
         await trackView(bizRef, "services", "serviceId");
@@ -100,27 +55,23 @@ const ProductDetail = ({ storeId }) => {
     };
 
     fetchData();
-  }, [storeId, id]);
+  }, [storeId, id, biz]);
 
   useEffect(() => {
     if (!product || !biz) return;
 
-    // Set like status
     const likedProducts = JSON.parse(localStorage.getItem("likedProducts")) || [];
     if (likedProducts.includes(localLikeKey)) {
       setLiked(true);
       setLikeDisabled(true);
     }
 
-    // Load similar products
     if (product._ft === "product") {
-      const sameCategory = (biz.products || []).filter(
-        p => p.category === product.category && p.prodId !== id
-      ).map(p => ({ ...p, _ft: "product" }));
-
+      const sameCategory = (biz.products || [])
+        .filter(p => p.category === product.category && p.prodId !== id)
+        .map(p => ({ ...p, _ft: "product" }));
       setSimilarProducts(sameCategory);
     }
-
   }, [product, biz]);
 
   useEffect(() => {
@@ -212,33 +163,38 @@ const ProductDetail = ({ storeId }) => {
     setQuantity(cart[id] || 0);
     dispatchCartUpdate();
   };
-const handleNativeShare = async () => {
-  if (!navigator.share) return alert("Native share not supported");
 
-  try {
-    const res = await fetch(product.images?.[0], { mode: 'cors' });
+  const handleNativeShare = async () => {
+    if (!navigator.share) return alert("Native share not supported");
 
-    if (!res.ok) throw new Error("Image fetch failed");
+    try {
+      const res = await fetch(product.images?.[0], { mode: 'cors' });
+      if (!res.ok) throw new Error("Image fetch failed");
 
-    const blob = await res.blob();
-    const file = new File([blob], "product.jpg", { type: blob.type });
+      const blob = await res.blob();
+      const file = new File([blob], "product.jpg", { type: blob.type });
 
-    await navigator.share({
-      title: product.name,
-      text: `Check out this ${product._ft} on Minimart`,
-      url: window.location.href,
-      files: [file],
-    });
-  } catch (err) {
-    console.error("Share failed:", err);
-    alert("Share failed: " + err.message);
-  }
-};
+      await navigator.share({
+        title: product.name,
+        text: `Check out this ${product._ft} on Minimart`,
+        url: window.location.href,
+        files: [file],
+      });
+    } catch (err) {
+      console.error("Share failed:", err);
+      alert("Share failed: " + err.message);
+    }
+  };
 
-
-
-
-  if (!product || !biz) return <p>Loading...</p>;
+  if (themeLoading || !product) {
+    return (<div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", width: "100%"}}>
+        <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 32 }}></i>
+      </div>)
+} if (themeError) {
+  return ( <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", width: "100%"}}>
+      error loading
+      </div>)
+}
 
   return (
     <div className={styles.wrapper}>
@@ -308,7 +264,7 @@ const handleNativeShare = async () => {
         <Featured storeId={storeId} />
         <Products storeId={storeId} />
         <Services storeId={storeId} />
-        <Footer/>
+        <Footer />
       </div>
     </div>
   );
