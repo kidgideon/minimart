@@ -9,6 +9,7 @@ import Featured from "./featured";
 import Products from "./products";
 import Services from "./services";
 import ProductCard from "./productCard";
+import Footer from "./footer";
 
 const ProductDetail = ({ storeId }) => {
   const { id } = useParams();
@@ -255,6 +256,7 @@ const handleNativeShare = async () => {
         <Featured storeId={storeId} />
         <Products storeId={storeId} />
         <Services storeId={storeId} />
+        <Footer/>
       </div>
     </div>
   );

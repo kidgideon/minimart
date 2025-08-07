@@ -9,9 +9,13 @@ export function getStoreIdFromSubdomain() {
   }
 
   const parts = host.split(".");
-  // e.g., velvetcakes.minimart.ng
-  if (parts.length >= 3 && parts[1] === "minimart" && parts[2] === "ng") {
-    return parts[0];
+
+  // On production, ensure it's a subdomain like velvetcakes.minimart.ng
+  if (parts.length === 3 && parts[1] === "minimart" && parts[2] === "ng") {
+    const subdomain = parts[0];
+    if (subdomain && subdomain !== "www" && subdomain !== "minimart") {
+      return subdomain;
+    }
   }
 
   return null;
