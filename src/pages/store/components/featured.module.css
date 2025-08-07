@@ -23,9 +23,10 @@
 }
 
 .slidableArea {
+   width: 95%;
   display: flex;
-  overflow-x: auto;
   gap: 1rem;
+  overflow-x: scroll;
   padding-bottom: 1rem;
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "./services.module.css";
 import { db } from "../../../hooks/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import ProductCard from "./productCard";
 
 const Services = ({ storeId }) => {
   const [services, setServices] = useState([]);
@@ -75,21 +76,11 @@ const Services = ({ storeId }) => {
 
       <div className={styles.grid}>
         {filteredServices.map(service => (
-          <div key={service.serviceId} className={styles.card}>
-            <div
-              className={styles.image}
-              style={{
-                backgroundImage: `url(${service.images?.[0] || "/default-service.jpg"})`,
-              }}
-            />
-            <div className={styles.details}>
-              <h3>{service.name}</h3>
-              <p>{service.description}</p>
-              <span className={styles.price}>
-                {service.price ? `₦${service.price.toLocaleString()}` : "Contact for price"}
-              </span>
-            </div>
-          </div>
+          <ProductCard
+            key={service.serviceId}
+            storeId={storeId}
+            item={{ ...service, _ft: "service" }} // Inject _ft for ProductCard compatibility
+          />
         ))}
       </div>
     </div>
