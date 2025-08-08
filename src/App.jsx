@@ -12,6 +12,8 @@ import Cart from './pages/store/cart';
 import ProductDetail from './pages/store/components/product';
 import { ThemeProvider } from './ThemeContext';
 import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
+import Checkout from './pages/store/checkout';
+import Order from './pages/store/order';
 
 function App() {
   const storeId = getStoreIdFromSubdomain();
@@ -25,6 +27,8 @@ function App() {
           <>
             <Route path="/" element={<Storefront storeId={storeId} />} />
             <Route path="/cart" element={<Cart storeId={storeId} />} />
+            <Route path="/checkout/:orderId" element={<Checkout storeId={storeId} />} />
+            <Route path="/order/:orderId" element={<Order storeId={storeId} />} />
             <Route path="/product/:id" element={<ProductDetail storeId={storeId} />} />
             {/* fallback if someone uses /store/:storeId style in dev */}
             <Route path="/store/:storeid/*" element={<Storefront />} />

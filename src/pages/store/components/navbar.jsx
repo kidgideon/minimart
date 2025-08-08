@@ -4,6 +4,7 @@ import { db } from "../../../hooks/firebase";
 import defaultLogo from "../../../images/no_bg.png";
 import styles from "./navbar.module.css";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 
 function useLocalCartCount(storeId) {
   const storageKey = `cart_${storeId}`;
@@ -154,7 +155,7 @@ const Navbar = ({ storeId }) => {
           }
           transition={{ duration: 0.6 }}
         >
-          <i className="fa-solid fa-cart-shopping" />
+         <Link to={"/cart"}><i  className="fa-solid fa-cart-shopping" /></Link>
           <AnimatePresence>
             {cartCount > 0 && (
               <motion.div
