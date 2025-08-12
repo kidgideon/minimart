@@ -27,8 +27,11 @@ function App() {
           <>
             <Route path="/" element={<Storefront storeId={storeId} />} />
             <Route path="/cart" element={<Cart storeId={storeId} />} />
+             <Route path="store/:storeid/cart" element={<Cart storeId={storeId} />} />
             <Route path="/checkout/:orderId" element={<Checkout storeId={storeId} />} />
+           <Route path="store/:storeid/checkout/:orderId" element={<Checkout storeId={storeId} />} />
             <Route path="/order/:orderId" element={<Order storeId={storeId} />} />
+            <Route path="store/:storeid/order/:orderId" element={<Order storeId={storeId} />} />
             <Route path="/product/:id" element={<ProductDetail storeId={storeId} />} />
             {/* fallback if someone uses /store/:storeId style in dev */}
             <Route path="/store/:storeid/*" element={<Storefront />} />

@@ -1,24 +1,30 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import styles from "./checkout.module.css";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import { db } from "../../hooks/firebase";
 import { toast } from "sonner";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  arrayUnion,
-  setDoc
-} from "firebase/firestore";
-import { v4 as uuidv4 } from "uuid";
+import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import useStoreTheme from "../../hooks/useStoreTheme";
+import fallback from "../../images/no_bg.png";
 
-const Checkout = ({ storeId }) => {
+const DEFAULT_PRIMARY = "#1C2230";
+const DEFAULT_SECONDARY = "#43B5F4";
+
+const applyThemeToRoot = (primary, secondary) => {
+  document.documentElement.style.setProperty("--storePrimary", primary || DEFAULT_PRIMARY);
+  document.documentElement.style.setProperty("--storeSecondary", secondary || DEFAULT_SECONDARY);
+};
+
+const Checkout = ({ storeId: propStoreId }) => {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const storeId = propStoreId || useParams().storeid;
 
-  const [bizData, setBizData] = useState(null);
+  const { biz, loading, error } = useStoreTheme(storeId);
+
   const [checkoutData, setCheckoutData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [selectedMethod, setSelectedMethod] = useState(null);
@@ -28,31 +34,36 @@ const Checkout = ({ storeId }) => {
   const [proofImage, setProofImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch business + checkout data
   useEffect(() => {
-    const fetchData = async () => {
-      const bizSnap = await getDoc(doc(db, "businesses", storeId));
-      if (bizSnap.exists()) {
-        setBizData(bizSnap.data());
-      }
+    if (!storeId) navigate("/");
 
-      // ✅ Always load from persistent checkout key
-      const checkoutLS = localStorage.getItem(`checkout_${storeId}`);
-      if (checkoutLS) {
-        const parsedData = JSON.parse(checkoutLS);
-        setCheckoutData(parsedData);
+    if (biz) {
+      const primary = biz.customTheme?.primaryColor?.trim() || DEFAULT_PRIMARY;
+      const secondary = biz.customTheme?.secondaryColor?.trim() || DEFAULT_SECONDARY;
+      applyThemeToRoot(primary, secondary);
+    }
+  }, [storeId, biz]);
 
-        // ✅ Calculate total dynamically
-        const amount = parsedData.reduce((sum, item) => {
-          const price = item.price || 0;
-          const qty = item.quantity || 1;
-          return sum + price * qty;
-        }, 0);
-        setTotalAmount(amount);
-      }
-    };
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load store.");
+      navigate("/");
+    }
+  }, [error]);
 
-    fetchData();
+  useEffect(() => {
+    const checkoutLS = localStorage.getItem(`checkout_${storeId}`);
+    if (checkoutLS) {
+      const parsedData = JSON.parse(checkoutLS);
+      setCheckoutData(parsedData);
+
+      const amount = parsedData.reduce((sum, item) => {
+        const price = item.price || 0;
+        const qty = item.quantity || 1;
+        return sum + price * qty;
+      }, 0);
+      setTotalAmount(amount);
+    }
   }, [storeId]);
 
   const handleSelectMethod = (method) => {
@@ -76,7 +87,7 @@ const Checkout = ({ storeId }) => {
   const handleProofUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProofImage(URL.createObjectURL(file)); // preview only
+      setProofImage(URL.createObjectURL(file));
     }
   };
 
@@ -88,49 +99,77 @@ const Checkout = ({ storeId }) => {
 
     setIsSubmitting(true);
 
-    // ✅ 1. Remove local storage items (cart + checkout)
-    localStorage.removeItem(`cart_${storeId}`);
-    localStorage.removeItem(`checkout_${storeId}`);
+    try {
+      localStorage.removeItem(`cart_${storeId}`);
+      localStorage.removeItem(`checkout_${storeId}`);
 
-    // ✅ 2. Save orderId to businesses.orders
-    const bizRef = doc(db, "businesses", storeId);
-    await updateDoc(bizRef, {
-      orders: arrayUnion({
+      const bizRef = doc(db, "businesses", storeId);
+      await updateDoc(bizRef, {
+        orders: arrayUnion({
+          orderId,
+          date: new Date().toISOString()
+        }),
+        notifications: arrayUnion({
+          date: new Date().toISOString(),
+          link: "/orders",
+          read: false,
+          text: `New order ${orderId} has been placed`
+        })
+      });
+
+      const orderRef = doc(db, "orders", orderId);
+      await setDoc(orderRef, {
         orderId,
-        date: new Date().toISOString()
-      }),
-      notifications: arrayUnion({
+        storeId,
+        user: { fullName, phoneNumber },
+        products: checkoutData,
         date: new Date().toISOString(),
-        link: "/orders",
-        read: false,
-        text: `New order ${orderId} has been placed`
-      })
-    });
+        amount: totalAmount,
+        status: "pending",
+        paymentMethod: selectedMethod
+      });
 
-    // ✅ 3. Save full order in orders collection
-    const orderRef = doc(db, "orders", orderId);
-    await setDoc(orderRef, {
-      orderId,
-      storeId,
-      user: { fullName, phoneNumber },
-      products: checkoutData,
-      date: new Date().toISOString(),
-      amount: totalAmount,
-      status: "pending",
-      paymentMethod: selectedMethod
-    });
-
-    // ✅ 4. Navigate to receipt
-    navigate(`/order/${orderId}`);
+      navigate(`/order/${orderId}`);
+    } catch (err) {
+      toast.error("Failed to submit order");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
+        <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 32 }}></i>
+      </div>
+    );
+  }
+
+  if (!biz) return null;
+
+  const title = `${biz.businessName || "Minimart Store"} - Checkout`;
+  const description = biz.otherInfo?.description || "Complete your purchase of quality products and services";
+  const logo = biz.customTheme?.logo || fallback;
+  const url = `https://${storeId}.minimart.ng/checkout`;
 
   return (
     <div className={styles.checkoutInterface}>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={logo} />
+        <meta property="og:url" content={url} />
+        <meta name="theme-color" content={biz.customTheme?.primaryColor || DEFAULT_PRIMARY} />
+        <link rel="icon" type="image/png" href={logo || fallback} />
+      </Helmet>
+
       <Navbar storeId={storeId} />
 
       <div className={styles.warningTemplate}>
-        Note: You must transfer the exact amount to one of the listed accounts below 
-        and upload proof of payment. Your payment information must match the name 
+        Note: You must transfer the exact amount to one of the listed accounts below
+        and upload proof of payment. Your payment information must match the name
         used for the transfer.
       </div>
 
@@ -139,7 +178,7 @@ const Checkout = ({ storeId }) => {
       </div>
 
       <div className={styles.paymentAccounts}>
-        {bizData?.paymentMethods?.map((method, idx) => (
+        {biz?.paymentMethods?.map((method, idx) => (
           <div
             key={idx}
             className={styles.method}
@@ -155,7 +194,6 @@ const Checkout = ({ storeId }) => {
         ))}
       </div>
 
-      {/* User Info Modal */}
       {modalStage === "userinfo" && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
@@ -177,7 +215,6 @@ const Checkout = ({ storeId }) => {
         </div>
       )}
 
-      {/* Transfer Details Modal */}
       {modalStage === "transfer" && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
@@ -213,7 +250,6 @@ const Checkout = ({ storeId }) => {
         </div>
       )}
 
-      {/* Proof Modal */}
       {modalStage === "proof" && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
