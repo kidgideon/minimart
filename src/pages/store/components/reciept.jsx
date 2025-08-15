@@ -8,9 +8,9 @@ import { toPng } from "html-to-image";
 import fallback from "../../../images/no_bg.png";
 
 const statusMap = {
-  pending: { color: "#ffee00ff", icon: "fa-solid fa-hourglass-half", label: "Pending" },
-  successful: { color: "#22c55e", icon: "fa-solid fa-check", label: "Successful" },
-  declined: { color: "#ef4444", icon: "fa-solid fa-circle-xmark", label: "Declined" },
+  pending: { color: "#000000ff", icon: "fa-solid fa-hourglass-half", label: "Pending" },
+  successful: { color: "#000000ff", icon: "fa-solid fa-check", label: "Successful" },
+  declined: { color: "#000000ff", icon: "fa-solid fa-circle-xmark", label: "Declined" },
 };
 
 const DEFAULT_PRIMARY = "#1C2230";
@@ -92,6 +92,7 @@ const Receipt = ({ storeId, orderId }) => {
     }
   };
 
+
   if (loading) {
     return (
       <div className={styles.interface}>
@@ -129,7 +130,7 @@ const Receipt = ({ storeId, orderId }) => {
          <div className={styles.receiptTop}></div>
      {/* Watermark */}
 <div className={styles.watermark} >
-  <img src={biz.logo || fallback} alt="Logo" className={styles.logo} />
+  <img src={biz.customTheme.logo || fallback} alt="Logo" className={styles.logo} />
 </div>
 
 
@@ -137,15 +138,15 @@ const Receipt = ({ storeId, orderId }) => {
             {/* HEADER */}
             <div className={styles.top}>
  <div className={styles.header}>
-              <img src={biz.logo || fallback} alt="Logo" className={styles.logo} />
-              <h1>{biz.businessName}</h1>
-              <small>{biz.businessEmail}</small>
+   <div className={styles.imgDiv}><img src={biz.customTheme.logo || fallback} alt="Logo" className={styles.logo} /></div>
+              <p className={styles.bizName}>{biz.businessName}</p>
+              <p className={styles.bizEmail}>{biz.businessEmail}</p>
             </div>
 
             {/* ORDER INFO */}
             <div className={styles.meta}>
-              <div><strong>Date:</strong> {formatDate(order.date)}</div>
-              <div><strong>Order ID:</strong> {orderId}</div>
+              <div>{formatDate(order.date)}</div>
+              <div> {orderId}</div>
               <div className={styles.status}>
                 <i className={statusData.icon} style={{ color: statusData.color, marginRight: "6px" }}></i>
                 <p>{statusData.label}</p>
@@ -175,7 +176,8 @@ const Receipt = ({ storeId, orderId }) => {
 
             <hr className={styles.divider} />
 
-            {/* CUSTOMER INFO */}
+            <div >
+ {/* CUSTOMER INFO */}
             {order.user && (
               <div className={styles.customer}>
                 <h3>Customer</h3>
@@ -186,6 +188,7 @@ const Receipt = ({ storeId, orderId }) => {
 
             <div className={styles.receiptFooter}>
               Thank you for shopping with {biz.businessName}
+            </div>
             </div>
           </div>
 
