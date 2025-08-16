@@ -16,6 +16,7 @@ import Checkout from './pages/store/checkout';
 import Order from './pages/store/order';
 import Payments from '../businessPages/payments';
 import Business from '../businessPages/business';
+import Security from '../businessPages/security';
 
 function App() {
   const storeId = getStoreIdFromSubdomain();
@@ -92,6 +93,15 @@ function App() {
               element={
                 <ThemeProvider>
                  <Business/>
+                </ThemeProvider>
+              }
+            />
+
+             <Route
+              path="/settings/security"
+              element={
+                <ThemeProvider>
+                 <Security/>
                 </ThemeProvider>
               }
             />

@@ -1,0 +1,110 @@
+.sectionArea {
+    width: 85%;
+    max-width: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.buttonArea {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.sectionArea p {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    margin: 10px;
+}
+.sectionArea button {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.sectionArea button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.dangerZone {
+  border: 1px solid red;
+  background-color: #fff5f5;
+}
+
+.dangerZone p {
+  color: red;
+}
+
+.dangerZone button {
+    background: gray;
+}
+
+.sectionArea button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.modal h3 {
+  margin-bottom: 10px;
+}
+
+.modalActions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cancelBtn {
+  background: #e5e5e5;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.confirmBtn {
+  background: red;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
