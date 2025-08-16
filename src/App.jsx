@@ -14,6 +14,8 @@ import { ThemeProvider } from './ThemeContext';
 import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
 import Checkout from './pages/store/checkout';
 import Order from './pages/store/order';
+import Payments from '../businessPages/payments';
+import Business from '../businessPages/business';
 
 function App() {
   const storeId = getStoreIdFromSubdomain();
@@ -72,6 +74,24 @@ function App() {
               element={
                 <ThemeProvider>
                   <Appearance />
+                </ThemeProvider>
+              }
+            />
+
+             <Route
+              path="/settings/payments"
+              element={
+                <ThemeProvider>
+                 <Payments/>
+                </ThemeProvider>
+              }
+            />
+
+             <Route
+              path="/settings/business"
+              element={
+                <ThemeProvider>
+                 <Business/>
                 </ThemeProvider>
               }
             />

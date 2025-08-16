@@ -10,33 +10,12 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import Logo from "../src/images/no_bg.png"
 import { toast } from "sonner";
 
-const DEFAULT_PRIMARY = "#1C2230";
-const DEFAULT_SECONDARY = "#43B5F4";
+
 
 const Appearance = () => {
   const [logoUrl, setLogoUrl] = useState("");
-  const [primaryColor, setPrimaryColor] = useState(DEFAULT_PRIMARY);
-  const [secondaryColor, setSecondaryColor] = useState(DEFAULT_SECONDARY);
   const [showColorModal, setShowColorModal] = useState(false);
   const [businessId, setBusinessId] = useState(null);
-
-  useEffect(() => {
-    const fetchTheme = async () => {
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) return;
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        const bizId = userDoc.data()?.businessId;
-        setBusinessId(bizId);
-
-        const bizDoc = await getDoc(doc(db, "businesses", bizId));
-        const theme = bizDoc.data()?.customTheme;
-        if (theme?.logo) setLogoUrl(theme.logo);
-        if (theme?.primaryColor) setPrimaryColor(theme.primaryColor);
-        if (theme?.secondaryColor) setSecondaryColor(theme.secondaryColor);
-      });
-    };
-    fetchTheme();
-  }, []);
 
   const handleLogoChange = async (e) => {
     const file = e.target.files[0];
@@ -55,16 +34,6 @@ const Appearance = () => {
       setLogoUrl(url);
       toast.success("Logo updated!");
     });
-  };
-
-  const saveColors = async () => {
-    if (!businessId) return;
-    await updateDoc(doc(db, "businesses", businessId), {
-      "customTheme.primaryColor": primaryColor,
-      "customTheme.secondaryColor": secondaryColor
-    });
-    toast.success("Theme colors updated!");
-    setShowColorModal(false);
   };
 
   return (
@@ -97,7 +66,7 @@ const Appearance = () => {
                       width: 60,
                       height: 30,
                       borderRadius: 6,
-                      background: primaryColor,
+                      background: "var(--primary-color)",
                       border: "1px solid #ccc"
                     }}
                   ></div>
@@ -109,7 +78,7 @@ const Appearance = () => {
                       width: 60,
                       height: 30,
                       borderRadius: 6,
-                      background: secondaryColor,
+                      background: "var(--secondary-color)",
                       border: "1px solid #ccc"
                     }}
                   ></div>

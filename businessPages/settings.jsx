@@ -6,9 +6,6 @@ import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Link } from "react-router-dom";
 
-const DEFAULT_PRIMARY = "#1C2230";
-const DEFAULT_SECONDARY = "#43B5F4";
-
 const SETTINGS = [
   {
     icon: "fas fa-paint-brush",
@@ -38,66 +35,11 @@ const SETTINGS = [
     route: "/settings/business",
     keywords: ["business", "info", "name", "location", "contact", "description"],
   },
-  {
-    icon: "fas fa-credit-card",
-    main: "Billing & Plans",
-    sub: "Top up credits, upgrade plan",
-    route: "/settings/billing",
-    keywords: ["billing", "plan", "credit", "upgrade", "top up"],
-  },
-  {
-    icon: "fas fa-bell",
-    main: "Notifications",
-    sub: "Control email and in-app alerts",
-    route: "/settings/notifications",
-    keywords: ["notification", "alert", "email", "in-app"],
-  },
 ];
 
 const Settings = () => {
-  const [themeColors, setThemeColors] = useState({
-    primary: DEFAULT_PRIMARY,
-    secondary: DEFAULT_SECONDARY,
-  });
+  
   const [search, setSearch] = useState("");
-  const [plan, setPlan] = useState("free");
-
-  useEffect(() => {
-    let unsubscribed = false;
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-      if (!user || unsubscribed) return;
-      try {
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userDocRef);
-        if (!userSnap.exists()) throw new Error("User not found");
-        const { businessId } = userSnap.data();
-        if (!businessId) throw new Error("No businessId linked to user");
-        const bizDocRef = doc(db, "businesses", businessId);
-        const bizSnap = await getDoc(bizDocRef);
-        if (!bizSnap.exists()) throw new Error("Business not found");
-        const data = bizSnap.data();
-        const planType = data.plan?.plan || "free";
-        setPlan(planType);
-        let primary = DEFAULT_PRIMARY, secondary = DEFAULT_SECONDARY;
-        if (
-          planType === "pro" &&
-          data.customTheme?.primaryColor?.trim() &&
-          data.customTheme?.secondaryColor?.trim()
-        ) {
-          primary = data.customTheme.primaryColor;
-          secondary = data.customTheme.secondaryColor;
-        }
-        setThemeColors({ primary, secondary });
-      } catch {
-        setThemeColors({ primary: DEFAULT_PRIMARY, secondary: DEFAULT_SECONDARY });
-        setPlan("free");
-      }
-    });
-    return () => {
-      unsubscribed = true;
-      unsubscribeAuth();
-    };
-  }, []);
 
   // Filter settings by search
   const filteredSettings = useMemo(() => {
@@ -113,12 +55,7 @@ const Settings = () => {
 
   return (
     <div
-      className="container"
-      style={{
-        "--primary-color": themeColors.primary,
-        "--secondary-color": themeColors.secondary,
-      }}
-    >
+      className="container">
       <Navbar />
       <div className="displayArea">
         <div className={styles.interface}>
@@ -182,10 +119,10 @@ const Settings = () => {
       <style>
         {`
           .${styles.settingsBox}:hover, .${styles.settingsBox}:focus {
-            box-shadow: 0 4px 24px 0 rgba(67,181,244,0.10);
+            box-shadow: 0 4px 24px 0 rgba(187, 187, 187, 0.1);
             transform: translateY(-4px) scale(1.03);
             border-color: var(--secondary-color);
-            background: rgba(67,181,244,0.06);
+            background: rgba(170, 170, 170, 0.06);
           }
           .${styles.icon}:hover, .${styles.icon}:focus {
             color: var(--secondary-color);

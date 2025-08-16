@@ -127,6 +127,29 @@ const ProductCard = ({ storeId, item }) => {
       console.error("Error liking product:", err);
     }
   };
+const handleShare = async () => {
+  const shareUrl = `https://${storeId}.minimart.ng/product/${id}`;
+
+  try {
+    if (navigator.share) {
+      // Use Web Share API with title, text, and URL only
+      await navigator.share({
+        title: item.name,
+        text: item.description || "Check out this product",
+        url: shareUrl
+      });
+    } else {
+      // Fallback: copy link to clipboard
+      await navigator.clipboard.writeText(shareUrl);
+      alert("Link copied to clipboard!");
+    }
+  } catch (err) {
+    console.error("Share failed:", err);
+    alert("Unable to share this product.");
+  }
+};
+
+
 
   return (
     <div className={styles.product}>
@@ -136,6 +159,8 @@ const ProductCard = ({ storeId, item }) => {
           alt={item.name}
           onClick={() => navigate(`/product/${id}`)}
         />
+
+
         <div className={styles.sliderDots}>
           {images.map((_, i) => (
             <span
@@ -159,7 +184,15 @@ const ProductCard = ({ storeId, item }) => {
         <p className={styles.productName}>{item.name}</p>
         <p className={styles.price}>₦{(item.price || 0).toLocaleString()}</p>
         <p className={styles.description}>{item.description}</p>
-        <p className={styles.category}><span>{item.category}</span></p>
+      <div className={styles.catAndShare}>
+  <p className={styles.category}><span>{item.category}</span></p>
+  <i 
+    className="fa-solid fa-share-nodes"
+    onClick={handleShare}
+    style={{ cursor: "pointer" }}
+  ></i>
+</div>
+
 
         <div className={styles.btnArea}>
           {quantity > 0 ? (

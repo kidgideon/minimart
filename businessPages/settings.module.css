@@ -17,7 +17,7 @@
 }
 
 .interface h1 {
-    color: var(--secondary-color, #43B5F4);
+    color: var(--secondary-color);
 }
 
 .search input {
@@ -37,7 +37,7 @@
     border-bottom-right-radius: 5px;
     border: none;
     cursor: pointer;
-    background: var(--primary-color, #1C2230);
+    background: var(--primary-color);
     color: white;
 }
 
@@ -52,7 +52,7 @@
 }
 
 .settingsBox {
-    width: 250px;
+    width: 300px;
     height: 220px;
     display: flex;
     justify-content: center;

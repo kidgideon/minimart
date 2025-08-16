@@ -283,4 +283,10 @@
     padding: 1.2rem 0.5rem 1.2rem 0.5rem;
     max-width: 98vw;
   }
+
+  .texts h1 {
+    font-size: 2rem;
+  }
 }
+
+

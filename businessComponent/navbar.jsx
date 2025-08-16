@@ -18,8 +18,6 @@ const NAV_ITEMS = [
 	{ label: "Settings", icon: "fas fa-cog", path: "/settings" }
 ];
 
-const DEFAULT_SECONDARY = "#43B5F4";
-const DEFAULT_PRIMARY = "#1C2230";
 const PLACEHOLDER_LOGO = logo; // fallback image import
 
 const Navbar = () => {
@@ -33,7 +31,6 @@ const Navbar = () => {
 	const [bizNameLoading, setBizNameLoading] = useState(true);
 	const [plan, setPlan] = useState("");
 	const [planLoading, setPlanLoading] = useState(true);
-	const [themeColors, setThemeColors] = useState({ primary: DEFAULT_PRIMARY, secondary: DEFAULT_SECONDARY });
 	const [logoutLoading, setLogoutLoading] = useState(false);
 	const notifPanelRef = useRef(null);
 	const menuRef = useRef(null);
@@ -99,18 +96,6 @@ useEffect(() => {
       const planType = data.plan?.plan || "free";
       setPlan(planType);
       setPlanLoading(false);
-
-      // Theme Colors
-      let primary = DEFAULT_PRIMARY, secondary = DEFAULT_SECONDARY;
-      if (
-        planType === "pro" &&
-        data.customTheme?.primaryColor?.trim() &&
-        data.customTheme?.secondaryColor?.trim()
-      ) {
-        primary = data.customTheme.primaryColor;
-        secondary = data.customTheme.secondaryColor;
-      }
-      setThemeColors({ primary, secondary });
 
       // Logo
       if (data.customTheme?.logo) {
@@ -183,24 +168,21 @@ useEffect(() => {
 	const NavTab = ({ label, icon, path }) => {
     const active = location.pathname.startsWith(path);
     // Use default primary until themeColors.primary is different from DEFAULT_PRIMARY
-    const hoverColor =
-        themeColors.primary && themeColors.primary !== DEFAULT_PRIMARY
-            ? themeColors.primary
-            : DEFAULT_PRIMARY;
 
     return (
         <div
             className={styles.businessTab}
             style={{
-                background: active ? `var(--primary-color, ${hoverColor})` : undefined,
+                background: active ? `var(--primary-color)` : undefined,
                 color: active ? "#fff" : undefined,
                 cursor: "pointer",
-                transition: "background 0.2s"
+                transition: "background 0.2s",
+				border: 5,
             }}
             onClick={() => navigate(path)}
            onMouseEnter={e => {
   if (!active) {
-    e.currentTarget.style.background = themeColors.primary;
+    e.currentTarget.style.background = `var(--primary-color)`;
     e.currentTarget.style.color = "#fff";
   }
 }}
@@ -299,20 +281,6 @@ onMouseLeave={e => {
 		</AnimatePresence>
 	);
 
-	// Plan badge style helper
-	const getPlanBadgeStyle = () => ({
-		fontSize: 12,
-		padding: "2px 10px",
-		borderRadius: 8,
-		fontWeight: 600,
-		marginLeft: 8,
-		background: plan === "pro" ? themeColors.primary : "#eee",
-		color: plan === "pro" ? "#fff" : "#333",
-		border: plan === "pro" ? "none" : "1px solid #ccc",
-		textTransform: "uppercase",
-		letterSpacing: 1,
-		display: "inline-block"
-	});
 
 	// Sidebar (vertical nav)
 	const Sidebar = () => (
@@ -351,7 +319,7 @@ onMouseLeave={e => {
 						{/* Logo section */}
 						<div style={{ width: 70, height: 70, margin: "0 auto", borderRadius: "50%", overflow: "hidden", background: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
 							{bizLogoLoading ? (
-								<i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 28, color: themeColors.primary }}></i>
+								<i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 28, color: `var(--primary-color)`}}></i>
 							) : (
 								<img src={bizLogo} alt="companyLogo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
 							)}
@@ -363,11 +331,6 @@ onMouseLeave={e => {
 							) : (
 								<>
 									<span style={{ fontWeight: 600, fontSize: 16, color: "#222" }}>{bizName}</span>
-									{planLoading ? (
-										<i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 12, marginLeft: 8, color: "#888" }}></i>
-									) : (
-										<span style={getPlanBadgeStyle()}>{plan}</span>
-									)}
 								</>
 							)}
 						</div>
@@ -382,7 +345,7 @@ onMouseLeave={e => {
 							onClick={handleLogout}
 							disabled={logoutLoading}
 							style={{
-								background: themeColors.primary,
+								background: `var(--primary-color)`,
 								color: "#fff",
 								border: "none",
 								borderRadius: 8,
@@ -425,7 +388,7 @@ onMouseLeave={e => {
 					<div className={styles.notification}>
 						<i
 							className="fas fa-bell"
-							style={{ fontSize: 20, cursor: "pointer", color: notifOpen ? "var(--primary-color, #43B5F4)" : undefined }}
+							style={{ fontSize: 20, cursor: "pointer", color: notifOpen ? "var(--primary-Secondary" : undefined }}
 							onClick={() => setNotifOpen(v => !v)}
 						></i>
 						<NotificationPanelWrapper />

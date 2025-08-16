@@ -13,10 +13,17 @@ const statusMap = {
   declined: { color: "#000000ff", icon: "fa-solid fa-circle-xmark", label: "Declined" },
 };
 
+const contactIcons = {
+  whatsapp: "fa-brands fa-whatsapp",
+  facebook: "fa-brands fa-facebook",
+  instagram: "fa-brands fa-instagram",
+  tiktok: "fa-brands fa-tiktok",
+};
+
 const DEFAULT_PRIMARY = "#1C2230";
 const DEFAULT_SECONDARY = "#43B5F4";
 
-const Receipt = ({ storeId, orderId }) => {
+const Receipt = ({ storeId, orderId, showInfo }) => {
   const [biz, setBiz] = useState(null);
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,13 +58,12 @@ const Receipt = ({ storeId, orderId }) => {
 
   const handleDownload = async () => {
     if (!receiptRef.current) return;
-
     const dataUrl = await toPng(receiptRef.current, {
       pixelRatio: 3,
       cacheBust: true,
       quality: 1,
       canvasWidth: receiptRef.current.offsetWidth * 3,
-      canvasHeight: receiptRef.current.offsetHeight * 3
+      canvasHeight: receiptRef.current.offsetHeight * 3,
     });
 
     const link = document.createElement("a");
@@ -73,7 +79,7 @@ const Receipt = ({ storeId, orderId }) => {
         cacheBust: true,
         quality: 1,
         canvasWidth: receiptRef.current.offsetWidth * 3,
-        canvasHeight: receiptRef.current.offsetHeight * 3
+        canvasHeight: receiptRef.current.offsetHeight * 3,
       });
 
       const blob = await (await fetch(dataUrl)).blob();
@@ -92,6 +98,38 @@ const Receipt = ({ storeId, orderId }) => {
     }
   };
 
+  const handleCopyOrderId = () => {
+    navigator.clipboard.writeText(orderId);
+    alert("Order ID copied!");
+  };
+
+  const handleContactClick = () => {
+    if (!biz?.mainContactPlatform || !biz?.mainContactValue) return;
+
+    const platform = biz.mainContactPlatform.toLowerCase();
+    let url = "";
+
+    if (platform === "whatsapp") {
+      url = `https://wa.me/${biz.mainContactValue.replace(/\D/g, "")}`;
+    } else {
+      url = biz.mainContactValue.startsWith("http")
+        ? biz.mainContactValue
+        : `https://${biz.mainContactValue}`;
+    }
+
+    window.open(url, "_blank");
+  };
+
+  const getContactMessage = () => {
+    const status = order?.status?.toLowerCase();
+    if (status === "successful") {
+      return "Your order is approved! Click to message the business for updates or inquiries.";
+    }
+    if (status === "declined") {
+      return "Your order was declined. Click to contact the business for clarification.";
+    }
+    return "Your order is pending. Click to contact the business now to speed up approval.";
+  };
 
   if (loading) {
     return (
@@ -113,47 +151,92 @@ const Receipt = ({ storeId, orderId }) => {
     );
   }
 
-  const statusData = statusMap[order.status?.toLowerCase()] || { color: "#ccc", icon: "", label: order.status };
+  const statusData =
+    statusMap[order.status?.toLowerCase()] || { color: "#ccc", icon: "", label: order.status };
 
   return (
     <div
       className={styles.interface}
       style={{
-        '--storeP': biz?.customTheme?.primaryColor || DEFAULT_PRIMARY,
-        '--storeS': biz?.customTheme?.secondaryColor || DEFAULT_SECONDARY,
+        "--storeP": biz?.customTheme?.primaryColor || DEFAULT_PRIMARY,
+        "--storeS": biz?.customTheme?.secondaryColor || DEFAULT_SECONDARY,
       }}
     >
       <Navbar storeId={storeId} />
 
-      <div className={styles.receiptContainer}>
-        <div  ref={receiptRef} className={styles.receiptWrapper}>
-         <div className={styles.receiptTop}></div>
-     {/* Watermark */}
-<div className={styles.watermark} >
-  <img src={biz.customTheme.logo || fallback} alt="Logo" className={styles.logo} />
-</div>
+      {showInfo && (
+        <>
+          {/* Order ID copy section */}
+          <div className={styles.businessInfo} onClick={handleCopyOrderId}>
+            <div className={styles.icon}>
+              <i className="fa-solid fa-circle-info"></i>
+            </div>
+            <div className={styles.text}>
+              <p>
+                This is your Order ID: <strong>{orderId}</strong>. Tap here to copy it for tracking
+                anytime.
+              </p>
+            </div>
+          </div>
 
+          {/* Contact business section */}
+          <div className={styles.businessInfo} onClick={handleContactClick}>
+            <div className={styles.icon}>
+              <i
+                className={
+                  contactIcons[biz.mainContactPlatform?.toLowerCase()] || "fa-solid fa-circle-info"
+                }
+              ></i>
+            </div>
+            <div className={styles.text}>
+              <p>{getContactMessage()}</p>
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className={styles.receiptContainer}>
+        <div ref={receiptRef} className={styles.receiptWrapper}>
+          <div className={styles.receiptTop}></div>
+
+          {/* Watermark */}
+          <div className={styles.watermark}>
+            <img
+              src={biz.customTheme.logo || fallback}
+              alt="Logo"
+              className={styles.logo}
+            />
+          </div>
 
           <div className={styles.receipt}>
             {/* HEADER */}
             <div className={styles.top}>
- <div className={styles.header}>
-   <div className={styles.imgDiv}><img src={biz.customTheme.logo || fallback} alt="Logo" className={styles.logo} /></div>
-              <p className={styles.bizName}>{biz.businessName}</p>
-              <p className={styles.bizEmail}>{biz.businessEmail}</p>
-            </div>
+              <div className={styles.header}>
+                <div className={styles.imgDiv}>
+                  <img
+                    src={biz.customTheme.logo || fallback}
+                    alt="Logo"
+                    className={styles.logo}
+                  />
+                </div>
+                <p className={styles.bizName}>{biz.businessName}</p>
+                <p className={styles.bizEmail}>{biz.businessEmail}</p>
+              </div>
 
-            {/* ORDER INFO */}
-            <div className={styles.meta}>
-              <div>{formatDate(order.date)}</div>
-              <div> {orderId}</div>
-              <div className={styles.status}>
-                <i className={statusData.icon} style={{ color: statusData.color, marginRight: "6px" }}></i>
-                <p>{statusData.label}</p>
+              {/* ORDER INFO */}
+              <div className={styles.meta}>
+                <div>{formatDate(order.date)}</div>
+                <div>{orderId}</div>
+                <div className={styles.status}>
+                  <i
+                    className={statusData.icon}
+                    style={{ color: statusData.color, marginRight: "6px" }}
+                  ></i>
+                  <p>{statusData.label}</p>
+                </div>
               </div>
             </div>
 
-            </div>
             <hr className={styles.divider} />
 
             {/* ITEMS */}
@@ -176,8 +259,7 @@ const Receipt = ({ storeId, orderId }) => {
 
             <hr className={styles.divider} />
 
-            <div >
- {/* CUSTOMER INFO */}
+            {/* CUSTOMER INFO */}
             {order.user && (
               <div className={styles.customer}>
                 <h3>Customer</h3>
@@ -189,10 +271,9 @@ const Receipt = ({ storeId, orderId }) => {
             <div className={styles.receiptFooter}>
               Thank you for shopping with {biz.businessName}
             </div>
-            </div>
           </div>
 
-            <div className={styles.receiptBottom}></div>
+          <div className={styles.receiptBottom}></div>
         </div>
 
         {/* ACTIONS */}

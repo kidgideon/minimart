@@ -65,9 +65,9 @@ const Order = ({ storeId: propStoreId }) => {
 
   const title = `${biz.businessName || "Minimart Store"} - Order`;
   const description = biz.otherInfo?.description || "Track your orders and view status";
-  const logo = biz.customTheme?.logo || fallback;
+  const logo = biz.customTheme.logo || fallback;
   const url = `https://${storeId}.minimart.ng/order`;
-
+ 
   return (
     <div className={styles.interface}>
       <Helmet>
@@ -78,11 +78,11 @@ const Order = ({ storeId: propStoreId }) => {
         <meta property="og:image" content={logo} />
         <meta property="og:url" content={url} />
         <meta name="theme-color" content={biz.customTheme?.primaryColor || DEFAULT_PRIMARY} />
-        <link rel="icon" type="image/png" href={logo || fallback} />
+        <link rel="icon" type="image/png" href={logo}/>
       </Helmet>
       <Navbar storeId={storeId} />
-     <h1>order</h1>
-     <Receipt  storeId={storeId} orderId={orderId}/>
+    
+     <Receipt  storeId={storeId} orderId={orderId} showInfo={true}/>
 
       <Footer storeId={storeId} />
     </div>

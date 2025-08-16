@@ -102,7 +102,7 @@
 }
 
 .saveBtn {
-  background: var(--primary-color, #1C2230);
+  background: var(--primary-color);
   color: #fff;
   border: none;
   padding: 10px 16px;

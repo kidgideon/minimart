@@ -166,28 +166,21 @@ const ProductDetail = ({ storeId }) => {
     setQuantity(cart[id] || 0);
     dispatchCartUpdate();
   };
+const handleNativeShare = async () => {
+  if (!navigator.share) return alert("Native share not supported");
 
-  const handleNativeShare = async () => {
-    if (!navigator.share) return alert("Native share not supported");
-
-    try {
-      const res = await fetch(product.images?.[0], { mode: 'cors' });
-      if (!res.ok) throw new Error("Image fetch failed");
-
-      const blob = await res.blob();
-      const file = new File([blob], "product.jpg", { type: blob.type });
-
-      await navigator.share({
-        title: product.name,
-        text: `Check out this ${product._ft} on Minimart`,
-        url: window.location.href,
-        files: [file],
-      });
-    } catch (err) {
-      console.error("Share failed:", err);
-      alert("Share failed: " + err.message);
-    }
-  };
+  try {
+    // Always share text + link (works everywhere)
+    await navigator.share({
+      title: product.name,
+      text: `Check out this ${product._ft} on Minimart: ${window.location.href}`,
+      url: window.location.href, // optional, some platforms ignore this
+    });
+  } catch (err) {
+    console.error("Share failed:", err);
+    alert("Share failed: " + err.message);
+  }
+};
 
   if (themeLoading || !product) {
     return (<div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", width: "100%"}}>

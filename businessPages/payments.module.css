@@ -1,0 +1,274 @@
+.paymentOptions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.top {
+  width: 95%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.paymentOptions .top p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.paymentOptions .top button {
+  background: var(--secondary-color);
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.paymentOptions .top button:hover {
+  background: var(--secondary-color);
+}
+
+.currencySelect {
+  margin-top: 1rem;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.cards {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.paymentCard {
+  background: #f8f8f8;
+  width: 93%;
+  max-width: 400px;
+  padding: 20px 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid var(--primary-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.paymentCard strong {
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.paymentCard span {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.cardActions {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cardActions button {
+  flex: 1;
+  padding: 0.4rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+  padding: 10px ;
+}
+
+.cardActions .edit {
+  background: var(--secondary-color);
+  color: #fff;
+}
+
+.cardActions .delete {
+  background: crimson;
+  color: #fff;
+}
+
+.noMethods {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #777;
+}
+
+.noMethods button {
+  margin-top: 0.7rem;
+  background: var(--primary-color);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.noMethods button:hover {
+  background: var(--secondary-color);
+}
+
+.popupOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.popup h3 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.popup label {
+  display: block;
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0.6rem 0 0.3rem;
+}
+
+.popup input {
+  width: 95%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.popup input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.popupActions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.popupActions button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s ease;
+}
+
+.popupActions button:first-child {
+  background: #ccc;
+  color: #000;
+}
+
+.popupActions button:first-child:hover {
+  background: #b3b3b3;
+}
+
+.popupActions button:last-child {
+  background: var(--secondary-color);
+  color: #fff;
+}
+
+.popupActions button:last-child:hover {
+  background: var(--secondary-color);
+}
+
+.emptyState {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: 30px 0px;
+}
+
+.emptyState p {
+    width: 95%;
+    text-align: center;
+    color: gray;
+}
+
+.emptyState h3 {
+    color: gray;
+}
+
+.emptyState i {
+    color: gray;
+    font-size: 500%;
+    margin: 10px 0px;
+}
+
+/* Currency Section */
+.currencySection {
+    width: 95%;
+  margin-bottom: 2rem;
+}
+
+.currencySection p {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.currencyRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.currencyRow select {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--secondary-color);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.95rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.currencyRow button {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.currencyRow button:hover {
+  background: var(--secondary-color);
+}

@@ -203,7 +203,10 @@ const Cart = ({ storeId: propStoreId }) => {
               </div>
             </>
           ) : (
-            <p>Your cart is empty.</p>
+            <div className={styles.cartEmpty}>
+              <div><i className="fa-solid fa-cart-shopping"></i></div>
+                <p>cart is empty</p>
+            </div>
           )}
         </div>
 

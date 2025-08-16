@@ -47,7 +47,7 @@ body {
 
 @media (max-width: 1300px) { 
     .displayArea {
-      width: 97%;
+      width: 100%;
       padding-right: 0px;
     }
 
