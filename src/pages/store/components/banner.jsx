@@ -9,6 +9,7 @@ const Banner = ({ storeId }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    
     const fetchBanner = async () => {
       try {
         if (!storeId) return;
