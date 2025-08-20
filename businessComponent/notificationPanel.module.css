@@ -17,17 +17,23 @@
     align-items: center;
     flex-direction: column;
     padding-top: 20px;
+    gap: 20px;
 }
 
 .noNotification i {
     font-size: 500%;
-    color: #43B5F4;
+    color: white;
 }
 
 .noNotification p {
     width: 100%;
     text-align: center;
     margin: 10px 0px;
+}
+
+.topTitle {
+    width: 95%;
+    text-align: start;
 }
 
 .notification {
@@ -42,6 +48,7 @@
     border-bottom-right-radius: 10px;
     cursor: pointer;
     color: white;
+    background-color: var(--primaryColor);
 }
 
 .notificationIcon {

@@ -18,6 +18,8 @@ import Security from "../businessPages/security";
 import { ThemeProvider } from "./ThemeContext";
 import { StoreThemeProvider } from "./storeTheme";
 import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
+import DashboardOrder from "../businessPages/order";
+import OrderArea from "../businessPages/orderArea";
 
 function App() {
   const storeId = getStoreIdFromSubdomain();
@@ -164,6 +166,23 @@ function App() {
               element={
                 <ThemeProvider>
                   <Security />
+                </ThemeProvider>
+              }
+            />
+             <Route
+              path="/orders"
+              element={
+                <ThemeProvider>
+                  <DashboardOrder/>
+                </ThemeProvider>
+              }
+            />
+
+            <Route
+              path="/orders/order/:orderId"
+              element={
+                <ThemeProvider>
+                  <OrderArea/>
                 </ThemeProvider>
               }
             />

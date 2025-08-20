@@ -1,0 +1,87 @@
+
+.title {
+    width: 97%;
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.orders {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 30px 0px;
+    gap: 20px;
+}
+
+.order {
+    width: 97%;
+    max-width: 350px;
+    border: 1px solid var(--primary-color);
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.orderTop {
+   width: 100%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: row; 
+   height: 100px;
+   padding: 10px 0px;
+}
+
+.iconArea {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.iconArea i {
+    background-color: var(--secondary-color);
+    color: white;
+    font-size: 250%;
+    padding: 20px;
+    border-radius: 100%;
+}
+
+.customeInformation {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: start;
+}
+
+.customeInformation p {
+    width: 100%;
+    text-align: start;
+}
+
+.uncompleted {
+    color: orange;
+}
+
+.dateArea {
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.dateArea p {
+    color: gray;
+}

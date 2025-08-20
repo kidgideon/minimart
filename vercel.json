@@ -1,5 +1,16 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/products/:id",
+      "destination": "https://minimart-backend.vercel.app/products/:id"
+    },
+    {
+      "source": "/",
+      "destination": "https://minimart-backend.vercel.app/"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

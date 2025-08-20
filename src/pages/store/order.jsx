@@ -109,7 +109,7 @@ const Order = ({ storeId: propStoreId }) => {
             orders: arrayUnion({ orderId, date: new Date().toISOString() }),
             notifications: arrayUnion({
               date: new Date().toISOString(),
-              link: "/orders",
+              link: `/orders/order/${orderId}`,
               read: false,
               text: `New order ${orderId} has been placed`,
             }),

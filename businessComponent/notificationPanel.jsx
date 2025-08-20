@@ -77,6 +77,9 @@ const NotificationPanel = () => {
         </div>
       ) : (
         <div className={styles.notifications}>
+          <div className={styles.topTitle}>
+         <h3>Notifications</h3>
+          </div>
           {notifications.map((note, index) => (
             <div
               key={index}
@@ -92,7 +95,6 @@ const NotificationPanel = () => {
               <div className={styles.notificationIcon}>
                 <i
                   className="fa-solid fa-bell"
-                  style={{ color: theme.secondaryColor }}
                 ></i>
               </div>
               <div className={styles.notificationInfo}>

@@ -10,7 +10,6 @@ const Dashboard = () => {
             <div className="displayArea">
     <Banner/>
     <div className={styles.storeMenu}>
-        
     </div>
             </div>
         </div>
