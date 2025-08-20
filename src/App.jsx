@@ -1,22 +1,23 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'sonner';
-import Home from './pages/home';
-import Signup from './pages/signup';
-import Signin from './pages/signin';
-import Dashboard from '../businessPages/dashboard';
-import Catalogue from '../businessPages/catalogue';
-import Settings from '../businessPages/settings';
-import Appearance from '../businessPages/appearance';
-import Storefront from './pages/store/storefront';
-import Cart from './pages/store/cart';
-import ProductDetail from './pages/store/components/product';
-import { ThemeProvider } from './ThemeContext';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
+import Home from "./pages/home";
+import Signup from "./pages/signup";
+import Signin from "./pages/signin";
+import Dashboard from "../businessPages/dashboard";
+import Catalogue from "../businessPages/catalogue";
+import Settings from "../businessPages/settings";
+import Appearance from "../businessPages/appearance";
+import Storefront from "./pages/store/storefront";
+import Cart from "./pages/store/cart";
+import ProductDetail from "./pages/store/components/product";
+import Checkout from "./pages/store/checkout";
+import Order from "./pages/store/order";
+import Payments from "../businessPages/payments";
+import Business from "../businessPages/business";
+import Security from "../businessPages/security";
+import { ThemeProvider } from "./ThemeContext";
+import { StoreThemeProvider } from "./storeTheme";
 import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
-import Checkout from './pages/store/checkout';
-import Order from './pages/store/order';
-import Payments from '../businessPages/payments';
-import Business from '../businessPages/business';
-import Security from '../businessPages/security';
 
 function App() {
   const storeId = getStoreIdFromSubdomain();
@@ -28,20 +29,84 @@ function App() {
       <Routes>
         {storeId ? (
           <>
-            <Route path="/" element={<Storefront storeId={storeId} />} />
-            <Route path="/cart" element={<Cart storeId={storeId} />} />
-             <Route path="store/:storeid/cart" element={<Cart storeId={storeId} />} />
-            <Route path="/checkout/:orderId" element={<Checkout storeId={storeId} />} />
-           <Route path="store/:storeid/checkout/:orderId" element={<Checkout storeId={storeId} />} />
-            <Route path="/order/:orderId" element={<Order storeId={storeId} />} />
-            <Route path="store/:storeid/order/:orderId" element={<Order storeId={storeId} />} />
-            <Route path="/product/:id" element={<ProductDetail storeId={storeId} />} />
-            {/* fallback if someone uses /store/:storeId style in dev */}
-            <Route path="/store/:storeid/*" element={<Storefront />} />
+            {/* Storefront routes */}
+            <Route
+              path="/"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <Storefront storeId={storeId} />
+                </StoreThemeProvider>
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <Cart storeId={storeId} />
+                </StoreThemeProvider>
+              }
+            />
+            <Route
+              path="store/:storeid/cart"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <Cart storeId={storeId} />
+                </StoreThemeProvider>
+              }
+            />
+            <Route
+              path="/checkout/:orderId"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <Checkout storeId={storeId} />
+                </StoreThemeProvider>
+              }
+            />
+            <Route
+              path="store/:storeid/checkout/:orderId"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <Checkout storeId={storeId} />
+                </StoreThemeProvider>
+              }
+            />
+            <Route
+              path="/order/:orderId"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <Order storeId={storeId} />
+                </StoreThemeProvider>
+              }
+            />
+            <Route
+              path="store/:storeid/order/:orderId"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <Order storeId={storeId} />
+                </StoreThemeProvider>
+              }
+            />
+            <Route
+              path="/product/:id"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <ProductDetail storeId={storeId} />
+                </StoreThemeProvider>
+              }
+            />
+            {/* fallback for /store/:storeId paths */}
+            <Route
+              path="/store/:storeid/*"
+              element={
+                <StoreThemeProvider storeId={storeId}>
+                  <Storefront />
+                </StoreThemeProvider>
+              }
+            />
           </>
         ) : (
-          // Main application routes
           <>
+            {/* Main app routes */}
             <Route path="/" element={<Home />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
@@ -78,30 +143,27 @@ function App() {
                 </ThemeProvider>
               }
             />
-
-             <Route
+            <Route
               path="/settings/payments"
               element={
                 <ThemeProvider>
-                 <Payments/>
+                  <Payments />
                 </ThemeProvider>
               }
             />
-
-             <Route
+            <Route
               path="/settings/business"
               element={
                 <ThemeProvider>
-                 <Business/>
+                  <Business />
                 </ThemeProvider>
               }
             />
-
-             <Route
+            <Route
               path="/settings/security"
               element={
                 <ThemeProvider>
-                 <Security/>
+                  <Security />
                 </ThemeProvider>
               }
             />

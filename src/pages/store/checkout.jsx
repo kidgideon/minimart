@@ -4,45 +4,43 @@ import { Helmet } from "react-helmet-async";
 import styles from "./checkout.module.css";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
-import { db } from "../../hooks/firebase";
 import { toast } from "sonner";
-import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
 import useStoreTheme from "../../hooks/useStoreTheme";
 import fallback from "../../images/no_bg.png";
+import { payToSubAccount } from "../../hooks/paystackHooks";
 
-const DEFAULT_PRIMARY = "#1C2230";
-const DEFAULT_SECONDARY = "#43B5F4";
-
-const applyThemeToRoot = (primary, secondary) => {
-  document.documentElement.style.setProperty("--storePrimary", primary || DEFAULT_PRIMARY);
-  document.documentElement.style.setProperty("--storeSecondary", secondary || DEFAULT_SECONDARY);
-};
+const NIGERIAN_STATES = [
+  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
+  "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT", "Gombe", "Imo",
+  "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa",
+  "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"
+];
 
 const Checkout = ({ storeId: propStoreId }) => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const storeId = propStoreId || useParams().storeid;
-
   const { biz, loading, error } = useStoreTheme(storeId);
 
   const [checkoutData, setCheckoutData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [selectedMethod, setSelectedMethod] = useState(null);
-  const [modalStage, setModalStage] = useState(null);
-  const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [proofImage, setProofImage] = useState(null);
+
+  // Collapsible sections
+  const [showCustomer, setShowCustomer] = useState(true);
+  const [showShipping, setShowShipping] = useState(true);
+  const [showItems, setShowItems] = useState(true);
+
+  // Customer info
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+
+  // Shipping info
+  const [state, setState] = useState("");
+  const [street, setStreet] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (!storeId) navigate("/");
-
-    if (biz) {
-      const primary = biz.customTheme?.primaryColor?.trim() || DEFAULT_PRIMARY;
-      const secondary = biz.customTheme?.secondaryColor?.trim() || DEFAULT_SECONDARY;
-      applyThemeToRoot(primary, secondary);
-    }
-  }, [storeId, biz]);
 
   useEffect(() => {
     if (error) {
@@ -56,7 +54,6 @@ const Checkout = ({ storeId: propStoreId }) => {
     if (checkoutLS) {
       const parsedData = JSON.parse(checkoutLS);
       setCheckoutData(parsedData);
-
       const amount = parsedData.reduce((sum, item) => {
         const price = item.price || 0;
         const qty = item.quantity || 1;
@@ -66,73 +63,37 @@ const Checkout = ({ storeId: propStoreId }) => {
     }
   }, [storeId]);
 
-  const handleSelectMethod = (method) => {
-    setSelectedMethod(method);
-    setModalStage("userinfo");
+  // Validate Nigerian WhatsApp number
+  const formatWhatsapp = (num) => {
+    let n = num.replace(/\D/g, "");
+    if (n.startsWith("0")) n = n.slice(1);
+    if (!n.startsWith("234")) n = "234" + n;
+    return "+" + n;
   };
 
-  const handleUserInfoNext = () => {
-    if (!fullName || !phoneNumber) {
-      toast.error("Please fill in your full name and phone number");
-      return;
+  const validateAll = () => {
+    if (!firstName || !lastName || !email || !whatsapp || !state || !street) {
+      toast.error("Please fill in all required details");
+      return false;
     }
-    setModalStage("transfer");
+    return true;
   };
 
-  const handleTransferNext = () => {
-    toast.info("Please upload a picture of the payment receipt");
-    setModalStage("proof");
-  };
-
-  const handleProofUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProofImage(URL.createObjectURL(file));
-    }
-  };
-
-  const handleFinalSubmit = async () => {
-    if (!proofImage) {
-      toast.info("Please upload your payment proof");
-      return;
-    }
-
+  const handlePaystackPayment = async () => {
+    if (!validateAll()) return;
     setIsSubmitting(true);
-
     try {
-      localStorage.removeItem(`cart_${storeId}`);
-      localStorage.removeItem(`checkout_${storeId}`);
-
-      const bizRef = doc(db, "businesses", storeId);
-      await updateDoc(bizRef, {
-        orders: arrayUnion({
-          orderId,
-          date: new Date().toISOString()
-        }),
-        notifications: arrayUnion({
-          date: new Date().toISOString(),
-          link: "/orders",
-          read: false,
-          text: `New order ${orderId} has been placed`
-        })
-      });
-
-      const orderRef = doc(db, "orders", orderId);
-      await setDoc(orderRef, {
-        orderId,
-        storeId,
-        user: { fullName, phoneNumber },
-        products: checkoutData,
-        date: new Date().toISOString(),
-        amount: totalAmount,
-        status: "pending",
-        paymentMethod: selectedMethod
-      });
-
-      navigate(`/order/${orderId}`);
+      const paymentData = {
+        email,
+        amount: totalAmount * 100, // Paystack expects kobo
+        subaccount_code: biz?.subAccount?.subaccount_code,
+        reference: orderId,
+        callback_url: `${window.location.origin}/order/${orderId}`
+      };
+      const payRes = await payToSubAccount(paymentData);
+      window.location.href = payRes.authorization_url; // Redirect to Paystack
     } catch (err) {
-      toast.error("Failed to submit order");
-    } finally {
+      toast.error("Failed to initialize payment");
       setIsSubmitting(false);
     }
   };
@@ -145,7 +106,7 @@ const Checkout = ({ storeId: propStoreId }) => {
     );
   }
 
-  if (!biz) return null;
+  if (!biz || !biz.subAccount) return null;
 
   const title = `${biz.businessName || "Minimart Store"} - Checkout`;
   const description = biz.otherInfo?.description || "Complete your purchase of quality products and services";
@@ -161,123 +122,130 @@ const Checkout = ({ storeId: propStoreId }) => {
         <meta property="og:description" content={description} />
         <meta property="og:image" content={logo} />
         <meta property="og:url" content={url} />
-        <meta name="theme-color" content={biz.customTheme?.primaryColor || DEFAULT_PRIMARY} />
+        <meta name="theme-color" content={biz.customTheme?.primaryColor || "#1C2230"} />
         <link rel="icon" type="image/png" href={logo || fallback} />
       </Helmet>
 
       <Navbar storeId={storeId} />
 
       <div className={styles.warningTemplate}>
-        Note: You must transfer the exact amount to one of the listed accounts below
-        and upload proof of payment. Your payment information must match the name
-        used for the transfer.
+        Please fill in your shipment details and pay securely online. Payment is instant and automatic.
       </div>
 
-      <div className={styles.top}>
-        What account do you want to pay to?
-      </div>
-
-      <div className={styles.paymentAccounts}>
-        {biz?.paymentMethods?.map((method, idx) => (
-          <div
-            key={idx}
-            className={styles.method}
-            onClick={() => handleSelectMethod(method)}
-          >
-            <div className={styles.icon}>
-              <i className="fa-solid fa-credit-card"></i>
-            </div>
-            <div className={styles.bankName}>
-              {method.bankName}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {modalStage === "userinfo" && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <h2>Enter Your Details</h2>
+      {/* Customer Information Section */}
+      <section className={styles.sectionArea}>
+        <button
+          className={styles.sectionToggle}
+          onClick={() => setShowCustomer((v) => !v)}
+        >
+          Customer Information {showCustomer ? "▲" : "▼"}
+        </button>
+        {showCustomer && (
+          <div className={styles.sectionContent}>
+            <label htmlFor="firstName">First Name</label>
             <input
+              id="firstName"
               type="text"
-              placeholder="Full Name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              placeholder="First Name"
+              value={firstName}
+              onChange={e => setFirstName(e.target.value)}
             />
+            <label htmlFor="lastName">Last Name</label>
             <input
-              type="tel"
-              placeholder="Phone Number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              id="lastName"
+              type="text"
+              placeholder="Last Name"
+              value={lastName}
+              onChange={e => setLastName(e.target.value)}
             />
-            <button onClick={handleUserInfoNext}>Next</button>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+            <label htmlFor="whatsapp"> Number</label>
+            <input
+              id="whatsapp"
+              type="tel"
+              placeholder="e.g 8031234567"
+              value={whatsapp}
+              onChange={e => setWhatsapp(e.target.value)}
+            />
           </div>
-        </div>
-      )}
+        )}
+      </section>
 
-      {modalStage === "transfer" && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <h2>Transfer Details</h2>
-            <p>Amount: ₦{totalAmount.toLocaleString()}</p>
-            <p>
-              Account Name: {selectedMethod?.accName}
-              <button
-                className={styles.copyBtn}
-                onClick={() =>
-                  navigator.clipboard.writeText(selectedMethod?.accName)
-                }
-              >
-                Copy
-              </button>
-            </p>
-            <p>
-              Account Number: {selectedMethod?.accNo}
-              <button
-                className={styles.copyBtn}
-                onClick={() =>
-                  navigator.clipboard.writeText(selectedMethod?.accNo)
-                }
-              >
-                Copy
-              </button>
-            </p>
-            <p className={styles.warningTemplate}>
-              Please make sure you have sent payment before clicking below.
-            </p>
-            <button onClick={handleTransferNext}>I Have Sent</button>
+      {/* Shipping Information Section */}
+      <section className={styles.sectionArea}>
+        <button
+          className={styles.sectionToggle}
+          onClick={() => setShowShipping((v) => !v)}
+        >
+          Shipping Information {showShipping ? "▲" : "▼"}
+        </button>
+        {showShipping && (
+          <div className={styles.sectionContent}>
+            <label htmlFor="state">State</label>
+            <select id="state" value={state} onChange={e => setState(e.target.value)}>
+              <option value="">Select State</option>
+              {NIGERIAN_STATES.map((s, idx) => (
+                <option key={s + idx} value={s}>{s}</option>
+              ))}
+            </select>
+            <label htmlFor="street">Street / Area</label>
+            <input
+              id="street"
+              type="text"
+              placeholder="Street / Area"
+              value={street}
+              onChange={e => setStreet(e.target.value)}
+            />
           </div>
-        </div>
-      )}
+        )}
+      </section>
 
-      {modalStage === "proof" && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <h2>Upload Payment Proof</h2>
-            <div className={styles.uploadBox}>
-              {proofImage ? (
-                <img src={proofImage} alt="Proof Preview" />
-              ) : (
-                <label>
-                  Click to upload proof
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProofUpload}
-                    style={{ display: "none" }}
-                  />
-                </label>
-              )}
+      {/* Items Section */}
+      <section className={styles.sectionArea}>
+        <button
+          className={styles.sectionToggle}
+          onClick={() => setShowItems((v) => !v)}
+        >
+          Items ({checkoutData.length}) {showItems ? "▲" : "▼"}
+        </button>
+        {showItems && (
+          <div className={styles.sectionContent}>
+            {checkoutData.map((item, idx) => (
+              <div key={idx} className={styles.itemRow}>
+                <span>{item.name}</span>
+                <span>₦{(item.price * (item.quantity || 1)).toLocaleString()}</span>
+              </div>
+            ))}
+            <div className={styles.totalRow}>
+              <b>Total:</b>
+              <b>₦{totalAmount.toLocaleString()}</b>
             </div>
-            <button
-              onClick={handleFinalSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? <i className="fa fa-spinner fa-spin"></i> : "Done"}
-            </button>
           </div>
+        )}
+      </section>
+
+      {/* Payment Section */}
+      <section className={styles.paymentSection}>
+        <div className={styles.payInfo}>
+          <p>
+            Pay to: <b>{biz.businessName}</b> 
+          </p>
         </div>
-      )}
+        <button
+          className={styles.payBtn}
+          onClick={handlePaystackPayment}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? <i className="fa fa-spinner fa-spin"></i> : "Pay Now"}
+        </button>
+      </section>
 
       <Footer storeId={storeId} />
     </div>

@@ -188,6 +188,26 @@
   transition: background 0.3s ease;
 }
 
+.popup select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.popup button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s ease;
+  background: var(--secondary-color);
+  color: white;
+}
+
 .popupActions button:first-child {
   background: #ccc;
   color: #000;
@@ -257,6 +277,12 @@
   font-size: 0.95rem;
   flex: 1;
   min-width: 200px;
+}
+
+.validatedName {
+  width: 100%;
+  text-align: start;
+  margin: 20px 0px;
 }
 
 .currencyRow button {
