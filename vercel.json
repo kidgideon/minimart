@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/products/:id",
-      "destination": "https://minimart-backend.vercel.app/products/:id"
+      "destination": "https://minimart-backend.vercel.app/product/:id"
     },
     {
       "source": "/",
