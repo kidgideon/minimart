@@ -25,6 +25,7 @@ const Services = ({ storeId }) => {
   }, [storeId]);
 
   useEffect(() => {
+    
     let filtered = services;
 
     if (searchTerm) {
