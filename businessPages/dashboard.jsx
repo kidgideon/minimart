@@ -1,6 +1,5 @@
 import styles from "./dashboard.module.css"
 import Navbar from "../businessComponent/navbar";
-import Banner from "../businessComponent/adminBanner";
 
 const Dashboard = () => {
     return(
@@ -8,7 +7,6 @@ const Dashboard = () => {
         <div className="container">
              <Navbar/>
             <div className="displayArea">
-    <Banner/>
     <div className={styles.storeMenu}>
     </div>
             </div>
