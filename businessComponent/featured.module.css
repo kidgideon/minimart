@@ -136,56 +136,27 @@
     background: var(--secondary-color);
     border-radius: 8px;
 }
-.featuredCard {
-    min-width: 300px;
-    height: 320px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-}
 
-.featured {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
 
-.top {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.top p {
-    cursor: pointer;
-}
 
 .scrollableArea {
-    width: 100%;
+    width: 97%;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
     position: relative;
     margin-top: 10px;
-    height: 350px;
     border-radius: 10px;
-    background: rgb(221, 221, 221);
+    padding: 20px 0px;
+    padding-bottom: 30px;
 }
 
 .starArea {
     position: absolute;
     top: -5px;
     left: -5px;
-    background-color: #43B5F4;
+    background-color: var(--secondary-color);
     color: white;
     width: 35px;
     height: 35px;

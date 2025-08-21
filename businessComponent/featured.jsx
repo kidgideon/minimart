@@ -1,4 +1,5 @@
 import styles from "./featured.module.css";
+import design from "./itemDesign.module.css"
 import { motion } from "framer-motion";
 import React, { useRef, useEffect, useState } from "react";
 import { auth, db } from "../src/hooks/firebase";
@@ -122,37 +123,69 @@ const Featured = () => {
                 // Card style: match product/service
                 const cardClass = item._ftype === 'service' ? styles.serviceCard : styles.productCard;
                 return (
-                  <motion.div key={id} className={styles.featuredCard + ' ' + cardClass} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.08, duration: 0.32 }}>
-                    <div className={styles.featuredImgWrap}>
+                  <motion.div
+                    key={id}
+                    className={`${design.card} ${item._ftype === 'service' ? design.serviceCard : design.featuredCard}`}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.08, duration: 0.32 }}
+                  >
+                    <div className={design.featuredImgWrap}>
                       {imgs.length > 1 && (
                         <>
-                          <button onClick={goPrev} disabled={slider.isSliding} className={styles.arrowBtn + ' ' + styles.left}>
+                          <button className={`${design.arrowBtn} ${design.left}`} onClick={goPrev} disabled={slider.isSliding}>
                             <i className="fa-solid fa-chevron-left"></i>
                           </button>
-                          <button onClick={goNext} disabled={slider.isSliding} className={styles.arrowBtn + ' ' + styles.right}>
+                          <button className={`${design.arrowBtn} ${design.right}`} onClick={goNext} disabled={slider.isSliding}>
                             <i className="fa-solid fa-chevron-right"></i>
                           </button>
                         </>
                       )}
-                      <motion.div key={slider.idx} initial={{ x: slider.direction > 0 ? 120 : -120, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.38 }} className={styles.featuredImgContainer}>
+                      <motion.div key={slider.idx} initial={{ x: slider.direction > 0 ? 120 : -120, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.38 }} className={design.featuredImgContainer}>
                         {imgs[slider.idx] && (
-                          <img src={imgs[slider.idx]} alt={item.name} className={styles.featuredImg} />
+                          <img src={imgs[slider.idx]} alt={item.name} className={design.featuredImg} />
                         )}
                       </motion.div>
                       {imgs.length > 1 && (
-                        <div className={styles.dotWrapper}>
+                        <div className={design.sliderDots}>
                           {imgs.map((_, i) => (
-                            <span key={i} onClick={() => goToImg(i)} className={styles.dot + (i === slider.idx ? ' ' + styles.active : '')}></span>
+                            <span key={i} onClick={() => goToImg(i)} className={i === slider.idx ? `${design.dot} ${design.activeDot}` : design.dot}></span>
                           ))}
                         </div>
                       )}
                     </div>
-                    <div className={styles.featuredCardInfo}>
-                      <p className={styles.itemName}>{item.name}</p>
-                      <p className={styles.itemPrice}>{item.price ? `₦${item.price.toLocaleString()}` : ''}</p>
-                      <p className={styles.itemDescription}>{item.description}</p>
-                      {item.duration && <p className={styles.itemDuration}>Duration: {item.duration}</p>}
-                      {item.bookable !== undefined && <p className={styles.itemBookable}>{item.bookable ? "Bookable" : "Not bookable"}</p>}
+                    <div className={design.featuredCardInfo}>
+                      <p className={design.itemName}>{item.name}</p>
+                      <p className={design.itemPrice}>{item.price ? `₦${item.price.toLocaleString()}` : ''}</p>
+                      <p className={design.itemDescription}>{item.description}</p>
+                     <div className={design.shareable}>
+  <p className={design.collection}>{item.category}</p>
+  <p
+    className={design.nodeShare}
+    style={{ cursor: "pointer" }}
+    onClick={async () => {
+      const shareData = {
+        title: item.name,
+        text: `Check out this ${item._ftype}: ${item.name}`,
+        url: `https://${business.businessId}.minimart.ng/product/${id}`,
+      };
+
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+          console.log("Shared successfully");
+        } else {
+          await navigator.clipboard.writeText(shareData.url);
+          alert("Link copied to clipboard!");
+        }
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    }}
+  >
+    <i className="fa-solid fa-share-nodes"></i>
+  </p>
+</div>
                     </div>
                   </motion.div>
                 );
@@ -169,5 +202,4 @@ const Featured = () => {
 };
 
 export default Featured;
-
 

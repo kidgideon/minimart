@@ -1,4 +1,5 @@
 import styles from "./services.module.css";
+import design from "./itemDesign.module.css"
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useEffect, useState, useMemo } from "react";
 import { auth, db, storage } from "../src/hooks/firebase";
@@ -171,6 +172,8 @@ const Services = () => {
     toast.success('Service deleted!');
   }
 
+ 
+
   // Fetch user and business ONCE (no live listener)
   useEffect(() => {
     let ignore = false;
@@ -288,9 +291,10 @@ const Services = () => {
       return () => document.removeEventListener('mousedown', handle);
     }, [menuOpen, serviceId, setMenuOpen]);
 
+
     return (
-      <div className={styles.serviceCard} style={{ position: "relative", border: isFeatured ? "2px solid var(--secondary-color)" : undefined }}>
-        <div className={styles.menu}>
+      <div className={`${design.card} ${isFeatured ? design.serviceCard : ""}`} style={{ position: "relative" }}>
+        <div className={design.menu}>
           <i
             id={`svc-menu-btn-${serviceId}`}
             className="fa-solid fa-ellipsis"
@@ -341,26 +345,16 @@ const Services = () => {
             )}
           </AnimatePresence>
         </div>
-        <div className={styles.serviceImages} style={{ position: "relative", overflow: "hidden" }}>
+        <div className={design.serviceImages}>
           {imgs.length > 1 && (
-            <button
-              onClick={goPrev}
-              style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", zIndex: 2, background: "rgba(255,255,255,0.7)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-              aria-label="Previous image"
-              disabled={isSliding}
-            >
-              <i className="fa-solid fa-chevron-left" style={{ fontSize: 18, color: "#888" }}></i>
-            </button>
-          )}
-          {imgs.length > 1 && (
-            <button
-              onClick={goNext}
-              style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", zIndex: 2, background: "rgba(255,255,255,0.7)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-              aria-label="Next image"
-              disabled={isSliding}
-            >
-              <i className="fa-solid fa-chevron-right" style={{ fontSize: 18, color: "#888" }}></i>
-            </button>
+            <>
+              <button className={`${design.arrowBtn} ${design.left}`} onClick={goPrev} disabled={isSliding}>
+                <i className="fa-solid fa-chevron-left"></i>
+              </button>
+              <button className={`${design.arrowBtn} ${design.right}`} onClick={goNext} disabled={isSliding}>
+                <i className="fa-solid fa-chevron-right"></i>
+              </button>
+            </>
           )}
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
@@ -379,23 +373,51 @@ const Services = () => {
               />
             </motion.div>
           </AnimatePresence>
-          <div style={{ position: "absolute", bottom: 10, left: 0, width: "100%", display: "flex", justifyContent: "center", gap: 8, zIndex: 3 }}>
+          <div className={design.sliderDots}>
             {imgs.map((_, idx) => (
               <span
                 key={idx}
                 onClick={() => goToImg(idx)}
-                style={{ width: 12, height: 12, borderRadius: "50%", background: idx === imgIndex ? "var(--secondary-color)" : "#eee", border: idx === imgIndex ? "2px solid var(--primary-color)" : "1px solid #ccc", cursor: isSliding ? "not-allowed" : "pointer", display: "inline-block", transition: "background 0.2s, border 0.2s" }}
+                className={idx === imgIndex ? `${design.dot} ${design.activeDot}` : design.dot}
+                style={{ cursor: isSliding ? "not-allowed" : "pointer" }}
               ></span>
             ))}
           </div>
         </div>
-        <p className={styles.itemName} style={{ marginTop: 10 }}>{name}</p>
-        <p className={styles.itemPrice} style={{ color: "var(--primary-color)", fontWeight: 600, fontSize: 18 }}>
-          ₦{price?.toLocaleString()}
-        </p>
-        <p className={styles.itemDescription}>{description}</p>
-        {duration && <p className={styles.itemDuration}>Duration: {duration}</p>}
-        {bookable !== undefined && <p className={styles.itemBookable}>{bookable ? "Bookable" : "Not bookable"}</p>}
+        <div className={design.serviceCardInfo}>
+          <p className={design.itemName}>{name}</p>
+          <p className={design.itemPrice}>₦{price?.toLocaleString()}</p>
+          <p className={design.itemDescription}>{description}</p>
+         <div className={design.shareable}>
+  <p className={design.collection}>{categories}</p>
+  <p
+    className={design.nodeShare}
+    style={{ cursor: "pointer" }}
+    onClick={async () => {
+      const shareData = {
+        title: name,
+        text: `Check out this product: ${name}`,
+        url: `https://${business.businessId}.minimart.ng/product/${serviceId}`, // dynamically build the link
+      };
+
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+          console.log("Shared successfully");
+        } else {
+          // fallback for browsers that do not support navigator.share
+          await navigator.clipboard.writeText(shareData.url);
+          alert("Link copied to clipboard!");
+        }
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    }}
+  >
+    <i className="fa-solid fa-share-nodes"></i>
+  </p>
+</div>
+        </div>
       </div>
     );
   }

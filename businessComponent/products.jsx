@@ -1,4 +1,5 @@
 import styles from "./products.module.css"
+import design from "./itemDesign.module.css"
 import {auth, db , storage} from "../src/hooks/firebase"
 import testImage1 from "../src/images/prod1.jpeg"
 import React, { useEffect, useState, useMemo } from "react";
@@ -527,7 +528,6 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
   function ProductCard({ prod, currency, imgIndex, setImgIndex, menuOpen, setMenuOpen, featuredArr, onEdit, onFeature, onAvailable, onDelete }) {
     const { prodId, name, price, description, category, images = [], availability } = prod;
     const featured = featuredArr.some((f) => f.id === prodId && f.type === "product");
-    // Only up to 3 images
     const imgs = images.slice(0, 3);
     const [direction, setDirection] = useState(0);
     const [isSliding, setIsSliding] = useState(false);
@@ -573,18 +573,14 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
 
     return (
       <div
-        className={styles.product}
+        className={`${design.card} ${featured ? design.featuredCard : ""}`}
         style={{
-          boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
-          border: featured ? `2px solid var(--secondary-color)` : undefined,
           opacity: availability === false ? 0.6 : 1,
           position: "relative",
           transition: "transform 0.2s, box-shadow 0.2s",
         }}
-        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.03)"}
-        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
       >
-        <div className={styles.menu}>
+        <div className={design.menu}>
           <i
             id={`menu-btn-${prodId}`}
             className="fa-solid fa-ellipsis"
@@ -637,34 +633,16 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
             )}
           </AnimatePresence>
         </div>
-        <div className={styles.productImages} style={{ position: "relative", overflow: "hidden" }}>
-          {/* Left arrow */}
+        <div className={design.productImages}>
           {imgs.length > 1 && (
-            <button
-              onClick={goPrev}
-              style={{
-                position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", zIndex: 2,
-                background: "rgba(255,255,255,0.7)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
-              }}
-              aria-label="Previous image"
-              disabled={isSliding}
-            >
-              <i className="fa-solid fa-chevron-left" style={{ fontSize: 18, color: "#888" }}></i>
-            </button>
-          )}
-          {/* Right arrow */}
-          {imgs.length > 1 && (
-            <button
-              onClick={goNext}
-              style={{
-                position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", zIndex: 2,
-                background: "rgba(255,255,255,0.7)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
-              }}
-              aria-label="Next image"
-              disabled={isSliding}
-            >
-              <i className="fa-solid fa-chevron-right" style={{ fontSize: 18, color: "#888" }}></i>
-            </button>
+            <>
+              <button className={`${design.arrowBtn} ${design.left}`} onClick={goPrev} disabled={isSliding}>
+                <i className="fa-solid fa-chevron-left"></i>
+              </button>
+              <button className={`${design.arrowBtn} ${design.right}`} onClick={goNext} disabled={isSliding}>
+                <i className="fa-solid fa-chevron-right"></i>
+              </button>
+            </>
           )}
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
@@ -683,41 +661,52 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
               />
             </motion.div>
           </AnimatePresence>
-          {/* Image navigation dots */}
-          <div style={{
-            position: "absolute",
-            bottom: 10,
-            left: 0,
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            gap: 8,
-            zIndex: 3,
-          }}>
+          <div className={design.sliderDots}>
             {imgs.map((_, idx) => (
               <span
                 key={idx}
                 onClick={() => goToImg(idx)}
-                style={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: "50%",
-                  background: idx === imgIndex ? "var(--secondary-color)" : "#eee",
-                  border: idx === imgIndex ? "2px solid var(--primary-color)" : "1px solid #ccc",
-                  cursor: isSliding ? "not-allowed" : "pointer",
-                  display: "inline-block",
-                  transition: "background 0.2s, border 0.2s",
-                }}
+                className={idx === imgIndex ? `${design.dot} ${design.activeDot}` : design.dot}
+                style={{ cursor: isSliding ? "not-allowed" : "pointer" }}
               ></span>
             ))}
           </div>
         </div>
-        <p className={styles.itemName} style={{ marginTop: 10 }}>{truncate(name, 30)}</p>
-        <p className={styles.itemPrice} style={{ color: "var(--primary-color)", fontWeight: 600, fontSize: 18 }}>
-          {currency}{price?.toLocaleString()}
-        </p>
-        <p className={styles.itemCategory}>{category}</p>
-        <p className={styles.itemDescription}>{truncate(description, 60)}</p>
+        <div className={design.productInfo}>
+          <p className={design.productName}>{truncate(name, 30)}</p>
+          <p className={design.price}>{currency}{price?.toLocaleString()}</p>
+          <p className={design.description}>{truncate(description, 60)}</p>
+            <div className={design.shareable}>
+  <p className={design.collection}>{category}</p>
+  <p
+    className={design.nodeShare}
+    style={{ cursor: "pointer" }}
+    onClick={async () => {
+      const shareData = {
+        title: name,
+        text: `Check out this product: ${name}`,
+        url: `https://${business.businessId}.minimart.ng/product/${prodId}`,
+      };
+
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+          console.log("Shared successfully");
+        } else {
+          // fallback for unsupported browsers
+          await navigator.clipboard.writeText(shareData.url);
+          alert("Product link copied to clipboard!");
+        }
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    }}
+  >
+    <i className="fa-solid fa-share-nodes"></i>
+  </p>
+</div>
+
+        </div>
       </div>
     );
   }

@@ -1,0 +1,193 @@
+/* Card Container */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.18s, box-shadow 0.18s;
+  display: flex;
+  flex-direction: column;
+  min-width: 260px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+}
+
+/* Image Area */
+.productImages, .serviceImages, .featuredImgWrap {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  background: #f7f7f7;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.productImages img, .serviceImages img, .featuredImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Slider Dots */
+.sliderDots, .dotWrapper {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 3;
+}
+.dot, .sliderDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #eee;
+  border: 1.5px solid #ccc;
+  cursor: pointer;
+  display: inline-block;
+  transition: background 0.2s, border 0.2s;
+}
+
+.activeDot,
+.dot.active {
+  background: rgba(255, 255, 255, 0.25); /* semi-transparent for glass effect */
+  backdrop-filter: blur(6px); /* blur for the glass look */
+  -webkit-backdrop-filter: blur(6px); /* Safari support */
+  border: 1px solid rgba(255, 255, 255, 0.4); /* subtle border to define shape */
+  transition: all 0.3s ease;
+}
+
+
+.arrowBtn, .navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.25); /* lower opacity for glass effect */
+  backdrop-filter: blur(6px); /* glass blur */
+  -webkit-backdrop-filter: blur(6px); /* Safari support */
+  border: 1px solid rgba(255, 255, 255, 0.4); /* soft border for definition */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  font-size: 18px;
+  color: #fff; /* optional: change to white for better contrast */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* subtle shadow for depth */
+  transition: all 0.3s ease;
+}
+
+.arrowBtn:hover, .navBtn:hover {
+  background: rgba(255, 255, 255, 0.35); /* slightly stronger on hover */
+  color: #fff;
+}
+
+.arrowBtn.left, .navBtn.left { left: 8px; }
+.arrowBtn.right, .navBtn.right { right: 8px; }
+
+/* Info Area */
+.productInfo, .featuredCardInfo, .serviceCardInfo {
+  padding: 18px 16px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.productName, .itemName {
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: var(--primary-color, #1C2230);
+  margin-bottom: 2px;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.price, .itemPrice {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.description, .itemDescription {
+  font-size: 0.98rem;
+  color: #555;
+  margin-bottom: 2px;
+  min-height: 32px;
+  max-height: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shareable {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    margin-top: -5px;
+}
+
+.collection {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.nodeShare {
+    background-color: var(--primary-color);
+    color: white;
+     width: 25px;
+     height: 25px;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/* Misc */
+.menu {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.15); /* semi-transparent white */
+  backdrop-filter: blur(10px); /* glass blur effect */
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  border-radius: 12px;
+  padding: 5px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* subtle shadow for depth */
+}
+
+.menu i {
+  font-size: 20px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+}
+
+.noProducts, .noFeatured, .noServices {
+  text-align: center;
+  color: #888;
+  padding: 40px 0;
+  font-size: 1.1rem;
+}
+
+.loadingElement {
+  text-align: center;
+  padding: 40px 0;
+  color: #888;
+  font-size: 1.2rem;
+}
