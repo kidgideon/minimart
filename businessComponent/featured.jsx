@@ -186,7 +186,7 @@ const Featured = () => {
     <i className="fa-solid fa-share-nodes"></i>
   </p>
 </div>
-                    </div>
+           </div>
                   </motion.div>
                 );
               })}
