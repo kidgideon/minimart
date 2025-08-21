@@ -65,6 +65,7 @@
   display: flex;
   gap: 4px;
 }
+
 .dot, .activeDot {
   width: 8px;
   height: 8px;

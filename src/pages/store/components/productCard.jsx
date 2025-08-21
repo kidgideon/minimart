@@ -72,6 +72,9 @@ const ProductCard = ({ storeId, item }) => {
 
     setQuantity(cart[id]); // Immediate UI update
     dispatchCartUpdate();
+
+    // Log the cart after saving
+    console.log("Cart after adding:", cart);
   };
 
   const decCart = () => {
@@ -92,6 +95,9 @@ const ProductCard = ({ storeId, item }) => {
 
     setQuantity(cart[id] || 0); // Immediate UI update
     dispatchCartUpdate();
+
+    // Log the cart after saving
+    console.log("Cart after removing:", cart);
   };
 
   const toggleLike = async () => {

@@ -1,7 +1,7 @@
 import styles from "./notificationPanel.module.css";
 import { auth, db } from "../src/hooks/firebase";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -13,15 +13,69 @@ const NotificationPanel = () => {
     secondaryColor: "#43B5F4",
   });
   const navigate = useNavigate();
- useEffect(() => {
-  let unsubscribed = false;
 
-  const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-    if (!user || unsubscribed) return;
+  useEffect(() => {
+    let unsubscribed = false;
 
-    setLoading(true);
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      if (!user || unsubscribed) return;
+
+      setLoading(true);
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
+        if (!userSnap.exists()) return;
+
+        const { businessId } = userSnap.data();
+        if (!businessId) return;
+
+        const bizDocRef = doc(db, "businesses", businessId);
+        const bizSnap = await getDoc(bizDocRef);
+        if (!bizSnap.exists()) return;
+
+        const data = bizSnap.data();
+        const plan = data?.plan?.plan || "free";
+        const notifications = data?.notifications || [];
+
+        const primary = data?.customTheme?.primaryColor || "";
+        const secondary = data?.customTheme?.secondaryColor || "";
+
+        setTheme({
+          primaryColor: plan === "pro" && primary.trim() ? primary : "#1C2230",
+          secondaryColor: plan === "pro" && secondary.trim() ? secondary : "#43B5F4",
+        });
+
+        const sorted = notifications
+          .slice()
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        setNotifications(sorted);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribed = true;
+      unsubscribeAuth();
+    };
+  }, []);
+
+  const handleNotificationClick = async (note, index) => {
+    // Update read status in state immediately
+    const updated = [...notifications];
+    updated[index] = { ...note, read: true };
+    setNotifications(updated);
+
+    // Navigate if there’s a link
+    if (note.link) navigate(`${note.link}`);
+
+    // Update Firestore
     try {
-      // Step 1: Get businessId from user document
+      const user = auth.currentUser;
+      if (!user) return;
+
       const userDocRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userDocRef);
       if (!userSnap.exists()) return;
@@ -29,40 +83,22 @@ const NotificationPanel = () => {
       const { businessId } = userSnap.data();
       if (!businessId) return;
 
-      // Step 2: Get business data from businesses collection
       const bizDocRef = doc(db, "businesses", businessId);
+
+      // Update the specific notification read status in Firestore
       const bizSnap = await getDoc(bizDocRef);
       if (!bizSnap.exists()) return;
 
-      const data = bizSnap.data();
-      const plan = data?.plan?.plan || "free";
-      const notifications = data?.notifications || [];
+      const bizData = bizSnap.data();
+      const updatedNotifications = (bizData.notifications || []).map((n) =>
+        n.date === note.date && n.text === note.text ? { ...n, read: true } : n
+      );
 
-      const primary = data?.customTheme?.primaryColor || "";
-      const secondary = data?.customTheme?.secondaryColor || "";
-
-      setTheme({
-        primaryColor: plan === "pro" && primary.trim() ? primary : "#1C2230",
-        secondaryColor: plan === "pro" && secondary.trim() ? secondary : "#43B5F4",
-      });
-
-      const sorted = notifications
-        .slice()
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      setNotifications(sorted);
+      await updateDoc(bizDocRef, { notifications: updatedNotifications });
     } catch (err) {
-      console.error("Error fetching notifications:", err);
+      console.error("Error updating notification read status:", err);
     }
-    setLoading(false);
-  });
-
-  return () => {
-    unsubscribed = true;
-    unsubscribeAuth();
   };
-}, []);
-
 
   return (
     <div className={styles.NotificationPanel}>
@@ -77,9 +113,6 @@ const NotificationPanel = () => {
         </div>
       ) : (
         <div className={styles.notifications}>
-          <div className={styles.topTitle}>
-         <h3>Notifications</h3>
-          </div>
           {notifications.map((note, index) => (
             <div
               key={index}
@@ -88,14 +121,10 @@ const NotificationPanel = () => {
                 backgroundColor: theme.primaryColor,
                 opacity: note.read ? 0.6 : 1,
               }}
-              onClick={() => {
-              if(note.link) navigate(`${note.link}`)
-              }}
+              onClick={() => handleNotificationClick(note, index)}
             >
               <div className={styles.notificationIcon}>
-                <i
-                  className="fa-solid fa-bell"
-                ></i>
+                <i className="fa-solid fa-bell"></i>
               </div>
               <div className={styles.notificationInfo}>
                 <div className={styles.notificationText}>{note.text}</div>

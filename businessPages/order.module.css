@@ -30,6 +30,15 @@
     flex-direction: column;
 }
 
+.sortArea select {
+    width: 200px;
+    padding: 5px 10px;
+    color: black;
+    background-color: rgb(233, 233, 233);
+    border: none;
+    border-radius: 5px;
+}
+
 .orderTop {
    width: 100%;
    display: flex;
@@ -72,8 +81,18 @@
 
 .uncompleted {
     color: orange;
+    font-size: 10px;
 }
 
+.completed {
+    color: green;
+    font-size: 10px;
+}
+
+.cancelled {
+    color: red;
+    font-size: 10px;
+}
 .dateArea {
     width: 95%;
     display: flex;

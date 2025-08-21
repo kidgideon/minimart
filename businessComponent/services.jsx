@@ -39,6 +39,7 @@ const Services = () => {
   const [modalFields, setModalFields] = useState({ name: '', description: '', price: '', duration: '', bookable: true, category: '' });
   const [modalImages, setModalImages] = useState([null, null, null]);
   const [modalPreview, setModalPreview] = useState([null, null, null]);
+  const [modalCategoryInput, setModalCategoryInput] = useState(""); // Add this state
 
   function handleImageChange(e, idx) {
     const file = e.target.files[0];
@@ -468,7 +469,33 @@ const Services = () => {
                 <textarea placeholder="Description" value={modalFields.description} onChange={e => setModalFields(f => ({ ...f, description: e.target.value }))} className={styles.modalTextarea} />
                 <input type="number" placeholder="Price" value={modalFields.price} onChange={e => setModalFields(f => ({ ...f, price: e.target.value }))} className={styles.modalInput} />
                 <input type="text" placeholder="Duration (optional)" value={modalFields.duration} onChange={e => setModalFields(f => ({ ...f, duration: e.target.value }))} className={styles.modalInput} />
-                <input type="text" placeholder="Category" value={modalFields.category} onChange={e => setModalFields(f => ({ ...f, category: e.target.value }))} className={styles.modalInput} />
+                <div style={{ marginBottom: 10 }}>
+                  <select
+                    value={modalFields.category}
+                    onChange={e => setModalFields(f => ({ ...f, category: e.target.value }))}
+                    style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #eee' }}
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    <option value="__add_new__">+ Add new category</option>
+                  </select>
+                  {modalFields.category === "__add_new__" && (
+                    <input
+                      type="text"
+                      placeholder="New Category"
+                      value={modalCategoryInput}
+                      onChange={e => setModalCategoryInput(e.target.value)}
+                      style={{ width: '100%', marginTop: 6, padding: 8, borderRadius: 8, border: '1px solid #eee' }}
+                      onBlur={() => {
+                        if (modalCategoryInput.trim()) {
+                          setModalFields(f => ({ ...f, category: modalCategoryInput.trim() }));
+                        }
+                      }}
+                    />
+                  )}
+                </div>
                 <label className={styles.modalCheckboxLabel}>
                   <input type="checkbox" checked={modalFields.bookable} onChange={e => setModalFields(f => ({ ...f, bookable: e.target.checked }))} /> Bookable
                 </label>

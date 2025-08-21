@@ -315,13 +315,14 @@ const Receipt = ({ storeId, orderId, showInfo }) => {
                   const qty = Number(item?.quantity || 0);
                   const unitPrice = Number(item?.price || 0);
                   const name = String(item?.name || "Item");
+                  const totalPrice = unitPrice * qty; // <-- Calculate total price for this item
                   return (
                     <div key={`${name}-${idx}`} className={styles.itemRow}>
                       <div className={styles.itemName}>
                         {name} {qty > 0 && <small>(x{qty})</small>}
                       </div>
                       <div className={styles.itemPrice}>
-                        {formatMoney.format(unitPrice)}
+                        {formatMoney.format(totalPrice)} {/* <-- Show total price for this item */}
                       </div>
                     </div>
                   );

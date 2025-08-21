@@ -76,23 +76,38 @@ const Order = ({ storeId: propStoreId }) => {
         const orderSnap = await getDoc(orderRef);
 
         if (!orderSnap.exists()) {
-          // --- Reconstruct products and total price from cart ---
+          // --- Reconstruct products and total price from cart using cart.jsx logic ---
           const cartKey = `cart_${storeId}`;
           const cartObj = JSON.parse(localStorage.getItem(cartKey)) || {};
-          const bizProducts = Array.isArray(biz?.products) ? biz.products : [];
-          const products = Object.entries(cartObj).map(([prodId, qty]) => {
-            const prod = bizProducts.find(p => p.prodId === prodId);
-            if (!prod) return null;
-            return {
-              prodId,
-              name: prod.name,
-              price: prod.price,
-              quantity: qty,
-            };
-          }).filter(Boolean);
-          const amount = products.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-          // --- Save order with products and amount ---
+          // Combine products and services just like cart.jsx
+          const allItems = [
+            ...(biz.products || []).map((p) => ({ ...p, _ft: "product" })),
+            ...(biz.services || []).map((s) => ({ ...s, _ft: "service" })),
+          ];
+
+          const products = Object.entries(cartObj)
+            .map(([id, qty]) => {
+              const found = allItems.find((i) =>
+                i._ft === "product" ? i.prodId === id : i.serviceId === id
+              );
+              return found ? { ...found, quantity: qty } : null;
+            })
+            .filter(Boolean);
+
+          console.log("cartObj", cartObj);
+          console.log("products to save", products);
+
+          const amount = products.reduce(
+            (sum, item) => sum + (item.price || 0) * item.quantity,
+            0
+          );
+
+          // --- Get customer & shipping info ---
+          const checkoutInfoKey = `checkout_info_${storeId}`;
+          const checkoutInfo = JSON.parse(localStorage.getItem(checkoutInfoKey)) || {};
+
+          // --- Save order with products, amount, and info ---
           await setDoc(orderRef, {
             orderId,
             storeId,
@@ -101,6 +116,9 @@ const Order = ({ storeId: propStoreId }) => {
             paymentInfo: paystackData || null,
             products,
             amount,
+            customerInfo: checkoutInfo,
+            completed: false,
+            cancelled: false,
           });
 
           // Push to business orders + notifications
@@ -127,6 +145,7 @@ const Order = ({ storeId: propStoreId }) => {
         if (newStatus === "paid") {
           localStorage.removeItem(`cart_${storeId}`);
           localStorage.removeItem(`checkout_${storeId}`);
+          localStorage.removeItem(`checkout_info_${storeId}`); // <-- Add this line
         }
 
         setOrderSaved(true); // Only show receipt after order is saved

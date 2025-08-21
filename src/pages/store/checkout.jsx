@@ -82,6 +82,20 @@ const Checkout = ({ storeId: propStoreId }) => {
   const handlePaystackPayment = async () => {
     if (!validateAll()) return;
     setIsSubmitting(true);
+
+    // Save customer & shipping info to localStorage
+    localStorage.setItem(
+      `checkout_info_${storeId}`,
+      JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        whatsapp: formatWhatsapp(whatsapp),
+        state,
+        street,
+      })
+    );
+
     try {
       const paymentData = {
         email,
