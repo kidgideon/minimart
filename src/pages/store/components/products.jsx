@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "./products.module.css";
 import ProductCard from "./productCard";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../hooks/firebase"; // Adjust path if different
+import { db } from "../../../hooks/firebase";
 
 const Products = ({ storeId }) => {
   const [products, setProducts] = useState([]);
@@ -11,9 +11,9 @@ const Products = ({ storeId }) => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [categories, setCategories] = useState(["All"]);
 
-  // Fetch all products from Firestore
   useEffect(() => {
     const fetchData = async () => {
+      if (!storeId) return;
       try {
         const ref = doc(db, "businesses", storeId);
         const snap = await getDoc(ref);
@@ -37,13 +37,12 @@ const Products = ({ storeId }) => {
     fetchData();
   }, [storeId]);
 
-  // Filter based on search and category
   useEffect(() => {
     let result = [...products];
 
     if (searchTerm.trim()) {
       result = result.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        p.name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -53,6 +52,8 @@ const Products = ({ storeId }) => {
 
     setFiltered(result);
   }, [searchTerm, selectedCategory, products]);
+
+  if (products.length === 0) return null;
 
   return (
     <div className={styles.productsPage}>
@@ -86,8 +87,12 @@ const Products = ({ storeId }) => {
 
       <div className={styles.productsWrapper}>
         {filtered.length > 0 ? (
-          filtered.map(item => (
-            <ProductCard key={item.prodId || item.serviceId} item={item} storeId={storeId} />
+          filtered.map(product => (
+            <ProductCard
+              key={product.prodId}
+              storeId={storeId}
+              item={{ ...product, _ft: "product" }} // FIXED: consistent _ft
+            />
           ))
         ) : (
           <p className={styles.noResults}>No matching products found.</p>

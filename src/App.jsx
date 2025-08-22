@@ -20,6 +20,7 @@ import { StoreThemeProvider } from "./storeTheme";
 import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
 import DashboardOrder from "../businessPages/order";
 import OrderArea from "../businessPages/orderArea";
+import Analysis from "../businessPages/analysis";
 
 function App() {
   const storeId = getStoreIdFromSubdomain();
@@ -183,6 +184,15 @@ function App() {
               element={
                 <ThemeProvider>
                   <OrderArea/>
+                </ThemeProvider>
+              }
+            />
+
+            <Route
+              path="/analysis"
+              element={
+                <ThemeProvider>
+                  <Analysis/>
                 </ThemeProvider>
               }
             />

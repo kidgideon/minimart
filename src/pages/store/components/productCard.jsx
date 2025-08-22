@@ -155,8 +155,6 @@ const handleShare = async () => {
   }
 };
 
-
-
   return (
     <div className={styles.product}>
       <div className={styles.productImages}>
@@ -189,7 +187,10 @@ const handleShare = async () => {
       <div className={styles.productInfo}>
         <p className={styles.productName}>{item.name}</p>
         <p className={styles.price}>₦{(item.price || 0).toLocaleString()}</p>
-        <p className={styles.description}>{item.description}</p>
+      <p className={styles.description}>
+  {`${item.description?.slice(0, 50)}...`}
+</p>
+
       <div className={styles.catAndShare}>
   <p className={styles.category}><span>{item.category}</span></p>
   <i 

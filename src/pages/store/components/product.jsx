@@ -260,7 +260,7 @@ const handleNativeShare = async () => {
       <div className={styles.addOns}>
         {similarProducts.length > 0 && (
           <>
-            <h3 className={styles.sectionTitle}>Similar Products</h3>
+            <h1 className={styles.sectionTitle}>Similar Products</h1>
             <div className={styles.similarList}>
               {similarProducts.map((item) => (
                 <ProductCard key={item.prodId} storeId={storeId} item={item} />
