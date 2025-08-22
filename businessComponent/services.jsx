@@ -292,134 +292,176 @@ const Services = () => {
     }, [menuOpen, serviceId, setMenuOpen]);
 
 
-    return (
-      <div className={`${design.card} ${isFeatured ? design.serviceCard : ""}`} style={{ position: "relative" }}>
-        <div className={design.menu}>
-          <i
-            id={`svc-menu-btn-${serviceId}`}
-            className="fa-solid fa-ellipsis"
-            onClick={() => setMenuOpen(menuOpen ? null : serviceId)}
-            style={{ color: "#888" }}
-          ></i>
-          <AnimatePresence>
-            {menuOpen && (
-              <>
-                <motion.div
-                  key="svc-menu-overlay"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.18 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                  style={{
-                    position: "fixed",
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    background: "#000",
-                    zIndex: 100,
-                  }}
-                  onClick={() => setMenuOpen(null)}
-                />
-                <motion.div
-                  id={`svc-menu-${serviceId}`}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.18 }}
-                  style={{
-                    position: "absolute",
-                    top: 40,
-                    right: 10,
-                    zIndex: 101,
-                    fontSize: 12,
-                    background: "#fff",
-                    borderRadius: 8,
-                    boxShadow: "0 2px 8px rgba(116, 113, 113, 0.13)",
-                    minWidth: 170,
-                    padding: 8,
-                  }}
-                >
-                  <div style={{ padding: 8, cursor: "pointer" }} onClick={() => { setMenuOpen(null); handleFeatureService(svc); }}>{isFeatured ? "Unfeature" : "Feature"} service</div>
-                  <div style={{ padding: 8, cursor: "pointer" }} onClick={() => { setMenuOpen(null); handleEditService(svc); }}>Edit service</div>
-                  <div style={{ padding: 8, cursor: "pointer", color: "#e74c3c" }} onClick={() => { setMenuOpen(null); setDeleteConfirm(svc.serviceId); }}>Delete service</div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </div>
-        <div className={design.serviceImages}>
-          {imgs.length > 1 && (
-            <>
-              <button className={`${design.arrowBtn} ${design.left}`} onClick={goPrev} disabled={isSliding}>
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-              <button className={`${design.arrowBtn} ${design.right}`} onClick={goNext} disabled={isSliding}>
-                <i className="fa-solid fa-chevron-right"></i>
-              </button>
-            </>
-          )}
-          <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={imgIndex}
-              initial={{ x: direction > 0 ? 120 : -120, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: direction < 0 ? 120 : -120, opacity: 0 }}
-              transition={{ duration: 0.38, ease: "easeInOut" }}
-              style={{ width: "100%", height: 200, borderRadius: 10, position: "absolute", top: 0, left: 0, background: "#fff" }}
-            >
-              <img
-                src={imgs[imgIndex] || testImage1}
-                alt={name}
-                style={{ width: "100%", height: 200, borderRadius: 10, objectFit: "cover", display: "block" }}
-                draggable={false}
-              />
-            </motion.div>
-          </AnimatePresence>
-          <div className={design.sliderDots}>
-            {imgs.map((_, idx) => (
-              <span
-                key={idx}
-                onClick={() => goToImg(idx)}
-                className={idx === imgIndex ? `${design.dot} ${design.activeDot}` : design.dot}
-                style={{ cursor: isSliding ? "not-allowed" : "pointer" }}
-              ></span>
-            ))}
-          </div>
-        </div>
-        <div className={design.serviceCardInfo}>
-          <p className={design.itemName}>{name}</p>
-          <p className={design.itemPrice}>₦{price?.toLocaleString()}</p>
-          <p className={design.itemDescription}>{description}</p>
-         <div className={design.shareable}>
-  <p className={design.collection}>{categories}</p>
-  <p
-    className={design.nodeShare}
-    style={{ cursor: "pointer" }}
-    onClick={async () => {
-      const shareData = {
-        title: name,
-        text: `Check out this product: ${name}`,
-        url: `https://${business.businessId}.minimart.ng/product/${serviceId}`, // dynamically build the link
-      };
-
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-          console.log("Shared successfully");
-        } else {
-          // fallback for browsers that do not support navigator.share
-          await navigator.clipboard.writeText(shareData.url);
-          alert("Link copied to clipboard!");
-        }
-      } catch (err) {
-        console.error("Error sharing:", err);
-      }
-    }}
+  return (
+  <div
+    className={`${design.card} ${isFeatured ? design.serviceCard : ""}`}
+    style={{ position: "relative" }}
   >
-    <i className="fa-solid fa-share-nodes"></i>
-  </p>
-</div>
-        </div>
+    {/* Menu */}
+    <div className={design.menu}>
+      <i
+        id={`svc-menu-btn-${serviceId}`}
+        className="fa-solid fa-ellipsis"
+        onClick={() => setMenuOpen(menuOpen ? null : serviceId)}
+        style={{ color: "#888" }}
+      ></i>
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div
+              key="svc-menu-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.18 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: "#000",
+                zIndex: 100,
+              }}
+              onClick={() => setMenuOpen(null)}
+            />
+            <motion.div
+              id={`svc-menu-${serviceId}`}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.18 }}
+              style={{
+                position: "absolute",
+                top: 40,
+                right: 10,
+                zIndex: 101,
+                fontSize: 12,
+                background: "#fff",
+                borderRadius: 8,
+                boxShadow: "0 2px 8px rgba(116, 113, 113, 0.13)",
+                minWidth: 170,
+                padding: 8,
+              }}
+            >
+              <div
+                style={{ padding: 8, cursor: "pointer" }}
+                onClick={() => {
+                  setMenuOpen(null);
+                  handleFeatureService(svc);
+                }}
+              >
+                {isFeatured ? "Unfeature" : "Feature"} service
+              </div>
+              <div
+                style={{ padding: 8, cursor: "pointer" }}
+                onClick={() => {
+                  setMenuOpen(null);
+                  handleEditService(svc);
+                }}
+              >
+                Edit service
+              </div>
+              <div
+                style={{ padding: 8, cursor: "pointer", color: "#e74c3c" }}
+                onClick={() => {
+                  setMenuOpen(null);
+                  setDeleteConfirm(svc.serviceId);
+                }}
+              >
+                Delete service
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+
+    {/* Service Images (No Left/Right buttons) */}
+    <div className={design.serviceImages}>
+      <AnimatePresence initial={false} custom={direction}>
+        <motion.div
+          key={imgIndex}
+          initial={{ x: direction > 0 ? 120 : -120, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: direction < 0 ? 120 : -120, opacity: 0 }}
+          transition={{ duration: 0.38, ease: "easeInOut" }}
+          style={{
+            width: "100%",
+            height: 200,
+            borderRadius: 10,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            background: "#fff",
+          }}
+        >
+          <img
+            src={imgs[imgIndex] || testImage1}
+            alt={name}
+            style={{
+              width: "100%",
+              height: 200,
+              borderRadius: 10,
+              objectFit: "cover",
+              display: "block",
+            }}
+            draggable={false}
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Slider Dots */}
+      <div className={design.sliderDots}>
+        {imgs.map((_, idx) => (
+          <span
+            key={idx}
+            onClick={() => goToImg(idx)}
+            className={idx === imgIndex ? `${design.dot} ${design.activeDot}` : design.dot}
+            style={{ cursor: isSliding ? "not-allowed" : "pointer" }}
+          ></span>
+        ))}
       </div>
-    );
+    </div>
+
+    {/* Service Info */}
+    <div className={design.serviceCardInfo}>
+      <p className={design.itemName}>{name}</p>
+      <p className={design.itemPrice}>₦{price?.toLocaleString()}</p>
+      <p className={design.itemDescription}>{description}</p>
+
+      <div className={design.shareable}>
+        <p className={design.collection}>{categories}</p>
+        <p
+          className={design.nodeShare}
+          style={{ cursor: "pointer" }}
+          onClick={async () => {
+            const shareData = {
+              title: name,
+              text: `Check out this product: ${name}`,
+              url: `https://${business.businessId}.minimart.ng/product/${serviceId}`,
+            };
+
+            try {
+              if (navigator.share) {
+                await navigator.share(shareData);
+                console.log("Shared successfully");
+              } else {
+                await navigator.clipboard.writeText(shareData.url);
+                alert("Link copied to clipboard!");
+              }
+            } catch (err) {
+              console.error("Error sharing:", err);
+            }
+          }}
+        >
+          <i className="fa-solid fa-share-nodes"></i>
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
   }
 
   return (

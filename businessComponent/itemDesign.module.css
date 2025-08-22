@@ -1,5 +1,7 @@
 /* Card Container */
 .card {
+  width: 97%;
+  max-width: 350px;
   background: #fff;
   border-radius: 14px;
   border: none;
@@ -9,8 +11,6 @@
   transition: transform 0.18s, box-shadow 0.18s;
   display: flex;
   flex-direction: column;
-  min-width: 260px;
-  max-width: 320px;
   margin: 0 auto;
 }
 .card:hover {

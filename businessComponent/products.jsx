@@ -7,8 +7,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { Toaster, toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-const DEFAULT_PRIMARY = "#1C2230";
-const DEFAULT_SECONDARY = "#43B5F4";
+
 
 function ModalOverlay({ children }) {
   return (
@@ -31,51 +30,49 @@ const Products = () => {
   const [business, setBusiness] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState({ primary: DEFAULT_PRIMARY, secondary: DEFAULT_SECONDARY });
 
-  // Fetch user and business
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      if (firebaseUser) {
+
+// Fetch user and business (without handling store colors/themes)
+useEffect(() => {
+  const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+    setUser(firebaseUser);
+
+    if (firebaseUser) {
+      try {
         // Get user doc
         const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
         const userData = userDoc.exists() ? userDoc.data() : null;
-        if (userData && userData.businessId) {
+
+        if (userData?.businessId) {
           // Get business doc
           const businessDoc = await getDoc(doc(db, "businesses", userData.businessId));
           const businessData = businessDoc.exists() ? businessDoc.data() : null;
+
           setBusiness(businessData);
-          // Set theme
-          if (businessData && businessData.plan && businessData.plan.plan !== "free" && businessData.customTheme) {
-            setTheme({
-              primary: businessData.customTheme.primaryColor || DEFAULT_PRIMARY,
-              secondary: businessData.customTheme.secondaryColor || DEFAULT_SECONDARY,
-            });
-          } else {
-            setTheme({ primary: DEFAULT_PRIMARY, secondary: DEFAULT_SECONDARY });
-          }
-          // Set products
+
+          // Set products only (skip theme completely)
           setProducts(
-            businessData && businessData.products
+            businessData?.products
               ? [...businessData.products].sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
               : []
           );
         }
-      } else {
-        setBusiness(null);
-        setProducts([]);
+      } catch (error) {
+        console.error("Error fetching user or business data:", error);
       }
-      setLoading(false);
-    });
-    return () => unsub();
-  }, []);
+    } else {
+      // Reset if user logs out
+      setBusiness(null);
+      setProducts([]);
+    }
 
-  // Theming: set CSS vars for primary/secondary
-  useEffect(() => {
-    document.documentElement.style.setProperty("--primary-color", theme.primary);
-    document.documentElement.style.setProperty("--secondary-color", theme.secondary);
-  }, [theme]);
+    setLoading(false);
+  });
+
+  return () => unsub();
+}, []);
+
+
 
   // Search and category filter state
   const [search, setSearch] = useState("");
@@ -293,7 +290,7 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
 
       <div className={styles.searchArea}>
         <div>
-          <select
+          <select className={styles.bgInput}
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             style={{ minWidth: 140 }}
@@ -307,6 +304,8 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
         </div>
         <div>
           <input
+
+             className={styles.bgInput}
             type="text"
             placeholder="Search"
             value={search}
@@ -568,147 +567,152 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
         }
       };
       document.addEventListener('mousedown', handle);
+
       return () => document.removeEventListener('mousedown', handle);
     }, [menuOpen, prodId, setMenuOpen]);
 
-    return (
-      <div
-        className={`${design.card} ${featured ? design.featuredCard : ""}`}
-        style={{
-          opacity: availability === false ? 0.6 : 1,
-          position: "relative",
-          transition: "transform 0.2s, box-shadow 0.2s",
-        }}
-      >
-        <div className={design.menu}>
-          <i
-            id={`menu-btn-${prodId}`}
-            className="fa-solid fa-ellipsis"
-            onClick={() => setMenuOpen(menuOpen ? null : prodId)}
-            style={{ color: "#888" }}
-          ></i>
-          <AnimatePresence>
-            {menuOpen && (
-              <>
-                {/* Overlay for menu */}
-                <motion.div
-                  key="menu-overlay"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.18 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                  style={{
-                    position: "fixed",
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    background: "#000",
-                    zIndex: 100,
-                  }}
-                  onClick={() => setMenuOpen(null)}
-                />
-                <motion.div
-                  id={`menu-${prodId}`}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.18 }}
-                  style={{
-                    position: "absolute",
-                    top: 40,
-                    right: 10,
-                    zIndex: 101,
-                    fontSize: 12,
-                    background: "#fff",
-                    borderRadius: 8,
-                    boxShadow: "0 2px 8px rgba(116, 113, 113, 0.13)",
-                    minWidth: 170,
-                    padding: 8,
-                  }}
-                >
-                  <div style={{ padding: 8, cursor: "pointer" }} onClick={() => { setMenuOpen(null); onFeature(); }}>{featured ? "Unfeature" : "Feature"} product</div>
-                  <div style={{ padding: 8, cursor: "pointer" }} onClick={() => { setMenuOpen(null); onEdit(); }}>Edit product</div>
-                  <div style={{ padding: 8, cursor: "pointer" }} onClick={() => { setMenuOpen(null); onAvailable(); }}>{availability ? "Make unavailable" : "Make available"}</div>
-                  <div style={{ padding: 8, cursor: "pointer", color: "#e74c3c" }} onClick={() => { setMenuOpen(null); onDelete(); }}>Delete product</div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </div>
-        <div className={design.productImages}>
-          {imgs.length > 1 && (
-            <>
-              <button className={`${design.arrowBtn} ${design.left}`} onClick={goPrev} disabled={isSliding}>
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-              <button className={`${design.arrowBtn} ${design.right}`} onClick={goNext} disabled={isSliding}>
-                <i className="fa-solid fa-chevron-right"></i>
-              </button>
-            </>
-          )}
-          <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={imgIndex}
-              initial={{ x: direction > 0 ? 120 : -120, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: direction < 0 ? 120 : -120, opacity: 0 }}
-              transition={{ duration: 0.38, ease: "easeInOut" }}
-              style={{ width: "100%", height: 200, borderRadius: 10, position: "absolute", top: 0, left: 0, background: "#fff" }}
-            >
-              <img
-                src={imgs[imgIndex] || testImage1}
-                alt={name}
-                style={{ width: "100%", height: 200, borderRadius: 10, objectFit: "cover", display: "block" }}
-                draggable={false}
-              />
-            </motion.div>
-          </AnimatePresence>
-          <div className={design.sliderDots}>
-            {imgs.map((_, idx) => (
-              <span
-                key={idx}
-                onClick={() => goToImg(idx)}
-                className={idx === imgIndex ? `${design.dot} ${design.activeDot}` : design.dot}
-                style={{ cursor: isSliding ? "not-allowed" : "pointer" }}
-              ></span>
-            ))}
-          </div>
-        </div>
-        <div className={design.productInfo}>
-          <p className={design.productName}>{truncate(name, 30)}</p>
-          <p className={design.price}>{currency}{price?.toLocaleString()}</p>
-          <p className={design.description}>{truncate(description, 60)}</p>
-            <div className={design.shareable}>
-  <p className={design.collection}>{category}</p>
-  <p
-    className={design.nodeShare}
-    style={{ cursor: "pointer" }}
-    onClick={async () => {
-      const shareData = {
-        title: name,
-        text: `Check out this product: ${name}`,
-        url: `https://${business.businessId}.minimart.ng/product/${prodId}`,
-      };
-
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-          console.log("Shared successfully");
-        } else {
-          // fallback for unsupported browsers
-          await navigator.clipboard.writeText(shareData.url);
-          alert("Product link copied to clipboard!");
-        }
-      } catch (err) {
-        console.error("Error sharing:", err);
-      }
+   return (
+  <div
+    className={`${design.card} ${featured ? design.featuredCard : ""}`}
+    style={{
+      opacity: availability === false ? 0.6 : 1,
+      position: "relative",
+      transition: "transform 0.2s, box-shadow 0.2s",
     }}
   >
-    <i className="fa-solid fa-share-nodes"></i>
-  </p>
-</div>
+    {/* Menu */}
+    <div className={design.menu}>
+      <i
+        id={`menu-btn-${prodId}`}
+        className="fa-solid fa-ellipsis"
+        onClick={() => setMenuOpen(menuOpen ? null : prodId)}
+        style={{ color: "#888" }}
+      ></i>
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div
+              key="menu-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.18 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              style={{
+                position: "fixed",
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: "#000",
+                zIndex: 100,
+              }}
+              onClick={() => setMenuOpen(null)}
+            />
+            <motion.div
+              id={`menu-${prodId}`}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.18 }}
+              style={{
+                position: "absolute",
+                top: 40,
+                right: 10,
+                zIndex: 101,
+                fontSize: 12,
+                background: "#fff",
+                borderRadius: 8,
+                boxShadow: "0 2px 8px rgba(116, 113, 113, 0.13)",
+                minWidth: 170,
+                padding: 8,
+              }}
+            >
+              <div style={{ padding: 8, cursor: "pointer" }} onClick={() => { setMenuOpen(null); onFeature(); }}>
+                {featured ? "Unfeature" : "Feature"} product
+              </div>
+              <div style={{ padding: 8, cursor: "pointer" }} onClick={() => { setMenuOpen(null); onEdit(); }}>
+                Edit product
+              </div>
+              <div style={{ padding: 8, cursor: "pointer" }} onClick={() => { setMenuOpen(null); onAvailable(); }}>
+                {availability ? "Make unavailable" : "Make available"}
+              </div>
+              <div style={{ padding: 8, cursor: "pointer", color: "#e74c3c" }} onClick={() => { setMenuOpen(null); onDelete(); }}>
+                Delete product
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
 
-        </div>
+    {/* Product Images (Auto-sliding only) */}
+    <div className={design.productImages}>
+      <AnimatePresence initial={false} custom={direction}>
+        <motion.div
+          key={imgIndex}
+          initial={{ x: direction > 0 ? 120 : -120, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: direction < 0 ? 120 : -120, opacity: 0 }}
+          transition={{ duration: 0.38, ease: "easeInOut" }}
+          style={{ width: "100%", height: 200, borderRadius: 10, position: "absolute", top: 0, left: 0, background: "#fff" }}
+        >
+          <img
+            src={imgs[imgIndex] || testImage1}
+            alt={name}
+            style={{ width: "100%", height: 200, borderRadius: 10, objectFit: "cover", display: "block" }}
+            draggable={false}
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Dots still remain */}
+      <div className={design.sliderDots}>
+        {imgs.map((_, idx) => (
+          <span
+            key={idx}
+            onClick={() => goToImg(idx)}
+            className={idx === imgIndex ? `${design.dot} ${design.activeDot}` : design.dot}
+            style={{ cursor: isSliding ? "not-allowed" : "pointer" }}
+          ></span>
+        ))}
       </div>
-    );
+    </div>
+
+    {/* Product Info */}
+    <div className={design.productInfo}>
+      <p className={design.productName}>{truncate(name, 30)}</p>
+      <p className={design.price}>{currency}{price?.toLocaleString()}</p>
+      <p className={design.description}>{truncate(description, 60)}</p>
+
+      <div className={design.shareable}>
+        <p className={design.collection}>{category}</p>
+        <p
+          className={design.nodeShare}
+          style={{ cursor: "pointer" }}
+          onClick={async () => {
+            const shareData = {
+              title: name,
+              text: `Check out this product: ${name}`,
+              url: `https://${business.businessId}.minimart.ng/product/${prodId}`,
+            };
+
+            try {
+              if (navigator.share) {
+                await navigator.share(shareData);
+                console.log("Shared successfully");
+              } else {
+                await navigator.clipboard.writeText(shareData.url);
+                alert("Product link copied to clipboard!");
+              }
+            } catch (err) {
+              console.error("Error sharing:", err);
+            }
+          }}
+        >
+          <i className="fa-solid fa-share-nodes"></i>
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
   }
 };
 

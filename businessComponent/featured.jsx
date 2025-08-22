@@ -61,11 +61,6 @@ const Featured = () => {
     return () => { ignore = true; };
   }, []);
 
-  const scrollBy = (dir) => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollBy({ left: dir * 320, behavior: "smooth" });
-  };
-
   useEffect(() => {
     items.forEach((item, idx) => {
       const id = item.prodId || item.serviceId || idx;
@@ -97,9 +92,6 @@ const Featured = () => {
           </div>
         ) : (
           <>
-            <button onClick={() => scrollBy(-1)} className={styles.navBtn + ' ' + styles.left}>
-              <i className="fa-solid fa-chevron-left"></i>
-            </button>
             <div ref={scrollRef} className={styles.featuredScroll}>
               {items.map((item, idx) => {
                 const id = item.prodId || item.serviceId || idx;
@@ -131,16 +123,6 @@ const Featured = () => {
                     transition={{ delay: idx * 0.08, duration: 0.32 }}
                   >
                     <div className={design.featuredImgWrap}>
-                      {imgs.length > 1 && (
-                        <>
-                          <button className={`${design.arrowBtn} ${design.left}`} onClick={goPrev} disabled={slider.isSliding}>
-                            <i className="fa-solid fa-chevron-left"></i>
-                          </button>
-                          <button className={`${design.arrowBtn} ${design.right}`} onClick={goNext} disabled={slider.isSliding}>
-                            <i className="fa-solid fa-chevron-right"></i>
-                          </button>
-                        </>
-                      )}
                       <motion.div key={slider.idx} initial={{ x: slider.direction > 0 ? 120 : -120, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.38 }} className={design.featuredImgContainer}>
                         {imgs[slider.idx] && (
                           <img src={imgs[slider.idx]} alt={item.name} className={design.featuredImg} />
@@ -191,9 +173,6 @@ const Featured = () => {
                 );
               })}
             </div>
-            <button onClick={() => scrollBy(1)} className={styles.navBtn + ' ' + styles.right}>
-              <i className="fa-solid fa-chevron-right"></i>
-            </button>
           </>
         )}
       </div>
