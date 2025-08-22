@@ -2,8 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-     
-      "source": "/:path*",
+      "source": "/products/:id",
       "has": [
         {
           "type": "header",
@@ -11,20 +10,28 @@
           "value": "(?i).*(WhatsApp|facebookexternalhit|Twitterbot|Slackbot|Discordbot|LinkedInBot|Pinterest|bot|crawl|spider).*"
         }
       ],
-   
-      "destination": "https://minimart-backend.vercel.app/bot-render/:path*"
-    },
-    {
-    
-      "source": "/products/:id",
-      "destination": "https://minimart-backend.vercel.app/product/:id"
+      "destination": "https://minimart-backend.vercel.app/products/:id"
     },
     {
       "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(WhatsApp|facebookexternalhit|Twitterbot|Slackbot|Discordbot|LinkedInBot|Pinterest|bot|crawl|spider).*"
+        }
+      ],
       "destination": "https://minimart-backend.vercel.app/"
     },
     {
-    
+      "source": "/products/:id",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
