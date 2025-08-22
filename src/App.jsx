@@ -21,12 +21,14 @@ import { getStoreIdFromSubdomain } from "./hooks/getStoreId";
 import DashboardOrder from "../businessPages/order";
 import OrderArea from "../businessPages/orderArea";
 import Analysis from "../businessPages/analysis";
+import ScrollToTop from "./hooks/scrolltotop";
 
 function App() {
   const storeId = getStoreIdFromSubdomain();
 
   return (
     <Router>
+       <ScrollToTop/>
       <Toaster position="top-right" richColors />
 
       <Routes>
