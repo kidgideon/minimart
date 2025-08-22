@@ -53,19 +53,34 @@
   font-size: 1rem;
   font-style: italic;
 }
-
 .editBtn {
   position: absolute;
   top: 20px;
   right: 20px;
   z-index: 5;
-  color: var(--secondary-color);
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
+  color: white;
+  background: rgba(255, 255, 255, 0.15); /* more glassy */
+  border: 1px solid rgba(255, 255, 255, 0.25); /* soft frosted border */
   font-size: 150%;
   cursor: pointer;
   padding: 8px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* subtle wet drop shadow */
+  transition: all 0.3s ease;
+}
+
+.editBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .loading {
@@ -96,8 +111,7 @@
 
 .modalContentModern {
   background: #fff;
-  padding: 2.5rem 2rem 2rem 2rem;
-  border-radius: 18px;
+  padding: 5px;
   width: 95%;
   max-width: 480px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
@@ -116,9 +130,7 @@
 .modalTitle {
   font-size: 1.6rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
   text-align: center;
-  letter-spacing: 0.01em;
 }
 
 .imageEditSection {
@@ -137,7 +149,7 @@
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   background: #f5f5f5;
-  margin-bottom: 0.2rem;
+  margin-bottom: 2px;
 }
 
 .imageEditPreview img {
@@ -162,7 +174,7 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
-  color: var(--primary-color, #0078d4);
+  color: var(--primary-color);
   transition: background 0.15s;
   z-index: 2;
 }
@@ -192,7 +204,7 @@
 
 @media (min-width: 600px) {
   .modalContentModern {
-    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    padding: 5px;
     max-width: 440px;
   }
   .formGrid {
@@ -234,7 +246,7 @@
 
 .modalContentModern input[type="text"]:focus,
 .modalContentModern select:focus {
-  border: 1.5px solid var(--primary-color, #0078d4);
+  border: 1.5px solid var(--primary-color);
   outline: none;
   background: #fff;
 }
@@ -244,14 +256,20 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
-  margin-top: 0.2rem;
+}
+
+.checkboxLabel span {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
 }
 
 .modalActionsModern {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 1.2rem;
+  margin-top: 5px;
 }
 
 .modalActionsModern button {
@@ -260,7 +278,7 @@
   cursor: pointer;
   border: none;
   border-radius: 6px;
-  background: var(--primary-color, #0078d4);
+  background: var(--primary-color);
   color: white;
   font-size: 1rem;
   transition: background 0.15s;

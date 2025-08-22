@@ -57,26 +57,35 @@
   font-weight: 400;
   letter-spacing: 0.01em;
 }
-
 .editBtn {
   position: absolute;
   top: 14px;
   right: 14px;
   z-index: 3;
-  color: var(--primary-color, #0078d4);
-  background: rgba(255,255,255,0.85);
-  border: none;
+  color: white;
+  background: rgba(255, 255, 255, 0.15); /* more transparent for glass look */
+  border: 1px solid rgba(255, 255, 255, 0.25); /* subtle frosted edge */
   font-size: 1.2rem;
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: background 0.15s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* softer shadow for wet feel */
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  transition: all 0.3s ease;
+}
+
+.editBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  transform: translateY(-1px) scale(1.05);
 }
 
 .editBtn:active {
-  background: #f0f0f0;
+  transform: scale(0.95);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
+
 
 .loading {
   display: flex;
@@ -100,8 +109,7 @@
 
 .modalContentModern {
   background: #fff;
-  padding: 2.5rem 2rem 2rem 2rem;
-  border-radius: 18px;
+  padding: 5px;
   width: 95%;
   max-width: 420px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
@@ -119,8 +127,8 @@
 
 .modalTitle {
   font-size: 1.3rem;
+  margin: 0px;
   font-weight: 700;
-  margin-bottom: 0.5rem;
   text-align: center;
   letter-spacing: 0.01em;
 }
@@ -129,7 +137,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0px;
   gap: 0.3rem;
+}
+
+.checkArea {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .imageEditPreview {
@@ -237,9 +255,16 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
-  margin-top: 0.2rem;
+  flex-direction: row;
 }
 
+.modalSelect {
+  width: 100%;
+  background: rgb(247, 247, 247);
+  padding: 5px 0px;
+  border-radius: 5px;
+  border: none;
+}
 .modalActionsModern {
   display: flex;
   justify-content: flex-end;
@@ -269,7 +294,7 @@
 
 @media (max-width: 480px) {
   .modalContentModern {
-    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    padding:  5px;
     max-width: 98vw;
   }
   .imageEditPreview {

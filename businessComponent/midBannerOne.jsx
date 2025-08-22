@@ -240,6 +240,7 @@ const MidBannerOne = ({ showEdit = false }) => {
                 <label>
                   Text Alignment
                   <select
+                    className={styles.modalSelect}
                     value={formState.align}
                     onChange={(e) =>
                       setFormState({ ...formState, align: e.target.value })
@@ -251,19 +252,19 @@ const MidBannerOne = ({ showEdit = false }) => {
                     <option value="right">Right</option>
                   </select>
                 </label>
-                <label className={styles.checkboxLabel}>
-                  <input
+                <div className={styles.checkArea}>
+                   <label className={styles.checkboxLabel}>
+                  <span> <input
                     type="checkbox"
                     checked={formState.darkOverlay}
                     onChange={(e) =>
                       setFormState({ ...formState, darkOverlay: e.target.checked })
                     }
                     disabled={saving}
-                  />
-                  <span>Dark overlay</span>
+                  /> Dark overlay</span>
                 </label>
                 <label className={styles.checkboxLabel}>
-                  <input
+                  <span>  <input
                     type="checkbox"
                     checked={formState.display}
                     onChange={(e) =>
@@ -271,8 +272,9 @@ const MidBannerOne = ({ showEdit = false }) => {
                     }
                     disabled={saving}
                   />
-                  <span>Display this banner</span>
+                  Display banner</span>
                 </label>
+                </div>
               </div>
               <div className={styles.modalActionsModern}>
                 <button onClick={handleEditSubmit} disabled={saving}>

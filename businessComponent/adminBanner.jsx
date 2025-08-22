@@ -264,15 +264,14 @@ const Banner = ({ showEdit = false }) => {
                   </select>
                 </label>
                 <label className={styles.checkboxLabel}>
-                  <input
+                  <span> <input
                     type="checkbox"
                     checked={formState.darkOverlay}
                     onChange={(e) =>
                       setFormState({ ...formState, darkOverlay: e.target.checked })
                     }
                     disabled={saving}
-                  />
-                  <span>Show dark overlay</span>
+                  /> <p>Show dark overlay</p></span>
                 </label>
               </div>
               <div className={styles.modalActionsModern}>
