@@ -16,6 +16,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
 }
 
 .userFormArea button {
@@ -34,16 +35,23 @@
 }
 
 .userFormArea input {
-    padding: 10px 20px;
-    width: 100%;
-    max-width: 300px;
+    padding: 15px 30px;
+    width: 95%;
+    max-width: 400px;
     border: none;
     outline: none;
-    background-color: #b6b6b6;
+    background-color: #d1d1d1;
     border-radius: 5px;
     color: black;
 }
 
+.linkArea {
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+  word-break: break-all;
+  color: gray;
+}
 .topIconS i {
     color: #1c2230;
     font-size: 500%;

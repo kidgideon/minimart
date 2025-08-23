@@ -23,22 +23,81 @@ const Signup = () => {
     businessId: "",
     password: "",
     confirmPassword: "",
-    mainContactPlatform: "",
-    mainContactValue: ""
+    whatsappNumber: "",
+    businessCategory: ""
   });
   const [businessIdEdited, setBusinessIdEdited] = useState(false);
   const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-  const totalSteps = 6;
+  const totalSteps = 7;
+
+   const businessCategories = [
+  "Bakery",
+  "Fashion & Clothing",
+  "Electronics",
+  "Groceries",
+  "Pharmacy",
+  "Restaurant",
+  "Salon & Beauty",
+  "Furniture",
+  "Automobile",
+  "Tech & Gadgets",
+  "Books & Stationery",
+  "Home Essentials",
+  "Jewelry",
+  "Sports & Fitness",
+  "Kids & Toys",
+  "Foodstuff",
+  "Supermarket",
+  "Mobile Phones",
+  "Accessories",
+  "Cosmetics",
+  "Events & Decor",
+  "Laundry",
+  "Pet Supplies",
+  "Building Materials",
+  "Drinks & Beverages",
+  "Agriculture & Farming",
+  "Tailoring & Sewing",
+  "Photography & Videography",
+  "Printing & Branding",
+  "Transport & Logistics",
+  "Real Estate & Property",
+  "Consulting & Professional Services",
+  "ICT & Software Services",
+  "Recharge & Airtime",
+  "Electronics Repair & Services",
+  "Fast Food & Snacks",
+  "Catering & Pastries",
+  "Bars & Nightlife",
+  "Herbal & Traditional Medicine",
+  "Fitness & Gym",
+  "Music & Entertainment",
+  "Travel & Tourism",
+  "Courier & Delivery Services",
+  "Stationery & Office Supplies",
+  "Toys & Games",
+  "Industrial Supplies",
+  "Agricultural Produce",
+  "Farm Equipment",
+  "Others"
+];
+  
+  const [categorySearch, setCategorySearch] = useState("");
+
+  const filteredCategories = businessCategories.filter(cat =>
+    cat.toLowerCase().includes(categorySearch.toLowerCase())
+  );
 
   const steps = [
     { label: "What's your full name?", name: "ownerName", placeholder: "e.g. John Doe", icon: "fa-solid fa-user" },
     { label: "What's your business email?", name: "businessEmail", placeholder: "e.g. johndoe@domain.com", icon: "fa-solid fa-envelope" },
-    { label: "What’s your business name?", name: "businessName", placeholder: "e.g. Yum Yum Cakes", icon: "fa-solid fa-building" },
-    { label: "Your business ID", name: "businessId", placeholder: "e.g. yummumcakes", icon: "fa-solid fa-link" },
+    { label: "What’s your business name?", name: "businessName", placeholder: "e.g.Dejis clothing", icon: "fa-solid fa-building" },
+    { label: "Your business ID", name: "businessId", placeholder: "e.g.Dejiscloth", icon: "fa-solid fa-link" },
     { label: "Create a password", name: "password", type: "password", placeholder: "Enter password", icon: "fa-solid fa-lock" },
-    { label: "Confirm your password", name: "confirmPassword", type: "password", placeholder: "Re-enter password", icon: "fa-solid fa-lock" }
+    { label: "Confirm your password", name: "confirmPassword", type: "password", placeholder: "Re-enter password", icon: "fa-solid fa-lock" },
+    { label: "Your WhatsApp number", name: "whatsappNumber", placeholder: "e.g. 08012345678", icon: "fa-brands fa-whatsapp" }
   ];
 
   // Auto-generate businessId from businessName unless user edits it
@@ -64,7 +123,7 @@ const Signup = () => {
 
   // Validation for each step
   const validateStep = async () => {
-    const { ownerName, businessEmail, businessName, businessId, password, confirmPassword } = formData;
+    const { ownerName, businessEmail, businessName, businessId, password, confirmPassword, whatsappNumber, businessCategory } = formData;
     switch (step) {
       case 0:
         return ownerName.trim().length > 2;
@@ -86,6 +145,10 @@ const Signup = () => {
         return password.length >= 6;
       case 5:
         return password === confirmPassword;
+      case 6:
+        return /^\d{10,15}$/.test(whatsappNumber); // simple phone validation
+      case "category":
+        return businessCategory.length > 0;
       default:
         return true;
     }
@@ -101,21 +164,25 @@ const Signup = () => {
           ? "Email already in use or invalid!"
           : step === 3
           ? "Business ID taken or invalid!"
+          : step === 6
+          ? "Enter a valid WhatsApp number!"
+          : step === "category"
+          ? "Please select a category!"
           : "Please fill in the field correctly."
       );
       return;
     }
     if (step < steps.length - 1) {
       setStep(step + 1);
-    } else {
-      setStep("contactMethod");
+    } else if (step === steps.length - 1) {
+      setStep("category");
     }
   };
 
   const handlePrev = () => {
     if (typeof step === "number" && step > 0) {
       setStep(step - 1);
-    } else if (step === "contactMethod") {
+    } else if (step === "category") {
       setStep(steps.length - 1);
     }
   };
@@ -154,9 +221,9 @@ const Signup = () => {
       businessEmail: formData.businessEmail,
       businessName: formData.businessName,
       businessId: formData.businessId,
-      mainContactPlatform: formData.mainContactPlatform,
-      mainContactValue: formData.mainContactValue,
-      ownerUid: uid, // 🔗 important link to user
+      whatsappNumber: formData.whatsappNumber,
+      businessCategory: formData.businessCategory,
+      ownerUid: uid,
       createdAt: new Date(),
 
       // Plan info
@@ -268,8 +335,8 @@ const Signup = () => {
                       placeholder={steps[step].placeholder}
                       required
                     />
-                    <div style={{ fontSize: 14, margin: "10px 0" }}>
-                      Your business link: <b>{formData.businessId || "yourid"}.minimart.ng</b>
+                    <div className={styles.linkArea}>
+                      <b>{formData.businessId || "yourid"}.minimart.ng</b>
                     </div>
                   </>
                 )}
@@ -283,8 +350,8 @@ const Signup = () => {
                       placeholder={steps[step].placeholder}
                       required
                     />
-                    <div style={{ fontSize: 14, margin: "10px 0" }}>
-                      Your business link: <b>{formData.businessId || "yourid"}.minimart.ng</b>
+                    <div className={styles.linkArea}>
+                      <b>{formData.businessId || "yourid"}.minimart.ng</b>
                     </div>
                   </>
                 ) : step !== 2 ? (
@@ -301,52 +368,45 @@ const Signup = () => {
                   {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : "Next"}
                 </button>
               </>
-            ) : (
+            ) : step === "category" ? (
               <form className={styles.section} onSubmit={handleSubmit}>
-                <div className={styles.topIconS}><i className="fa-solid fa-phone"></i></div>
-                <p>What's your main contact platform?</p>
-                <div className={styles.contactIcons}>
-                  {[
-                    { icon: "fa-whatsapp", name: "Whatsapp" },
-                    { icon: "fa-facebook", name: "Facebook" },
-                    { icon: "fa-instagram", name: "Instagram" },
-                    { icon: "fa-tiktok", name: "TikTok" }
-                  ].map(({ icon, name }) => (
-                    <i
-                      key={name}
-                      className={`fab ${icon} ${formData.mainContactPlatform === name ? styles.activeIcon : ""}`}
-                      onClick={() =>
-                        setFormData(prev => ({ ...prev, mainContactPlatform: name }))
-                      }
-                    ></i>
+                <div className={styles.topIconS}><i className="fa-solid fa-list"></i></div>
+                <label>Choose your business category</label>
+                <input
+                  type="text"
+                  placeholder="Search category..."
+                  value={categorySearch}
+                  onChange={e => setCategorySearch(e.target.value)}
+                  style={{ maxWidth: 300 }}
+                />
+                <div style={{ maxHeight: 150, overflowY: "auto", width: "100%", maxWidth: 300 }}>
+                  {filteredCategories.map(cat => (
+                    <div
+                      key={cat}
+                      style={{
+                        padding: "8px 12px",
+                        cursor: "pointer",
+                        background: formData.businessCategory === cat ? "#43B5F4" : "#f5f5f5",
+                        color: formData.businessCategory === cat ? "white" : "black",
+                        borderRadius: 5,
+                        marginBottom: 2
+                      }}
+                      onClick={() => setFormData(prev => ({ ...prev, businessCategory: cat }))}
+                    >
+                      {cat}
+                    </div>
                   ))}
                 </div>
-
-                {formData.mainContactPlatform && (
-                  <>
-                    <input
-                      type="text"
-                      name="mainContactValue"
-                      value={formData.mainContactValue}
-                      onChange={handleChange}
-                      required
-                      placeholder={
-                        formData.mainContactPlatform === "Whatsapp"
-                          ? "Enter your phone number"
-                          : "Enter your profile link"
-                      }
-                    />
-                    <button
-                      className={styles.submitBtn}
-                      type="submit"
-                      disabled={loading}
-                    >
-                      {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : "Create Account"}
-                    </button>
-                  </>
-                )}
+                <button
+                  className={styles.submitBtn}
+                  type="submit"
+                  disabled={loading}
+                  style={{ marginTop: 20 }}
+                >
+                  {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : "Create Account"}
+                </button>
               </form>
-            )}
+            ) : null}
           </motion.div>
         </AnimatePresence>
       </div>
