@@ -7,7 +7,7 @@ import { auth, db, storage } from "../src/hooks/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import Logo from "../src/images/no_bg.png";
+import Logo  from  "../src/images/no_bg.png";
 import { toast } from "sonner";
 
 const Appearance = () => {
