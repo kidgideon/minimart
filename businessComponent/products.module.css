@@ -49,6 +49,7 @@
     outline: none;
     border-radius: 10px;
     height: 25px;
+    padding: 5px 10px;
 }
 
 .searchArea select {
@@ -58,6 +59,7 @@
     border-radius: 10px;
     color: gray;
     height: 35px;
+    padding: 5px 10px;
 }
 
 .addingProducts {
@@ -73,13 +75,30 @@
     cursor: pointer;
 }
 
+.noProducts{
+     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: rgb(165, 165, 165);
+    font-size: 20px;
+    gap: 30px;
+    min-height: 200px;
+}
+
+.noProducts i {
+    font-size: 350%;
+    color: rgb(58, 58, 58);
+}
+
 @media (max-width: 1300px) { 
     .Products {
         justify-content: center;
     }
 
     .searchArea input {
-   padding: 5px 5px;
+   padding: 5px 10px;
     }
 
     .searchArea select {

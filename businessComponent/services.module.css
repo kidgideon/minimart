@@ -185,6 +185,24 @@
     color: gray;
 }
 
+.noServices {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: rgb(165, 165, 165);
+    font-size: 20px;
+    gap: 30px;
+    min-height: 200px;
+}
+
+.noServices i {
+    color: rgb(58, 58, 58);
+    font-size: 350%;
+}
+
+
 @media (max-width: 1300px) {  
     .Services{
         justify-content: center;

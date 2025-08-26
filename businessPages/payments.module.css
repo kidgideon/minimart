@@ -298,3 +298,67 @@
 .currencyRow button:hover {
   background: var(--secondary-color);
 }
+
+/* Tip Box */
+.tipBox {
+  background-color: #fff3cd; /* soft yellow background */
+  border-left: 5px solid #ffe066; /* bold left border for emphasis */
+  padding: 15px 5px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  color: #856404; /* dark yellow/brown text for readability */
+  width: 95%;
+
+}
+
+/* Payment Form Display */
+.paymentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 80%;
+  padding: 20px;
+  background-color: white; /* light gray for contrast */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 500px;
+}
+
+.paymentForm label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.paymentForm input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #e9ecef; /* subtle disabled style */
+  color: #495057;
+  cursor: not-allowed;
+}
+
+.paymentForm input:focus {
+  outline: none; /* read-only input should not show focus */
+  border-color: #ccc;
+  box-shadow: none;
+}
+
+/* Optional: adjust empty state slightly */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+  color: #6c757d;
+  text-align: center;
+}
+
+.emptyState i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #adb5bd;
+}

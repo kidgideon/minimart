@@ -235,91 +235,12 @@
   font-size: 20px; /* smaller spinner to fit button */
 }
 
-.modalOverlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.2);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.modalContainer {
-  background: #fff;
-  border-radius: 12px;
-  padding: 2rem;
-  max-width: 420px;
-  width: 100%;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  color: #111827;
-   font-family: 'Montserrat', sans-serif;
-}
-
-.modalIcon {
-  font-size: 40px;
-  color: #fbbf24;
-}
-
-.modalTitle {
-  margin: 0;
-  font-weight: 600;
-  font-size: 1.25rem;
-}
-
-.modalText {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #374151;
-}
-
-.modalButtons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.confirmBtn {
-  background: #fbbf24; /* soft warning yellow */
-  color: #111827;
-  padding: 0.6rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.confirmBtn:hover {
-  background: #f59e0b;
-}
-
-.cancelBtn {
-  background: #e5e7eb;
-  color: #374151;
-  padding: 0.6rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.cancelBtn:hover {
-  background: #d1d5db;
-}
-
 /* Skeleton Base */
 .skeleton {
   background: #e0e0e0;
   border-radius: 6px;
   animation: pulse 1.2s infinite ease-in-out;
+  min-height: 60px;
 }
 
 /* Text Skeleton */
@@ -376,6 +297,89 @@
     height: 180px;
   }
 }
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContainer {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 10px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+}
+
+.modalIcon {
+  font-size: 2rem;
+  color: #ff6b6b;
+  margin-bottom: 15px;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.modalText {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.confirmBtn {
+  background-color: #ff6b6b;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  flex: 1;
+  transition: background 0.3s;
+}
+
+.confirmBtn:hover {
+  background-color: #ff4c4c;
+}
+
+.cancelBtn {
+  background-color: #ccc;
+  color: #333;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.cancelBtn:hover {
+  background-color: #bbb;
+}
+
 
 
 /* Responsive tweaks */

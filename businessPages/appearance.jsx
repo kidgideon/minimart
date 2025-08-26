@@ -16,6 +16,7 @@ const Appearance = () => {
   const [secondaryColor, setSecondaryColor] = useState("");
   const [showColorModal, setShowColorModal] = useState(false);
   const [businessId, setBusinessId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   // Fetch user → businessId → business customTheme
   useEffect(() => {
@@ -41,8 +42,8 @@ const Appearance = () => {
         const theme = bizData.customTheme || {};
 
         setLogoUrl(theme.logo || Logo);
-        setPrimaryColor(theme.primaryColor || "#223016");
-        setSecondaryColor(theme.secondaryColor || "#578c51");
+        setPrimaryColor(theme.primaryColor || "#1C2230");
+        setSecondaryColor(theme.secondaryColor || "#43B5F4");
 
       } catch (error) {
         console.error("Error fetching theme:", error);
@@ -74,23 +75,25 @@ const Appearance = () => {
     );
   };
 
-  const saveColors = async () => {
-    if (!businessId) return;
-    try {
-      await updateDoc(doc(db, "businesses", businessId), {
-        "customTheme.primaryColor": primaryColor,
-        "customTheme.secondaryColor": secondaryColor,
-      });
+const saveColors = async () => {
+  if (!businessId) return;
+  try {
+    setSaving(true);
+    await updateDoc(doc(db, "businesses", businessId), {
+      "customTheme.primaryColor": primaryColor,
+      "customTheme.secondaryColor": secondaryColor,
+    });
 
-      document.documentElement.style.setProperty("--primary-color", primaryColor);
-      document.documentElement.style.setProperty("--secondary-color", secondaryColor);
-      toast.success("Theme colors updated!");
-      setShowColorModal(false);
-    } catch (error) {
-      toast.error("Failed to update colors");
-    }
-  };
-
+    document.documentElement.style.setProperty("--primary-color", primaryColor);
+    document.documentElement.style.setProperty("--secondary-color", secondaryColor);
+    toast.success("Theme colors updated!");
+    setShowColorModal(false);
+  } catch (error) {
+    toast.error("Failed to update colors");
+  } finally {
+    setSaving(false);
+  }
+};
   return (
     <div className="container">
       <Navbar />
@@ -180,9 +183,15 @@ const Appearance = () => {
                   </div>
                 </div>
                 <div className={styles.modalActions}>
-                  <button onClick={saveColors} className={styles.saveBtn}>
-                    Save
-                  </button>
+                         <button
+  onClick={saveColors}
+  className={styles.saveBtn}
+  disabled={saving}
+>
+  {saving ? <i className="fa-solid fa-spinner fa-spin"></i> : "Save"}
+</button>
+
+
                   <button onClick={() => setShowColorModal(false)} className={styles.cancelBtn}>
                     Cancel
                   </button>

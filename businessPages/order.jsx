@@ -108,7 +108,6 @@ const DashboardOrder = () => {
                 transition={{ delay: idx * 0.1 }}
                 whileHover={{ scale: 1.03 }}
                 onClick={() => navigate(`/orders/order/${order.orderId}`)}
-                style={{ borderColor: statusColor[status] }}
               >
                 <div className={styles.orderTop}>
                   <div className={styles.iconArea}>

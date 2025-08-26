@@ -89,6 +89,16 @@ const Payments = () => {
     <div className="container">
       <Navbar />
       <div className="displayArea">
+
+        {/* Bold tip at top */}
+        <div className={styles.tipBox}>
+          <p>
+            <b>Note:</b> All earnings for a business day will be paid the next business day, 
+            in accordance with Paystack payout rules. Your funds are safe and secure.
+          </p>
+        </div>
+
+        {/* Store Currency */}
         <div className={styles.currencySection}>
           <p>Store Currency</p>
           <div className={styles.currencyRow}>
@@ -96,36 +106,35 @@ const Payments = () => {
           </div>
         </div>
 
+        {/* Payment Method Display */}
         <div className={styles.paymentOptions}>
           <div className={styles.top}>
-            <p>Business Account </p>
+            <p>Business Account</p>
             {!subAccount && (
               <button onClick={() => setPopupOpen(true)}>
                 <i className="fa-solid fa-plus"></i>
               </button>
             )}
           </div>
-          <div className={styles.cards}>
-            {!subAccount ? (
-              <div className={styles.emptyState}>
-                <div><i className="fa-solid fa-credit-card"></i></div>
-                <h3>No business account yet</h3>
-                <p>Click the plus icon to add your business account.</p>
-              </div>
-            ) : (
-              <motion.div
-                className={styles.paymentCard}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <h4>{subAccount.business_name}</h4>
-                <p>{subAccount.account_number}</p>
-                <p>{subAccount.account_name}</p>
-                <p>{subAccount.bank_name}</p>
-            
-              </motion.div>
-            )}
-          </div>
+
+          {subAccount ? (
+            <div className={styles.paymentForm}>
+              <label>Bank Name</label>
+              <input type="text" value={subAccount.settlement_bank} readOnly />
+              <label>Account Number</label>
+              <input type="text" value={subAccount.account_number} readOnly />
+              <label>Account Name</label>
+              <input type="text" value={subAccount.account_name} readOnly />
+              <label>Business Name</label>
+              <input type="text" value={subAccount.business_name} readOnly />
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <div><i className="fa-solid fa-credit-card"></i></div>
+              <h3>No business account yet</h3>
+              <p>Click the plus icon to add your business account.</p>
+            </div>
+          )}
         </div>
 
         {/* Add Account Popup */}
@@ -144,6 +153,12 @@ const Payments = () => {
                 exit={{ scale: 0.9 }}
               >
                 <h3>Add business account</h3>
+                   <div className={styles.tipBox}>
+        <p>
+  <b>Note:</b> Once a bank account is added, it cannot be changed without contacting support. 
+  Please double-check your account details to ensure they are correct. This ensures your payouts remain secure and go to the right account.
+</p>
+        </div>
                 <label>Account Number</label>
                 <input
                   value={form.accNo}
@@ -172,7 +187,7 @@ const Payments = () => {
                   <button onClick={() => setPopupOpen(false)}>Cancel</button>
                   <button
                     onClick={handleAddAccount}
-                    disabled={loading || !form.accName} // Only enabled if account is validated
+                    disabled={loading || !form.accName}
                   >
                     {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : "Add Account"}
                   </button>

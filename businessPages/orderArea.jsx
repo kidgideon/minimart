@@ -7,29 +7,30 @@ import styles from "./orderArea.module.css";
 import Navbar from "../businessComponent/navbar";
 
 function WarningModal({ onConfirm, onCancel }) {
-  return (
-    <div className="modalOverlay">
-      <div className="modalContainer">
-        <div className="modalIcon">
-          <i className="fa-solid fa-triangle-exclamation"></i>
-        </div>
-        <h3 className="modalTitle">Heads Up!</h3>
-        <p className="modalText">
-          Cancelling an order without refunding the buyer is considered unethical.<br />
-          Provide a clear reason to the buyer if you cancel.<br />
-          <b>If the buyer has paid, refund the money.</b>
-        </p>
-        <div className="modalButtons">
-          <button className="confirmBtn" onClick={onConfirm}>
-            Proceed with Cancellation
-          </button>
-          <button className="cancelBtn" onClick={onCancel}>
-            Go Back
-          </button>
-        </div>
+return (
+  <div className={styles.modalOverlay}>
+    <div className={styles.modalContainer}>
+      <div className={styles.modalIcon}>
+        <i className="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 className={styles.modalTitle}>Heads Up!</h3>
+      <p className={styles.modalText}>
+        Cancelling an order without refunding the buyer is considered unethical.<br />
+        Provide a clear reason to the buyer if you cancel.<br />
+        <b>If the buyer has paid, refund the money.</b>
+      </p>
+      <div className={styles.modalButtons}>
+        <button className={styles.confirmBtn} onClick={onConfirm}>
+          Proceed with Cancellation
+        </button>
+        <button className={styles.cancelBtn} onClick={onCancel}>
+          Go Back
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
+
 }
 
 const OrderArea = () => {

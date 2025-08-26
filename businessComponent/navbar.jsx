@@ -11,11 +11,10 @@ import styles from "./navbar.module.css";
 const NAV_ITEMS = [
 	{ label: "dashboard", icon: "fa-solid fa-table-columns", path: "/dashboard" },
 	{ label: "Orders", icon: "fas fa-shopping-cart", path: "/orders" },
-	{ label: "Transactions", icon: "fas fa-money-check-alt", path: "/transactions" },
 	{ label: "analysis", icon: "fas fa-chart-line", path: "/analysis" },
 	{ label: "catalogue", icon: "fas fa-briefcase", path: "/catalogue" },
-	{ label: "Help Center", icon: "fas fa-question-circle", path: "/help" },
-	{ label: "Settings", icon: "fas fa-cog", path: "/settings" }
+	{ label: "Settings", icon: "fas fa-cog", path: "/settings" },
+	{ label: "Help Center", icon: "fas fa-question-circle", path: "/help" }
 ];
 
 const PLACEHOLDER_LOGO = logo; // fallback image import
