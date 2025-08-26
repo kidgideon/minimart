@@ -14,7 +14,7 @@ import Footer from "./components/footer";
 import styles from "./storefront.module.css";
 
 import useStoreTheme from "../../hooks/useStoreTheme";
-import fallback from "../../images/no_bg.png"; // ✅ fallback favicon
+import fallback from "../../images/logo.png"; // ✅ fallback favicon
 
 const DEFAULT_PRIMARY = "#1C2230";
 const DEFAULT_SECONDARY = "#43B5F4";

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { doc, onSnapshot, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../../../hooks/firebase";
-import defaultLogo from "../../../images/no_bg.png";
+import defaultLogo from "../../../images/logo.png";
 import styles from "./navbar.module.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";

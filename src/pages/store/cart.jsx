@@ -12,7 +12,7 @@ import Services from "./components/services";
 import Footer from "./components/footer";
 
 import useStoreTheme from "../../hooks/useStoreTheme"; // ✅ Same hook as Storefront
-import fallback from "../../images/no_bg.png";
+import fallback from "../../images/logo.png";
 
 const DEFAULT_PRIMARY = "#1C2230";
 const DEFAULT_SECONDARY = "#43B5F4";

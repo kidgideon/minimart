@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./navBar.module.css";
-import Logo from "../images/no_bg.png";
+import Logo from "../images/logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -7,7 +7,7 @@ import Footer from "./components/footer";
 import styles from "./order.module.css";
 
 import useStoreTheme from "../../hooks/useStoreTheme";
-import fallback from "../../images/no_bg.png";
+import fallback from "../../images/logo.png";
 
 import { db } from "../../hooks/firebase";
 import { doc, getDoc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";

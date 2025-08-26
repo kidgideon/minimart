@@ -12,7 +12,7 @@ import ProductCard from "./productCard";
 import Footer from "./footer";
 import useStoreTheme from "../../../hooks/useStoreTheme";
 import { Helmet } from "react-helmet-async";
-import fallback from "../../../images/no_bg.png";
+import fallback from "../../../images/logo.png";
 
 
 const ProductDetail = ({ storeId }) => {

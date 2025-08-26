@@ -6,7 +6,7 @@ import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import { toast } from "sonner";
 import useStoreTheme from "../../hooks/useStoreTheme";
-import fallback from "../../images/no_bg.png";
+import fallback from "../../images/logo.png";
 import { payToSubAccount } from "../../hooks/paystackHooks";
 
 const NIGERIAN_STATES = [

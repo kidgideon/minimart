@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../src/images/no_bg.png";
+import logo from "../src/images/logo.png";
 import NotificationPanel from "./notificationPanel";
 import { auth, db } from "../src/hooks/firebase";
 import { doc, getDoc } from "firebase/firestore";

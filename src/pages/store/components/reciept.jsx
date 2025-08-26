@@ -6,7 +6,7 @@ import Footer from "./footer";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../hooks/firebase";
 import { toPng } from "html-to-image";
-import fallback from "../../../images/no_bg.png";
+import fallback from "../../../images/logo.png";
 import { toast } from "sonner";
 
 const DEFAULT_PRIMARY = "#1C2230";
