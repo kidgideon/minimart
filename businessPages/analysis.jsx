@@ -4,6 +4,8 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../src/hooks/firebase";
 import Navbar from "../businessComponent/navbar";
 import RevenueOverTime from "../businessComponent/revenueOverTime";
+import MostViewedProducts from "../businessComponent/viewed";
+import MostPurchasedItem from "../businessComponent/purchased";
 
 const Analysis = () => {
   const [storeId, setStoreId] = useState(null);
@@ -29,6 +31,8 @@ const Analysis = () => {
       <Navbar />
       <div className="displayArea">
         {storeId && <RevenueOverTime storeId={storeId} />}
+           {storeId && <MostPurchasedItem storeId={storeId} />}
+         {storeId && <MostViewedProducts storeId={storeId} />}
       </div>
     </div>
   );

@@ -1,181 +1,169 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../src/hooks/firebase";
-import { ResponsiveBar } from "@nivo/bar";
-import { ResponsiveLine } from "@nivo/line";
-import {
-  startOfWeek,
-  format,
-  startOfMonth,
-  startOfYear,
-  parseISO,
-} from "date-fns";
+import { startOfDay, startOfWeek, startOfMonth, startOfYear } from "date-fns";
 import styles from "./revenueOverTime.module.css";
 
-const RevenueOverTime = ({ storeId}) => {
-  const [data, setData] = useState([]);
-  const [range, setRange] = useState("month");
-  const [trend, setTrend] = useState("neutral");
-  const [totalOverall, setTotalOverall] = useState(0);
+const RevenueOverTime = ({ storeId }) => {
+  const [ordersData, setOrdersData] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [range, setRange] = useState("month"); // all, day, week, month, year
+  const svgRef = useRef(null);
 
   useEffect(() => {
     if (!storeId) return;
-    const loadData = async () => {
-      const bizRef = doc(db, "businesses", storeId);
-      const bizSnap = await getDoc(bizRef);
-      if (!bizSnap.exists()) return;
 
-      const ordersMeta = bizSnap.data().orders || [];
-      const orders = [];
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        const bizSnap = await getDoc(doc(db, "businesses", storeId));
+        if (!bizSnap.exists()) return;
 
-      for (let o of ordersMeta) {
-        const orderDoc = await getDoc(doc(db, "orders", o.orderId));
-        if (!orderDoc.exists()) continue;
-        const od = orderDoc.data();
-        if (!od.completed || od.cancelled) continue;
-        orders.push({ ...od, date: o.date });
-      }
+        const ordersMeta = bizSnap.data().orders || [];
+        const orders = [];
 
-      const total = orders.reduce((acc, o) => acc + o.amount, 0);
-      setTotalOverall(total);
+        for (let o of ordersMeta) {
+          const orderSnap = await getDoc(doc(db, "orders", o.orderId));
+          if (!orderSnap.exists()) continue;
 
-      const aggregated = aggregateRevenue(orders, range);
-      setData(aggregated);
+          const order = orderSnap.data();
+          if (!order.completed || order.cancelled) continue;
 
-      if (aggregated.length > 1) {
-        const first = aggregated[0].revenue;
-        const last = aggregated[aggregated.length - 1].revenue;
-        setTrend(last > first ? "up" : last < first ? "down" : "neutral");
-      } else {
-        setTrend("neutral");
+          orders.push({ amount: order.amount, date: new Date(order.date) });
+        }
+
+        orders.sort((a, b) => a.date - b.date);
+
+        // Filter by range
+        const now = new Date();
+        let filteredOrders = orders;
+        if (range === "day") filteredOrders = orders.filter(o => o.date >= startOfDay(now));
+        if (range === "week") filteredOrders = orders.filter(o => o.date >= startOfWeek(now));
+        if (range === "month") filteredOrders = orders.filter(o => o.date >= startOfMonth(now));
+        if (range === "year") filteredOrders = orders.filter(o => o.date >= startOfYear(now));
+
+        let cumulative = 0;
+        const data = filteredOrders.map((o) => {
+          cumulative += o.amount;
+          return { date: o.date, revenue: cumulative };
+        });
+
+        setOrdersData(data);
+        setTotalRevenue(filteredOrders.reduce((sum, o) => sum + o.amount, 0));
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadData();
+    fetchOrders();
   }, [storeId, range]);
 
-  const aggregateRevenue = (orders, range) => {
-    const map = {};
-    orders.forEach(o => {
-      const date = parseISO(o.date);
-      let key;
-      switch (range) {
-        case "day":
-          key = format(date, "yyyy-MM-dd");
-          break;
-        case "week":
-          key = format(startOfWeek(date), "yyyy-MM-dd");
-          break;
-        case "month":
-          key = format(startOfMonth(date), "yyyy-MM");
-          break;
-        case "year":
-          key = format(startOfYear(date), "yyyy");
-          break;
-        default:
-          key = format(date, "yyyy-MM-dd");
-      }
-      map[key] = (map[key] || 0) + o.amount;
-    });
-
-    return Object.keys(map)
-      .sort((a, b) => new Date(a) - new Date(b))
-      .map(key => ({ date: key, revenue: map[key] }));
+  const generatePath = (data, width, height, padding) => {
+    if (!data.length) return "";
+    const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
+    const minDate = data[0].date.getTime();
+    const maxDate = data[data.length - 1].date.getTime();
+    const scaleX = date =>
+      padding + ((date.getTime() - minDate) / (maxDate - minDate || 1)) * (width - 2 * padding);
+    const scaleY = rev => height - padding - (rev / maxRevenue) * (height - 2 * padding);
+    const points = data.map(d => [scaleX(d.date), scaleY(d.revenue)]);
+    let path = `M ${points[0][0]},${points[0][1]} `;
+    for (let i = 1; i < points.length; i++) {
+      const [x0, y0] = points[i - 1];
+      const [x1, y1] = points[i];
+      const cx = (x0 + x1) / 2;
+      path += `C ${cx},${y0} ${cx},${y1} ${x1},${y1} `;
+    }
+    return path;
   };
 
-  const barData = data.map(d => ({
-    date: d.date,
-    revenue: d.revenue,
-  }));
+  const generateFillPath = (data, width, height, padding) => {
+    if (!data.length) return "";
+    const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
+    const minDate = data[0].date.getTime();
+    const maxDate = data[data.length - 1].date.getTime();
+    const scaleX = date =>
+      padding + ((date.getTime() - minDate) / (maxDate - minDate || 1)) * (width - 2 * padding);
+    const scaleY = rev => height - padding - (rev / maxRevenue) * (height - 2 * padding);
+    const points = data.map(d => [scaleX(d.date), scaleY(d.revenue)]);
+    let path = `M ${points[0][0]},${height - padding} L ${points[0][0]},${points[0][1]} `;
+    for (let i = 1; i < points.length; i++) {
+      const [x0, y0] = points[i - 1];
+      const [x1, y1] = points[i];
+      const cx = (x0 + x1) / 2;
+      path += `C ${cx},${y0} ${cx},${y1} ${x1},${y1} `;
+    }
+    path += `L ${points[points.length - 1][0]},${height - padding} Z`;
+    return path;
+  };
 
-  const lineData = [
-    {
-      id: "Revenue",
-      data: data.map(d => ({ x: d.date, y: d.revenue })),
-    },
-  ];
+  // Dynamic revenue label
+  const rangeLabels = {
+    all: "Total Revenue",
+    day: "Revenue Today",
+    week: "Revenue This Week",
+    month: "Revenue This Month",
+    year: "Revenue This Year",
+  };
 
   return (
-    <div className={styles.graphInterface}>
-      <div className={styles.totalOverall}>
-        Total Revenue: ₦{totalOverall.toLocaleString()}
-      </div>
-
+    <div className={styles.container}>
       <div className={styles.controls}>
-        {["day", "week", "month", "year"].map(r => (
-          <button
-            key={r}
-            className={`${styles.rangeBtn} ${range === r ? styles.active : ""}`}
-            onClick={() => setRange(r)}
-          >
-            {r.charAt(0).toUpperCase() + r.slice(1)}
-          </button>
-        ))}
+        <select
+          value={range}
+          onChange={(e) => setRange(e.target.value)}
+          className={styles.rangeSelect}
+        >
+          <option value="all">All Time</option>
+          <option value="day">Day</option>
+          <option value="week">Week</option>
+          <option value="month">Month</option>
+          <option value="year">Year</option>
+        </select>
       </div>
 
-      <div className={styles.chartWrapper}>
-        {data.length > 0 ? (
-          <>
-            <div className={styles.chartInner}>
-              <ResponsiveBar
-                data={barData}
-                keys={["revenue"]}
-                indexBy="date"
-                margin={{ top: 20, right: 30, bottom: 50, left: 70 }}
-                padding={0.3}
-                axisBottom={{
-                  tickRotation: -30,
-                  legend: "Date",
-                  legendOffset: 36,
-                  legendPosition: "middle",
-                }}
-                axisLeft={{
-                  format: v => `₦${v.toLocaleString()}`,
-                }}
-                tooltip={({ value, indexValue }) => (
-                  <div className={styles.tooltip}>
-                    <strong>{indexValue}</strong>
-                    <div>₦{value.toLocaleString()}</div>
-                  </div>
-                )}
-              />
-            </div>
-
-            <div className={styles.chartInner}>
-              <ResponsiveLine
-                data={lineData}
-                margin={{ top: 20, right: 30, bottom: 50, left: 70 }}
-                xScale={{ type: "point" }}
-                yScale={{ type: "linear", stacked: false }}
-                axisBottom={{
-                  tickRotation: -30,
-                  legend: "Date",
-                  legendOffset: 36,
-                  legendPosition: "middle",
-                }}
-                axisLeft={{
-                  format: v => `₦${v.toLocaleString()}`,
-                }}
-                pointSize={8}
-                useMesh={true}
-              />
-            </div>
-          </>
-        ) : (
-          <div className={styles.noData}>No data for this period</div>
-        )}
+      <div className={styles.totalRevenue}>
+        {rangeLabels[range]}: ₦{totalRevenue.toLocaleString()}
       </div>
 
-      <div className={styles.totalRange}>
-        {data.length > 0 &&
-          `Revenue for this ${range}: ₦${data[data.length - 1].revenue.toLocaleString()}`}
-      </div>
-
-      <div
-        className={styles.trendText}
-      >
-        Trend: {trend === "up" ? "📈 Rising" : trend === "down" ? "📉 Falling" : "➡️ Stable"}
-      </div>
+      {loading ? (
+        <div className={styles.loading}>
+          <i className="fa-solid fa-spinner fa-spin"></i>
+        </div>
+      ) : ordersData.length === 0 ? (
+        <div className={styles.noData}>
+          <i className="fa-solid fa-chart-line"></i>
+          <p>No revenue data yet.</p>
+        </div>
+      ) : (
+        <svg
+          ref={svgRef}
+          className={styles.chart}
+          viewBox="0 0 800 300"
+          preserveAspectRatio="none"
+        >
+          <path
+            d={generateFillPath(ordersData, 800, 300, 40)}
+            fill="var(--secondary-color)"
+            opacity="0.3"
+          />
+          <path
+            d={generatePath(ordersData, 800, 300, 40)}
+            fill="none"
+            stroke="var(--primary-color)"
+            strokeWidth="3"
+          />
+          {ordersData.map((d, i) => {
+            const maxRevenue = Math.max(...ordersData.map(d => d.revenue), 1);
+            const minDate = ordersData[0].date.getTime();
+            const maxDate = ordersData[ordersData.length - 1].date.getTime();
+            const x = 40 + ((d.date.getTime() - minDate) / (maxDate - minDate || 1)) * (800 - 80);
+            const y = 300 - 40 - (d.revenue / maxRevenue) * (300 - 80);
+            return <circle key={i} cx={x} cy={y} r="4" fill="var(--secondary-color)" />;
+          })}
+        </svg>
+      )}
     </div>
   );
 };
