@@ -1,13 +1,12 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/product/:id",
-      "destination": "https://minimart-storefront.vercel.app/:storeId/product/:id"
+      "destination": "https://minimart-storefront.vercel.app/product/:id"
     },
     {
       "source": "/",
-      "destination": "https://minimart-storefront.vercel.app/:storeId"
+      "destination": "https://minimart-storefront.vercel.app/"
     },
     {
       "source": "/(.*)",
