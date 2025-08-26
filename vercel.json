@@ -2,34 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "source": "/products/:id",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": "(?i).*(WhatsApp|facebookexternalhit|Twitterbot|Slackbot|Discordbot|LinkedInBot|Pinterest|bot|crawl|spider).*"
-        }
-      ],
-      "destination": "https://minimart-backend.vercel.app/products/:id"
+      "source": "/product/:id",
+      "destination": "https://minimart-storefront.vercel.app/:storeId/product/:id"
     },
     {
       "source": "/",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": "(?i).*(WhatsApp|facebookexternalhit|Twitterbot|Slackbot|Discordbot|LinkedInBot|Pinterest|bot|crawl|spider).*"
-        }
-      ],
-      "destination": "https://minimart-backend.vercel.app/"
-    },
-    {
-      "source": "/products/:id",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/",
-      "destination": "/index.html"
+      "destination": "https://minimart-storefront.vercel.app/:storeId"
     },
     {
       "source": "/(.*)",
