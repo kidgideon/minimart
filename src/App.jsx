@@ -15,6 +15,7 @@ import OrderArea from "../businessPages/orderArea";
 import Analysis from "../businessPages/analysis";
 import { ThemeProvider } from "./ThemeContext";
 import ScrollToTop from "./hooks/scrolltotop";
+import Customers from "../businessPages/customers";
 
 function App() {
   return (
@@ -105,6 +106,15 @@ function App() {
           element={
             <ThemeProvider>
               <Analysis />
+            </ThemeProvider>
+          }
+        />
+
+         <Route
+          path="/customers"
+          element={
+            <ThemeProvider>
+              <Customers />
             </ThemeProvider>
           }
         />

@@ -13,6 +13,7 @@ const NAV_ITEMS = [
 	{ label: "Orders", icon: "fas fa-shopping-cart", path: "/orders" },
 	{ label: "analysis", icon: "fas fa-chart-line", path: "/analysis" },
 	{ label: "catalogue", icon: "fas fa-briefcase", path: "/catalogue" },
+    { label: "customers", icon: "fa-solid fa-users", path: "/customers" },
 	{ label: "Settings", icon: "fas fa-cog", path: "/settings" },
 	{ label: "Help Center", icon: "fas fa-question-circle", path: "/help" }
 ];

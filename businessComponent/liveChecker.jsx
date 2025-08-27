@@ -4,6 +4,7 @@ import styles from "./liveChecker.module.css";
 import defaultLogo from "../src/images/logo.png";
 import { db } from "../src/hooks/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import {toast} from "sonner"
 
 const LiveChecker = ({ storeId }) => {
   const [loading, setLoading] = useState({
@@ -60,15 +61,13 @@ const LiveChecker = ({ storeId }) => {
     setLoading(prev => ({ ...prev, share: true }));
     try {
       const shareData = {
-        title: `${businessData?.businessName || "Our Store"}`,
-        text: "Check out our store!",
         url: `https://${storeId}.minimart.ng`,
       };
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
         navigator.clipboard.writeText(shareData.url);
-        alert("Link copied to clipboard!");
+        toast.success("Link copied to clipboard!");
       }
     } catch (err) {
       console.error("Share failed:", err);
@@ -81,7 +80,7 @@ const LiveChecker = ({ storeId }) => {
     setLoading(prev => ({ ...prev, copy: true }));
     try {
       await navigator.clipboard.writeText(`https://${storeId}.minimart.ng`);
-      alert("Link copied!");
+      toast.sucess("Link copied!");
     } catch (err) {
       console.error("Copy failed:", err);
     } finally {
