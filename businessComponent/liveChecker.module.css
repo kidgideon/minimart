@@ -1,0 +1,180 @@
+.checkerContainer {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.storeAccountActive {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* Very subtle shadow */
+    padding: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.storeAccountActive:hover {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); /* Slightly stronger on hover */
+}
+
+
+.storeAccountActive button {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.storeAccountActive button:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.storeAccountActive button:active {
+    transform: scale(0.98);
+}
+
+.storeAccountActive button i {
+    font-size: 14px;
+}
+
+.bottomActive {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
+    margin: 10px 0;
+    gap: 10px;
+}
+
+.bottomActive button {
+    flex: 1;
+    max-width: 150px;
+    text-align: center;
+}
+
+
+.logo {
+    width: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.topActive {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bottomActive {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin: 15px 0;
+}
+
+.textArea {
+    width: 85%;
+    text-align: start;
+    font-size: 16px;
+}
+
+.active {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #28a745;
+    border-radius: 50%;
+    margin-left: 6px;
+}
+
+.warningBox {
+    width: 83%;
+    background: #fff3cd;
+    color: #856404;
+    border: 2px solid #ffeeba;
+    padding: 20px 5px;
+    border-radius: 8px;
+    font-size: 15px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mainText {
+    width: 90%;
+    text-align: start;
+}
+
+.subText {
+    width: 90%;
+    text-align: end;
+    font-size: 120%;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.nextArrow {
+    position: absolute;
+    right: 15px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+}
+
+
+
+@media (max-width: 700px) {  
+  .checkerContainer {
+    width: 90%;
+  }
+
+  .storeAccountActive button {
+    font-size: 10px;
+  }
+
+  .topActive {
+    gap: 20px;
+    color: gray;
+  }
+
+  .logo img {
+    width: 60px;
+    height: 60px;
+  }
+}
