@@ -7,31 +7,44 @@ import styles from "./orderArea.module.css";
 import Navbar from "../businessComponent/navbar";
 
 function WarningModal({ onConfirm, onCancel }) {
-return (
-  <div className={styles.modalOverlay}>
-    <div className={styles.modalContainer}>
-      <div className={styles.modalIcon}>
-        <i className="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <h3 className={styles.modalTitle}>Heads Up!</h3>
-      <p className={styles.modalText}>
-        Cancelling an order without refunding the buyer is considered unethical.<br />
-        Provide a clear reason to the buyer if you cancel.<br />
-        <b>If the buyer has paid, refund the money.</b>
-      </p>
-      <div className={styles.modalButtons}>
-        <button className={styles.confirmBtn} onClick={onConfirm}>
-          Proceed with Cancellation
-        </button>
-        <button className={styles.cancelBtn} onClick={onCancel}>
-          Go Back
-        </button>
+  return (
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContainer}>
+        <div className={styles.modalIcon}>
+          <i className="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 className={styles.modalTitle}>Heads Up!</h3>
+        <p className={styles.modalText}>
+          Cancelling an order without refunding the buyer is considered unethical.<br />
+          Provide a clear reason to the buyer if you cancel.<br />
+          <b>If the buyer has paid, refund the money.</b>
+        </p>
+        <div className={styles.modalButtons}>
+          <button className={styles.confirmBtn} onClick={onConfirm}>
+            Proceed with Cancellation
+          </button>
+          <button className={styles.cancelBtn} onClick={onCancel}>
+            Go Back
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-);
-
+  );
 }
+
+const Skeleton = ({ width = "100%", height = "20px", style = {} }) => (
+  <div
+    style={{
+      width,
+      height,
+      background: "linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%)",
+      backgroundSize: "200% 100%",
+      animation: `${styles.skeletonLoading} 1.5s infinite`,
+      borderRadius: "4px",
+      ...style,
+    }}
+  />
+);
 
 const OrderArea = () => {
   const { orderId } = useParams();
@@ -59,8 +72,6 @@ const OrderArea = () => {
       if (orderDoc.exists()) {
         const data = orderDoc.data();
         setOrder(data);
-
-        // Section-wise loading complete
         setLoadingCustomer(false);
         setLoadingProducts(false);
         setLoadingPayment(false);
@@ -84,9 +95,7 @@ const OrderArea = () => {
     setActionLoading(false);
   };
 
-  const handleCancelOrder = async () => {
-    setShowCancelModal(true);
-  };
+  const handleCancelOrder = async () => setShowCancelModal(true);
 
   const confirmCancelOrder = async () => {
     setActionLoading(true);
@@ -105,7 +114,20 @@ const OrderArea = () => {
   const customer = order?.customerInfo || {};
   const products = order?.products || [];
   const payment = order?.paymentInfo || {};
+  const orderCancelled = order?.cancelled;
+  const orderCompleted = order?.completed;
   const shipping = { state: customer.state, street: customer.street };
+
+  // Determine order status text & color
+  let orderStatusText = "Incomplete";
+  let orderStatusColor = "orange";
+  if (orderCancelled) {
+    orderStatusText = "Cancelled";
+    orderStatusColor = "red";
+  } else if (orderCompleted) {
+    orderStatusText = "Completed";
+    orderStatusColor = "green";
+  }
 
   return (
     <div className="container">
@@ -113,13 +135,13 @@ const OrderArea = () => {
 
       <div className="displayArea">
         {/* Customer Info */}
-      
         <div className={styles.customerInfo}>
           {loadingCustomer ? (
             <>
-              <div className="skeleton skeletonImage"></div>
-              <div className="skeleton skeletonText"></div>
-              <div className="skeleton skeletonText"></div>
+              <Skeleton width="60px" height="60px" style={{ borderRadius: "50%" }} />
+              <Skeleton width="120px" height="20px" style={{ marginTop: "8px" }} />
+              <Skeleton width="200px" height="16px" style={{ marginTop: "4px" }} />
+              <Skeleton width="180px" height="16px" style={{ marginTop: "4px" }} />
             </>
           ) : (
             <>
@@ -132,6 +154,10 @@ const OrderArea = () => {
                 <p><i className="fa-solid fa-envelope"></i> {customer.email}</p>
                 <p><i className="fa-solid fa-phone"></i> {customer.whatsapp}</p>
               </div>
+
+              <div className={styles.orderStatusDet}>
+                <p style={{ color: orderStatusColor, fontWeight: "bold" }}>{orderStatusText}</p>
+              </div>
             </>
           )}
         </div>
@@ -140,10 +166,7 @@ const OrderArea = () => {
         <div className={styles.shippingInfo}>
           <p className={styles.infoText}>Shipping Info</p>
           {loadingCustomer ? (
-            <>
-              <div className="skeleton skeletonText"></div>
-              <div className="skeleton skeletonText"></div>
-            </>
+            <Skeleton width="180px" height="16px" />
           ) : (
             <>
               <p><i className="fa-solid fa-location-dot"></i> {shipping.state}</p>
@@ -158,21 +181,17 @@ const OrderArea = () => {
           <div className={styles.products}>
             {loadingProducts ? (
               [...Array(2)].map((_, idx) => (
-                <div className={styles.product} key={idx}>
-                  <div className="skeleton skeletonImage"></div>
-                  <div>
-                    <div className="skeleton skeletonText"></div>
-                    <div className="skeleton skeletonText"></div>
-                  </div>
+                <div key={idx} style={{ marginBottom: "10px" }}>
+                  <Skeleton width="60px" height="60px" style={{ borderRadius: "4px", marginBottom: "4px" }} />
+                  <Skeleton width="150px" height="16px" style={{ marginBottom: "2px" }} />
+                  <Skeleton width="100px" height="16px" />
                 </div>
               ))
             ) : (
               products.map((prod, idx) => (
                 <div className={styles.product} key={idx}>
                   <div className={styles.image}>
-                    {prod.images && prod.images[0] && (
-                      <img src={prod.images[0]} alt={prod.name} />
-                    )}
+                    {prod.images && prod.images[0] && <img src={prod.images[0]} alt={prod.name} />}
                   </div>
                   <div className={styles.details}>
                     <div className={styles.name}>{prod.name}</div>
@@ -192,9 +211,9 @@ const OrderArea = () => {
           <p className={styles.header}><i className="fa-solid fa-credit-card"></i> Payment Details</p>
           {loadingPayment ? (
             <>
-              <div className="skeleton skeletonText"></div>
-              <div className="skeleton skeletonText"></div>
-              <div className="skeleton skeletonText"></div>
+              <Skeleton width="120px" height="16px" />
+              <Skeleton width="120px" height="16px" style={{ marginTop: "6px" }} />
+              <Skeleton width="150px" height="16px" style={{ marginTop: "6px" }} />
             </>
           ) : (
             <>

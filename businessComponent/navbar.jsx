@@ -7,6 +7,9 @@ import { auth, db } from "../src/hooks/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import styles from "./navbar.module.css";
+import { fetchBusinessData } from "../src/hooks/fetchBusinessData";
+import { useQuery } from "@tanstack/react-query";
+
 
 const NAV_ITEMS = [
 	{ label: "dashboard", icon: "fa-solid fa-table-columns", path: "/dashboard" },
@@ -25,14 +28,10 @@ const Navbar = () => {
 	const [notifOpen, setNotifOpen] = useState(false);
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
-	const [bizLogo, setBizLogo] = useState(null);
-	const [bizLogoLoading, setBizLogoLoading] = useState(true);
-	const [bizName, setBizName] = useState("");
-	const [bizNameLoading, setBizNameLoading] = useState(true);
-	const [plan, setPlan] = useState("");
+	const [bizLogoLoading, setBizLogoLoading] = useState(false);
+	const [bizNameLoading, setBizNameLoading] = useState(false);
 	const [planLoading, setPlanLoading] = useState(true);
 	const [logoutLoading, setLogoutLoading] = useState(false);
-	const [notifCount, setNotifCount] = useState(0);
 	const notifPanelRef = useRef(null);
 	const menuRef = useRef(null);
 	const location = useLocation();
@@ -68,81 +67,22 @@ const Navbar = () => {
 		return () => window.removeEventListener("popstate", handlePop);
 	}, [notifOpen, isMobile]);
 
-	useEffect(() => {
-		let unsubscribed = false;
 
-		const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-			if (!user || unsubscribed) return;
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["businessData"],
+    queryFn: fetchBusinessData,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 30, // 30 minutes
+    refetchOnWindowFocus: false,
+    retry: 1
+  });
 
-			try {
-				// Step 1: Get businessId from users collection
-				const userDocRef = doc(db, "users", user.uid);
-				const userSnap = await getDoc(userDocRef);
-				if (!userSnap.exists()) throw new Error("User not found");
-
-				const { businessId } = userSnap.data();
-				if (!businessId) throw new Error("No businessId linked to user");
-
-				// Step 2: Fetch business data using businessId
-				const bizDocRef = doc(db, "businesses", businessId);
-				const bizSnap = await getDoc(bizDocRef);
-				if (!bizSnap.exists()) throw new Error("Business not found");
-
-				const data = bizSnap.data();
-
-				// Business Name
-				setBizName(data.businessName || "");
-				setBizNameLoading(false);
-
-				// Plan
-				const planType = data.plan?.plan || "free";
-				setPlan(planType);
-				setPlanLoading(false);
-
-				// Logo
-				if (data.customTheme?.logo) {
-					const img = new window.Image();
-					img.onload = () => {
-						if (!unsubscribed) {
-							setBizLogo(data.customTheme.logo);
-							setBizLogoLoading(false);
-						}
-					};
-					img.onerror = () => {
-						if (!unsubscribed) {
-							setBizLogo(PLACEHOLDER_LOGO);
-							setBizLogoLoading(false);
-						}
-					};
-					img.src = data.customTheme.logo;
-				} else {
-					setBizLogo(PLACEHOLDER_LOGO);
-					setBizLogoLoading(false);
-				}
-
-				// Notifications count
-				const notifications = Array.isArray(data.notifications) ? data.notifications : [];
-				const unread = notifications.filter(n => n.read === false).length;
-				setNotifCount(unread);
-
-			} catch (e) {
-				console.error("Error fetching business:", e);
-				setBizNameLoading(false);
-				setPlanLoading(false);
-				setBizLogo(PLACEHOLDER_LOGO);
-				setBizLogoLoading(false);
-				setNotifCount(0);
-			}
-		});
-
-		return () => {
-			unsubscribed = true;
-			unsubscribeAuth();
-		};
-	}, []);
+  const bizName = data?.bizName || "";
+  const plan = data?.plan || "free";
+  const bizLogo = data?.logo || logo;
+  const notifCount = data?.notifications?.filter(n => !n.read).length || 0;
 
 
-	// Logout handler
 	const handleLogout = async () => {
 		if (!window.confirm("Are you sure you want to logout?")) return;
 		setLogoutLoading(true);

@@ -1,5 +1,6 @@
 import styles from "./products.module.css"
 import design from "./itemDesign.module.css"
+import { useQuery } from "@tanstack/react-query";
 import {auth, db , storage} from "../src/hooks/firebase"
 import testImage1 from "../src/images/prod1.jpeg"
 import React, { useEffect, useState, useMemo } from "react";
@@ -31,47 +32,52 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+const { isLoading, isError, data, refetch } = useQuery({
+    queryKey: ["products"],
+    queryFn: () =>
+      new Promise((resolve, reject) => {
+        const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+          if (!firebaseUser) {
+            unsub();
+            return reject(new Error("User not authenticated"));
+          }
+          try {
+            setUser(firebaseUser);
+            const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+            const userData = userDoc.exists() ? userDoc.data() : null;
+            if (!userData?.businessId) throw new Error("No business ID linked");
 
-// Fetch user and business (without handling store colors/themes)
-useEffect(() => {
-  const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-    setUser(firebaseUser);
+            const businessDoc = await getDoc(doc(db, "businesses", userData.businessId));
+            const businessData = businessDoc.exists() ? businessDoc.data() : null;
 
-    if (firebaseUser) {
-      try {
-        // Get user doc
-        const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-        const userData = userDoc.exists() ? userDoc.data() : null;
-
-        if (userData?.businessId) {
-          // Get business doc
-          const businessDoc = await getDoc(doc(db, "businesses", userData.businessId));
-          const businessData = businessDoc.exists() ? businessDoc.data() : null;
-
-          setBusiness(businessData);
-
-          // Set products only (skip theme completely)
-          setProducts(
-            businessData?.products
+            setBusiness(businessData);
+            const sortedProducts = businessData?.products
               ? [...businessData.products].sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
-              : []
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching user or business data:", error);
-      }
-    } else {
-      // Reset if user logs out
-      setBusiness(null);
-      setProducts([]);
-    }
+              : [];
 
-    setLoading(false);
+            resolve({ user: firebaseUser, business: businessData, products: sortedProducts });
+          } catch (err) {
+            reject(err);
+          } finally {
+            unsub();
+          }
+        });
+      }),
+    staleTime: 1000 * 60 * 5, // cache 5 mins
+    refetchOnWindowFocus: false,
   });
 
-  return () => unsub();
-}, []);
-
+  useEffect(() => {
+    if (data?.products) {
+      setProducts(data.products);
+    }
+    if (data?.business) {
+      setBusiness(data.business);
+    }
+    if (data?.user) {
+      setUser(data.user);
+    }
+  }, [data]);
 
 
   // Search and category filter state
@@ -315,7 +321,7 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", minHeight: 200 }}>
           <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: 32, color: "#888" }}></i>
         </div>
@@ -688,8 +694,6 @@ async function handleDeleteProduct(deleteConfirm, business, products, setProduct
           style={{ cursor: "pointer" }}
           onClick={async () => {
             const shareData = {
-              title: name,
-              text: `Check out this product: ${name}`,
               url: `https://${business.businessId}.minimart.ng/product/${prodId}`,
             };
 

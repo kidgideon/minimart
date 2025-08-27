@@ -45,6 +45,16 @@
   max-width: 300px;
 }
 
+.editBtn {
+  width: 100%;
+  background-color: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 10px 0px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .cards {
     width: 100%;
     display: flex;

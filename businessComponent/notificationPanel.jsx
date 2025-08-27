@@ -1,91 +1,98 @@
 import styles from "./notificationPanel.module.css";
 import { auth, db } from "../src/hooks/firebase";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { onAuthStateChanged } from "firebase/auth";
 
+const fetchNotificationsData = async () => {
+  const user = await new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (authUser) => {
+        unsubscribe();
+        if (authUser) resolve(authUser);
+        else reject(new Error("User not authenticated"));
+      },
+      (error) => {
+        unsubscribe();
+        reject(error);
+      }
+    );
+  });
+
+  const userDocRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userDocRef);
+  if (!userSnap.exists()) throw new Error("User not found");
+
+  const { businessId } = userSnap.data();
+  if (!businessId) throw new Error("No businessId linked to user");
+
+  const bizDocRef = doc(db, "businesses", businessId);
+  const bizSnap = await getDoc(bizDocRef);
+  if (!bizSnap.exists()) throw new Error("Business not found");
+
+  const data = bizSnap.data();
+  const plan = data?.plan?.plan || "free";
+
+  const primary = data?.customTheme?.primaryColor?.trim()
+    ? data.customTheme.primaryColor
+    : "#1C2230";
+  const secondary = data?.customTheme?.secondaryColor?.trim()
+    ? data.customTheme.secondaryColor
+    : "#43B5F4";
+
+  const sortedNotifications = (data?.notifications || []).slice().sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
+  return {
+    notifications: sortedNotifications,
+    theme: {
+      primaryColor: plan === "pro" ? primary : "#1C2230",
+      secondaryColor: plan === "pro" ? secondary : "#43B5F4",
+    },
+    businessId,
+  };
+};
+
 const NotificationPanel = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState({
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["notificationsData"],
+    queryFn: fetchNotificationsData,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  const notifications = data?.notifications || [];
+  const theme = data?.theme || {
     primaryColor: "#1C2230",
     secondaryColor: "#43B5F4",
-  });
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    let unsubscribed = false;
-
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-      if (!user || unsubscribed) return;
-
-      setLoading(true);
-      try {
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userDocRef);
-        if (!userSnap.exists()) return;
-
-        const { businessId } = userSnap.data();
-        if (!businessId) return;
-
-        const bizDocRef = doc(db, "businesses", businessId);
-        const bizSnap = await getDoc(bizDocRef);
-        if (!bizSnap.exists()) return;
-
-        const data = bizSnap.data();
-        const plan = data?.plan?.plan || "free";
-        const notifications = data?.notifications || [];
-
-        const primary = data?.customTheme?.primaryColor || "";
-        const secondary = data?.customTheme?.secondaryColor || "";
-
-        setTheme({
-          primaryColor: plan === "pro" && primary.trim() ? primary : "#1C2230",
-          secondaryColor: plan === "pro" && secondary.trim() ? secondary : "#43B5F4",
-        });
-
-        const sorted = notifications
-          .slice()
-          .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        setNotifications(sorted);
-      } catch (err) {
-        console.error("Error fetching notifications:", err);
-      }
-      setLoading(false);
-    });
-
-    return () => {
-      unsubscribed = true;
-      unsubscribeAuth();
-    };
-  }, []);
+  };
+  const businessId = data?.businessId;
 
   const handleNotificationClick = async (note, index) => {
-    // Update read status in state immediately
-    const updated = [...notifications];
-    updated[index] = { ...note, read: true };
-    setNotifications(updated);
+    if (!businessId) return;
 
-    // Navigate if there’s a link
-    if (note.link) navigate(`${note.link}`);
+    // Optimistically update cache
+    queryClient.setQueryData(["notificationsData"], (oldData) => {
+      if (!oldData) return oldData;
+      const updatedNotifications = [...oldData.notifications];
+      updatedNotifications[index] = { ...note, read: true };
+      return { ...oldData, notifications: updatedNotifications };
+    });
 
-    // Update Firestore
+    if (note.link) navigate(note.link);
+
+    // Persist change to Firestore
     try {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const userDocRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userDocRef);
-      if (!userSnap.exists()) return;
-
-      const { businessId } = userSnap.data();
-      if (!businessId) return;
-
       const bizDocRef = doc(db, "businesses", businessId);
-
-      // Update the specific notification read status in Firestore
       const bizSnap = await getDoc(bizDocRef);
       if (!bizSnap.exists()) return;
 
@@ -97,14 +104,21 @@ const NotificationPanel = () => {
       await updateDoc(bizDocRef, { notifications: updatedNotifications });
     } catch (err) {
       console.error("Error updating notification read status:", err);
+      // Rollback optimistic update if needed
+      queryClient.invalidateQueries(["notificationsData"]);
     }
   };
 
   return (
     <div className={styles.NotificationPanel}>
-      {loading ? (
+      {isLoading ? (
         <div className={styles.loading}>
           <i className="fa-solid fa-spinner fa-spin"></i>
+        </div>
+      ) : isError ? (
+        <div className={styles.noNotification}>
+          <i className="fa-solid fa-exclamation-triangle"></i>
+          <p>Failed to load notifications</p>
         </div>
       ) : notifications.length === 0 ? (
         <div className={styles.noNotification}>

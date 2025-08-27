@@ -137,7 +137,7 @@ const Business = () => {
 
           {/* WhatsApp - required */}
           <div className={styles.inputGroup}>
-            <i className="fa fa-whatsapp"></i>
+            <i class="fa-brands fa-whatsapp"></i>
             <input
               type="tel"
               value={business.whatsappNumber || ""}
@@ -149,7 +149,7 @@ const Business = () => {
 
           {/* Instagram */}
           <div className={styles.inputGroup}>
-            <i className="fa fa-instagram"></i>
+           <i class="fa-brands fa-instagram"></i>
             <input
               type="url"
               value={business.instagramLink || ""}
@@ -160,7 +160,7 @@ const Business = () => {
 
           {/* YouTube */}
           <div className={styles.inputGroup}>
-            <i className="fa fa-youtube"></i>
+          <i class="fa-brands fa-youtube"></i>
             <input
               type="url"
               value={business.youtubeLink || ""}
@@ -171,7 +171,7 @@ const Business = () => {
 
           {/* TikTok */}
           <div className={styles.inputGroup}>
-            <i className="fa fa-music"></i>
+           <i class="fa-brands fa-tiktok"></i>
             <input
               type="url"
               value={business.tikTokLink || ""}
@@ -253,7 +253,7 @@ const Business = () => {
           {/* Opening Hours */}
           <div className={styles.inputGroup}>
             <label>Opening Hours</label>
-            <input
+            <input style={{margin: "10px 0px"}}
               type="time"
               value={business.otherInfo?.openingHours?.from || ""}
               onChange={(e) =>

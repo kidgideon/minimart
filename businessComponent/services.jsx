@@ -7,6 +7,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import testImage1 from "../src/images/prod1.jpeg";
 import { Toaster, toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
 function ModalOverlay({ children }) {
   return (
@@ -173,54 +174,54 @@ const Services = () => {
   }
 
  
+  const { isLoading, isError, data, refetch } = useQuery({
+    queryKey: ["services"],
+    queryFn: () =>
+      new Promise((resolve, reject) => {
+        const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+          if (!firebaseUser) {
+            unsub();
+            return reject(new Error("User not authenticated"));
+          }
+          try {
+            setUser(firebaseUser);
+            const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+            const userData = userDoc.exists() ? userDoc.data() : null;
+            if (!userData?.businessId) throw new Error("No business ID linked");
 
-  // Fetch user and business ONCE (no live listener)
+            const businessDoc = await getDoc(doc(db, "businesses", userData.businessId));
+            const businessData = businessDoc.exists() ? businessDoc.data() : null;
+
+            setBusiness(businessData);
+            const sortedServices = businessData?.services
+              ? [...businessData.services].sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
+              : [];
+
+            resolve({ user: firebaseUser, business: businessData, services: sortedServices });
+          } catch (err) {
+            reject(err);
+          } finally {
+            unsub();
+          }
+        });
+      }),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+
   useEffect(() => {
-    let ignore = false;
-    const fetchData = async () => {
-      setLoading(true);
-      setUser(null);
-      setBusiness(null);
-      setServices([]);
-      setFeatured([]);
-      await new Promise(res => setTimeout(res, 0));
-      onAuthStateChanged(auth, async (firebaseUser) => {
-        if (!firebaseUser) {
-          if (!ignore) {
-            setUser(null);
-            setBusiness(null);
-            setServices([]);
-            setFeatured([]);
-            setLoading(false);
-          }
-          return;
-        }
-        setUser(firebaseUser);
-        const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-        const userData = userDoc.exists() ? userDoc.data() : null;
-        if (userData && userData.businessId) {
-          const businessRef = doc(db, "businesses", userData.businessId);
-          const snap = await getDoc(businessRef);
-          const data = snap.exists() ? snap.data() : null;
-          if (!ignore) {
-            setBusiness(data);
-            setServices(data && data.services ? [...data.services].sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)) : []);
-            setFeatured(data && data.featured ? data.featured : []);
-            setLoading(false);
-          }
-        } else {
-          if (!ignore) {
-            setBusiness(null);
-            setServices([]);
-            setFeatured([]);
-            setLoading(false);
-          }
-        }
-      });
-    };
-    fetchData();
-    return () => { ignore = true; };
-  }, []);
+    if (data?.services) {
+      setServices(data.services);
+    }
+    if (data?.business) {
+      setBusiness(data.business);
+    }
+    if (data?.user) {
+      setUser(data.user);
+    }
+  }, [data]);
+
+
   // --- Category logic ---
   // Get all categories from services
   const categories = useMemo(() => {
@@ -437,8 +438,6 @@ const Services = () => {
           style={{ cursor: "pointer" }}
           onClick={async () => {
             const shareData = {
-              title: name,
-              text: `Check out this product: ${name}`,
               url: `https://${business.businessId}.minimart.ng/product/${serviceId}`,
             };
 
@@ -495,7 +494,7 @@ const Services = () => {
         />
       </div>
       <div className={styles.Services}>
-        {loading ? (
+        {isLoading  ? (
           <div className={styles.loadingElement}><i className="fa-solid fa-spinner fa-spin"></i></div>
         ) : filteredServices.length === 0 ? (
           <div className={styles.noServices}>

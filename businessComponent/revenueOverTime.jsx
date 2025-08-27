@@ -1,63 +1,64 @@
-import { useEffect, useState, useRef } from "react";
+
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../src/hooks/firebase";
 import { startOfDay, startOfWeek, startOfMonth, startOfYear } from "date-fns";
 import styles from "./revenueOverTime.module.css";
 
+const fetchOrdersData = async (storeId, range) => {
+  if (!storeId) throw new Error("Missing storeId");
+
+  const bizSnap = await getDoc(doc(db, "businesses", storeId));
+  if (!bizSnap.exists()) return { ordersData: [], totalRevenue: 0 };
+
+  const ordersMeta = bizSnap.data().orders || [];
+  const orders = [];
+
+  for (let o of ordersMeta) {
+    const orderSnap = await getDoc(doc(db, "orders", o.orderId));
+    if (!orderSnap.exists()) continue;
+
+    const order = orderSnap.data();
+    if (!order.completed || order.cancelled) continue;
+
+    orders.push({ amount: order.amount, date: new Date(order.date) });
+  }
+
+  orders.sort((a, b) => a.date - b.date);
+
+  const now = new Date();
+  let filteredOrders = orders;
+  if (range === "day") filteredOrders = orders.filter(o => o.date >= startOfDay(now));
+  if (range === "week") filteredOrders = orders.filter(o => o.date >= startOfWeek(now));
+  if (range === "month") filteredOrders = orders.filter(o => o.date >= startOfMonth(now));
+  if (range === "year") filteredOrders = orders.filter(o => o.date >= startOfYear(now));
+
+  let cumulative = 0;
+  const data = filteredOrders.map((o) => {
+    cumulative += o.amount;
+    return { date: o.date, revenue: cumulative };
+  });
+
+  return {
+    ordersData: data,
+    totalRevenue: filteredOrders.reduce((sum, o) => sum + o.amount, 0)
+  };
+};
+
 const RevenueOverTime = ({ storeId }) => {
-  const [ordersData, setOrdersData] = useState([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [range, setRange] = useState("month"); // all, day, week, month, year
-  const svgRef = useRef(null);
+  const [range, setRange] = useState("month");
 
-  useEffect(() => {
-    if (!storeId) return;
+  const { data, isLoading } = useQuery({
+    queryKey: ["revenueOverTime", storeId, range],
+    queryFn: () => fetchOrdersData(storeId, range),
+    enabled: !!storeId,
+    staleTime: 1000 * 60 * 5, // cache for 5 min
+    cacheTime: 1000 * 60 * 10, // keep cached for 10 min
+  });
 
-    const fetchOrders = async () => {
-      setLoading(true);
-      try {
-        const bizSnap = await getDoc(doc(db, "businesses", storeId));
-        if (!bizSnap.exists()) return;
-
-        const ordersMeta = bizSnap.data().orders || [];
-        const orders = [];
-
-        for (let o of ordersMeta) {
-          const orderSnap = await getDoc(doc(db, "orders", o.orderId));
-          if (!orderSnap.exists()) continue;
-
-          const order = orderSnap.data();
-          if (!order.completed || order.cancelled) continue;
-
-          orders.push({ amount: order.amount, date: new Date(order.date) });
-        }
-
-        orders.sort((a, b) => a.date - b.date);
-
-        // Filter by range
-        const now = new Date();
-        let filteredOrders = orders;
-        if (range === "day") filteredOrders = orders.filter(o => o.date >= startOfDay(now));
-        if (range === "week") filteredOrders = orders.filter(o => o.date >= startOfWeek(now));
-        if (range === "month") filteredOrders = orders.filter(o => o.date >= startOfMonth(now));
-        if (range === "year") filteredOrders = orders.filter(o => o.date >= startOfYear(now));
-
-        let cumulative = 0;
-        const data = filteredOrders.map((o) => {
-          cumulative += o.amount;
-          return { date: o.date, revenue: cumulative };
-        });
-
-        setOrdersData(data);
-        setTotalRevenue(filteredOrders.reduce((sum, o) => sum + o.amount, 0));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, [storeId, range]);
+  const ordersData = data?.ordersData || [];
+  const totalRevenue = data?.totalRevenue || 0;
 
   const generatePath = (data, width, height, padding) => {
     if (!data.length) return "";
@@ -98,7 +99,6 @@ const RevenueOverTime = ({ storeId }) => {
     return path;
   };
 
-  // Dynamic revenue label
   const rangeLabels = {
     all: "Total Revenue",
     day: "Revenue Today",
@@ -127,7 +127,7 @@ const RevenueOverTime = ({ storeId }) => {
         {rangeLabels[range]}: ₦{totalRevenue.toLocaleString()}
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className={styles.loading}>
           <i className="fa-solid fa-spinner fa-spin"></i>
         </div>
@@ -137,12 +137,7 @@ const RevenueOverTime = ({ storeId }) => {
           <p>No revenue data yet.</p>
         </div>
       ) : (
-        <svg
-          ref={svgRef}
-          className={styles.chart}
-          viewBox="0 0 800 300"
-          preserveAspectRatio="none"
-        >
+        <svg className={styles.chart} viewBox="0 0 800 300" preserveAspectRatio="none">
           <path
             d={generateFillPath(ordersData, 800, 300, 40)}
             fill="var(--secondary-color)"

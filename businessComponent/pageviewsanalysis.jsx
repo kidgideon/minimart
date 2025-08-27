@@ -1,80 +1,65 @@
-import { useEffect, useState, useRef } from "react";
+
+import { useState, useRef } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../src/hooks/firebase";
 import { startOfDay, startOfWeek, startOfMonth, startOfYear } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import styles from "./pageviewanalysis.module.css";
 
+const fetchPageViews = async (storeId) => {
+  if (!storeId) return [];
+
+  const bizSnap = await getDoc(doc(db, "businesses", storeId));
+  if (!bizSnap.exists()) return [];
+
+  const viewsMeta = bizSnap.data().pageViews || [];
+
+  return viewsMeta
+    .map(v => ({
+      views: v.views || 0,
+      date: v.date?.toDate ? v.date.toDate() : new Date(v.date)
+    }))
+    .sort((a, b) => a.date - b.date);
+};
+
 const PageViewAnalysis = ({ storeId }) => {
-  const [pageViewData, setPageViewData] = useState([]);
-  const [totalViews, setTotalViews] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [range, setRange] = useState("month"); // all, day, week, month, year
   const svgRef = useRef(null);
 
-  useEffect(() => {
-    if (!storeId) return;
+  const { data: pageViews = [], isLoading } = useQuery({
+    queryKey: ["pageViews", storeId],
+    queryFn: () => fetchPageViews(storeId),
+    enabled: !!storeId,
+    staleTime: 1000 * 60 * 5, // cache for 5 minutes
+  });
 
-    const fetchPageViews = async () => {
-      setLoading(true);
-      try {
-        const bizSnap = await getDoc(doc(db, "businesses", storeId));
-        if (!bizSnap.exists()) return;
+  const now = new Date();
+  let filteredViews = pageViews;
+  if (range === "day") filteredViews = pageViews.filter(v => v.date >= startOfDay(now));
+  if (range === "week") filteredViews = pageViews.filter(v => v.date >= startOfWeek(now));
+  if (range === "month") filteredViews = pageViews.filter(v => v.date >= startOfMonth(now));
+  if (range === "year") filteredViews = pageViews.filter(v => v.date >= startOfYear(now));
 
-        const viewsMeta = bizSnap.data().pageViews || [];
-        console.log("Raw pageViews:", viewsMeta);
+  // If only one data point, treat as no data
+  if (filteredViews.length <= 1) filteredViews = [];
 
-        const pageViews = viewsMeta
-          .map(v => ({
-            views: v.views || 0,
-            date: v.date?.toDate ? v.date.toDate() : new Date(v.date)
-          }))
-          .sort((a, b) => a.date - b.date);
+  // Cumulative views
+  let cumulative = 0;
+  const pageViewData = filteredViews.map((v) => {
+    cumulative += v.views;
+    return { date: v.date, views: cumulative };
+  });
 
-        console.log("Mapped & sorted views:", pageViews);
-
-        const now = new Date();
-        let filteredViews = pageViews;
-        if (range === "day") filteredViews = pageViews.filter(v => v.date >= startOfDay(now));
-        if (range === "week") filteredViews = pageViews.filter(v => v.date >= startOfWeek(now));
-        if (range === "month") filteredViews = pageViews.filter(v => v.date >= startOfMonth(now));
-        if (range === "year") filteredViews = pageViews.filter(v => v.date >= startOfYear(now));
-
-        console.log(`Filtered (${range}):`, filteredViews);
-
-        // Create cumulative data
-        let cumulative = 0;
-        const data = filteredViews.map((v) => {
-          cumulative += v.views;
-          return { date: v.date, views: cumulative };
-        });
-
-        setPageViewData(data);
-        setTotalViews(filteredViews.reduce((sum, v) => sum + v.views, 0));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPageViews();
-  }, [storeId, range]);
+  const totalViews = filteredViews.reduce((sum, v) => sum + v.views, 0);
 
   const generatePath = (data, width, height, padding) => {
     if (!data.length) return "";
-
     const maxViews = Math.max(...data.map((d) => d.views), 1);
     let minDate = data[0].date.getTime();
     let maxDate = data[data.length - 1].date.getTime();
-
-    // If only one point, stretch line across
-    if (data.length === 1) {
-      minDate -= 1000;
-      maxDate += 1000;
-    }
-
     const scaleX = date =>
       padding + ((date.getTime() - minDate) / (maxDate - minDate || 1)) * (width - 2 * padding);
     const scaleY = views => height - padding - (views / maxViews) * (height - 2 * padding);
-
     const points = data.map(d => [scaleX(d.date), scaleY(d.views)]);
     let path = `M ${points[0][0]},${points[0][1]} `;
     for (let i = 1; i < points.length; i++) {
@@ -88,21 +73,12 @@ const PageViewAnalysis = ({ storeId }) => {
 
   const generateFillPath = (data, width, height, padding) => {
     if (!data.length) return "";
-
     const maxViews = Math.max(...data.map((d) => d.views), 1);
     let minDate = data[0].date.getTime();
     let maxDate = data[data.length - 1].date.getTime();
-
-    // Stretch fill for single point
-    if (data.length === 1) {
-      minDate -= 1000;
-      maxDate += 1000;
-    }
-
     const scaleX = date =>
       padding + ((date.getTime() - minDate) / (maxDate - minDate || 1)) * (width - 2 * padding);
     const scaleY = views => height - padding - (views / maxViews) * (height - 2 * padding);
-
     const points = data.map(d => [scaleX(d.date), scaleY(d.views)]);
     let path = `M ${points[0][0]},${height - padding} L ${points[0][0]},${points[0][1]} `;
     for (let i = 1; i < points.length; i++) {
@@ -139,18 +115,18 @@ const PageViewAnalysis = ({ storeId }) => {
         </select>
       </div>
 
-      <div style={{color: 'var(--secondary-color)'}} className={styles.totalViews}>
+      <div style={{ color: 'var(--secondary-color)' }} className={styles.totalViews}>
         {rangeLabels[range]}: {totalViews.toLocaleString()}
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className={styles.loading}>
           <i className="fa-solid fa-spinner fa-spin"></i>
         </div>
       ) : pageViewData.length === 0 ? (
         <div className={styles.noData}>
           <i className="fa-solid fa-chart-line"></i>
-          <p>No page view data yet.</p>
+          <p>No page view data to display.</p>
         </div>
       ) : (
         <svg
@@ -174,10 +150,6 @@ const PageViewAnalysis = ({ storeId }) => {
             const maxViews = Math.max(...pageViewData.map(d => d.views), 1);
             let minDate = pageViewData[0].date.getTime();
             let maxDate = pageViewData[pageViewData.length - 1].date.getTime();
-            if (pageViewData.length === 1) {
-              minDate -= 1000;
-              maxDate += 1000;
-            }
             const x = 40 + ((d.date.getTime() - minDate) / (maxDate - minDate || 1)) * (800 - 80);
             const y = 300 - 40 - (d.views / maxViews) * (300 - 80);
             return <circle key={i} cx={x} cy={y} r="4" fill="var(--secondary-color)" />;

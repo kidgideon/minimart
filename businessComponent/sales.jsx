@@ -1,78 +1,74 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../src/hooks/firebase";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import styles from "./sales.module.css";
 
-const Sales = ({ storeId }) => {
-  const [data, setData] = useState({
-    payoutTomorrow: 0,
-    salesToday: 0,
-    pageViewsToday: 0,
-    storeLikes: 0,
+const isSameDate = (date1, date2) => {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+};
+
+const fetchSalesData = async (storeId) => {
+  const today = new Date();
+  const businessRef = doc(db, "businesses", storeId);
+  const businessSnap = await getDoc(businessRef);
+
+  if (!businessSnap.exists()) return null;
+
+  const businessData = businessSnap.data();
+
+  const todayOrders = (businessData.orders || []).filter(order => {
+    const orderDate = new Date(order.date);
+    return isSameDate(orderDate, today);
   });
 
-  const [loading, setLoading] = useState(true);
+  let totalAmount = 0;
+  if (todayOrders.length > 0) {
+    const ordersSnap = await getDocs(collection(db, "orders"));
+    ordersSnap.forEach(docSnap => {
+      if (todayOrders.some(o => o.orderId === docSnap.id)) {
+        const orderData = docSnap.data();
+        totalAmount += orderData.amount || 0;
+      }
+    });
+  }
+
+  const pageViewsToday =
+    (businessData.pageViews || []).find(pv => {
+      const pvDate = new Date(pv.date);
+      return isSameDate(pvDate, today);
+    })?.views || 0;
+
+  return {
+    payoutTomorrow: totalAmount,
+    salesToday: todayOrders.length,
+    pageViewsToday,
+    storeLikes: businessData.storeLike || 0,
+  };
+};
+
+const Sales = ({ storeId }) => {
   const navigate = useNavigate();
 
-  const isSameDate = (date1, date2) => {
-    return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
-    );
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const today = new Date();
-
-        const businessRef = doc(db, "businesses", storeId);
-        const businessSnap = await getDoc(businessRef);
-
-        if (!businessSnap.exists()) return;
-
-        const businessData = businessSnap.data();
-
-        const todayOrders = (businessData.orders || []).filter(order => {
-          const orderDate = new Date(order.date);
-          return isSameDate(orderDate, today);
-        });
-
-        let totalAmount = 0;
-        if (todayOrders.length > 0) {
-          const ordersSnap = await getDocs(collection(db, "orders"));
-          ordersSnap.forEach(docSnap => {
-            if (todayOrders.some(o => o.orderId === docSnap.id)) {
-              const orderData = docSnap.data();
-              totalAmount += orderData.amount || 0;
-            }
-          });
-        }
-
-        const pageViewsToday =
-          (businessData.pageViews || []).find(pv => {
-            const pvDate = new Date(pv.date);
-            return isSameDate(pvDate, today);
-          })?.views || 0;
-
-        setData({
-          payoutTomorrow: totalAmount,
-          salesToday: todayOrders.length,
-          pageViewsToday,
-          storeLikes: businessData.storeLike || 0,
-        });
-      } catch (error) {
-        console.error("Error fetching sales data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (storeId) fetchData();
-  }, [storeId]);
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["salesData", storeId],
+    queryFn: () => fetchSalesData(storeId),
+    enabled: !!storeId,
+    staleTime: 1000 * 60 * 5, // Cache valid for 5 minutes
+    cacheTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false, // Avoid unnecessary refetching when switching tabs
+  });
 
   const handleClick = (index) => {
     if (index === 0) {
@@ -82,10 +78,18 @@ const Sales = ({ storeId }) => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={styles.loading}>
         <i className="fa-solid fa-spinner fa-spin"></i> Loading sales data...
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className={styles.loading}>
+        <i className="fa-solid fa-triangle-exclamation"></i> Failed to load sales data.
       </div>
     );
   }

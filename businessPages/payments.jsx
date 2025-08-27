@@ -15,6 +15,7 @@ const Payments = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [banks, setBanks] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
     accNo: "",
     bankCode: "",
@@ -61,7 +62,7 @@ const Payments = () => {
     }
   };
 
-  const handleAddAccount = async () => {
+  const handleSaveAccount = async () => {
     if (!businessRef || !form.accNo || !form.bankCode || !form.accName) {
       toast.error("Fill all fields and validate account");
       return;
@@ -77,12 +78,23 @@ const Payments = () => {
       await updateDoc(businessRef, { subAccount: subAcc });
       setSubAccount(subAcc);
       setPopupOpen(false);
-      toast.success("Business account added");
+      toast.success(isEditing ? "Business account updated" : "Business account added");
     } catch {
-      toast.error("Failed to add account");
+      toast.error("Failed to save account");
     } finally {
       setLoading(false);
     }
+  };
+
+  const openEditModal = () => {
+    if (!subAccount) return;
+    setForm({
+      accNo: subAccount.account_number || "",
+      bankCode: subAccount.settlement_bank_code || "",
+      accName: "", // force re-validation
+    });
+    setIsEditing(true);
+    setPopupOpen(true);
   };
 
   return (
@@ -93,7 +105,7 @@ const Payments = () => {
         {/* Bold tip at top */}
         <div className={styles.tipBox}>
           <p>
-            <b>Note:</b> All earnings for a business day will be paid the next business day, 
+            <b>Note:</b> All earnings for a business day will be paid the next business day,
             in accordance with Paystack payout rules. Your funds are safe and secure.
           </p>
         </div>
@@ -111,7 +123,7 @@ const Payments = () => {
           <div className={styles.top}>
             <p>Business Account</p>
             {!subAccount && (
-              <button onClick={() => setPopupOpen(true)}>
+              <button onClick={() => { setIsEditing(false); setPopupOpen(true); }}>
                 <i className="fa-solid fa-plus"></i>
               </button>
             )}
@@ -127,6 +139,9 @@ const Payments = () => {
               <input type="text" value={subAccount.account_name} readOnly />
               <label>Business Name</label>
               <input type="text" value={subAccount.business_name} readOnly />
+              <button className={styles.editBtn} onClick={openEditModal}>
+                <i style={{margin: "0px 5px"}} className="fa-solid fa-pen-to-square"></i>{" "} Update Bank Info
+              </button>
             </div>
           ) : (
             <div className={styles.emptyState}>
@@ -137,7 +152,7 @@ const Payments = () => {
           )}
         </div>
 
-        {/* Add Account Popup */}
+        {/* Add/Edit Account Popup */}
         <AnimatePresence>
           {popupOpen && (
             <motion.div
@@ -152,13 +167,13 @@ const Payments = () => {
                 animate={{ scale: 1 }}
                 exit={{ scale: 0.9 }}
               >
-                <h3>Add business account</h3>
-                   <div className={styles.tipBox}>
-        <p>
-  <b>Note:</b> Once a bank account is added, it cannot be changed without contacting support. 
-  Please double-check your account details to ensure they are correct. This ensures your payouts remain secure and go to the right account.
-</p>
-        </div>
+                <h3>{isEditing ? "Edit business account" : "Add business account"}</h3>
+                <div className={styles.tipBox}>
+                  <p>
+                    <b>Note:</b> Once your bank account is saved, payouts will use the latest verified details.
+                    Please ensure your account is valid to avoid payout delays.
+                  </p>
+                </div>
                 <label>Account Number</label>
                 <input
                   value={form.accNo}
@@ -175,7 +190,10 @@ const Payments = () => {
                     <option key={`${b.code}-${idx}`} value={b.code}>{b.name}</option>
                   ))}
                 </select>
-                <button onClick={handleValidate} disabled={loading || !form.accNo || !form.bankCode}>
+                <button
+                  onClick={handleValidate}
+                  disabled={loading || !form.accNo || !form.bankCode}
+                >
                   {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : "Validate Account"}
                 </button>
                 {form.accName && (
@@ -186,10 +204,11 @@ const Payments = () => {
                 <div className={styles.popupActions}>
                   <button onClick={() => setPopupOpen(false)}>Cancel</button>
                   <button
-                    onClick={handleAddAccount}
+                    onClick={handleSaveAccount}
                     disabled={loading || !form.accName}
                   >
-                    {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : "Add Account"}
+                    {loading ? <i className="fa-solid fa-spinner fa-spin"></i> :
+                      isEditing ? "Save Changes" : "Add Account"}
                   </button>
                 </div>
               </motion.div>

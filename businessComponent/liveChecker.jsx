@@ -1,94 +1,74 @@
+
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import styles from "./liveChecker.module.css";
 import defaultLogo from "../src/images/logo.png";
-import { db } from "../src/hooks/firebase";
+import { db, auth } from "../src/hooks/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import {toast} from "sonner"
+import { toast } from "sonner";
+import { onAuthStateChanged } from "firebase/auth";
+
+const fetchBusinessData = async (storeId, user) => {
+  if (!user) throw new Error("User not authenticated");
+  if (!storeId) throw new Error("No storeId provided");
+
+  const businessRef = doc(db, "businesses", storeId);
+  const businessSnap = await getDoc(businessRef);
+  if (!businessSnap.exists()) throw new Error("Business not found");
+
+  return businessSnap.data();
+};
 
 const LiveChecker = ({ storeId }) => {
-  const [loading, setLoading] = useState({
-    main: true,
-    activate: false,
-    share: false,
-    copy: false,
-  });
-  const [businessData, setBusinessData] = useState(null);
-  const [warning, setWarning] = useState(null);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  // Listen for auth state change
   useEffect(() => {
-    const fetchBusinessData = async () => {
-      setLoading(prev => ({ ...prev, main: true }));
-      try {
-        const businessRef = doc(db, "businesses", storeId);
-        const businessSnap = await getDoc(businessRef);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
-        if (!businessSnap.exists()) {
-          setWarning("Business not found.");
-          return;
-        }
-
-        const data = businessSnap.data();
-        setBusinessData(data);
-
-        const hasProductOrService = (data.products?.length > 0) || (data.services?.length > 0);
-        const hasAccount = !!data.subAccount;
-
-        if (!hasProductOrService) {
-          setWarning("noProducts");
-        } else if (!hasAccount) {
-          setWarning("noAccount");
-        } else {
-          setWarning(null);
-        }
-      } catch (error) {
-        setWarning("Failed to load store details.");
-        console.error(error);
-      } finally {
-        setLoading(prev => ({ ...prev, main: false }));
-      }
-    };
-
-    if (storeId) fetchBusinessData();
-  }, [storeId]);
+  // TanStack Query for fetching business data
+  const { data: businessData, error, isLoading, isFetching } = useQuery({
+    queryKey: ["businessData", storeId, user?.uid],
+    queryFn: () => fetchBusinessData(storeId, user),
+    enabled: !!user && !!storeId, // Only run when both are available
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    retry: 1, // Retry once if failed
+  });
 
   const handleVisit = () => {
     window.open(`https://${storeId}.minimart.ng`, "_blank");
   };
 
   const handleShare = async () => {
-    setLoading(prev => ({ ...prev, share: true }));
     try {
-      const shareData = {
-        url: `https://${storeId}.minimart.ng`,
-      };
+      const shareData = { url: `https://${storeId}.minimart.ng` };
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        navigator.clipboard.writeText(shareData.url);
+        await navigator.clipboard.writeText(shareData.url);
         toast.success("Link copied to clipboard!");
       }
     } catch (err) {
       console.error("Share failed:", err);
-    } finally {
-      setLoading(prev => ({ ...prev, share: false }));
     }
   };
 
   const handleCopy = async () => {
-    setLoading(prev => ({ ...prev, copy: true }));
     try {
       await navigator.clipboard.writeText(`https://${storeId}.minimart.ng`);
-      toast.sucess("Link copied!");
+      toast.success("Link copied!");
     } catch (err) {
       console.error("Copy failed:", err);
-    } finally {
-      setLoading(prev => ({ ...prev, copy: false }));
     }
   };
 
-  if (loading.main) {
+  if (isLoading || isFetching) {
     return (
       <div className={styles.loadingContainer}>
         <i className="fa-solid fa-spinner fa-spin"></i> Checking store status...
@@ -96,7 +76,19 @@ const LiveChecker = ({ storeId }) => {
     );
   }
 
-  if (warning === "noProducts") {
+  if (error) {
+    return (
+      <div className={styles.warningBox}>
+        <p className={styles.mainText}>{error.message}</p>
+      </div>
+    );
+  }
+
+  const hasProductOrService =
+    (businessData?.products?.length > 0) || (businessData?.services?.length > 0);
+  const hasAccount = !!businessData?.subAccount;
+
+  if (!hasProductOrService) {
     return (
       <div
         className={`${styles.warningBox} ${styles.clickable}`}
@@ -105,12 +97,14 @@ const LiveChecker = ({ storeId }) => {
         <p className={styles.mainText}>
           <strong>No products or services found!</strong> Add at least one to go live.
         </p>
-       <p className={styles.subText}><i class="fa-solid fa-angles-right"></i></p>
+        <p className={styles.subText}>
+          <i className="fa-solid fa-angles-right"></i>
+        </p>
       </div>
     );
   }
 
-  if (warning === "noAccount") {
+  if (!hasAccount) {
     return (
       <div
         className={`${styles.warningBox} ${styles.clickable}`}
@@ -119,7 +113,9 @@ const LiveChecker = ({ storeId }) => {
         <p className={styles.mainText}>
           <strong>No payout account found!</strong> Add one to activate your store.
         </p>
-       <p className={styles.subText}><i class="fa-solid fa-angles-right"></i></p>
+        <p className={styles.subText}>
+          <i className="fa-solid fa-angles-right"></i>
+        </p>
       </div>
     );
   }
@@ -130,48 +126,28 @@ const LiveChecker = ({ storeId }) => {
         <div className={styles.topActive}>
           <div className={styles.logo}>
             <img
-              src={
-                businessData?.customTheme?.logo
-                  ? businessData.customTheme.logo
-                  : defaultLogo
-              }
+              src={businessData?.customTheme?.logo || defaultLogo}
               alt="Store Logo"
             />
           </div>
           <div className={styles.textArea}>
             <p>
-              Your store is active{" "}
-              <span className={styles.active}></span>
+              Your store is active <span className={styles.active}></span>
             </p>
           </div>
         </div>
 
         <div className={styles.bottomActive}>
           <button onClick={handleVisit}>
-            {loading.activate ? (
-              <i className="fa-solid fa-spinner fa-spin"></i>
-            ) : (
-              <i className="fa-solid fa-braille"></i>
-            )}{" "}
-            Visit store
+            <i className="fa-solid fa-braille"></i> Visit store
           </button>
 
           <button onClick={handleShare}>
-            {loading.share ? (
-              <i className="fa-solid fa-spinner fa-spin"></i>
-            ) : (
-              <i className="fa-solid fa-share-nodes"></i>
-            )}{" "}
-            Share link
+            <i className="fa-solid fa-share-nodes"></i> Share link
           </button>
 
           <button onClick={handleCopy}>
-            {loading.copy ? (
-              <i className="fa-solid fa-spinner fa-spin"></i>
-            ) : (
-              <i className="fa-solid fa-copy"></i>
-            )}{" "}
-            Copy link
+            <i className="fa-solid fa-copy"></i> Copy link
           </button>
         </div>
       </div>
