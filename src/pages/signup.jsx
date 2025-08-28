@@ -34,6 +34,8 @@ const Signup = () => {
 
    const businessCategories = [
   "Bakery",
+   "Thrift",
+   "Dropshiping",
   "Fashion & Clothing",
   "Electronics",
   "Groceries",
@@ -215,71 +217,105 @@ const Signup = () => {
       createdAt: new Date().toISOString()
     });
 
-    // Create entry in businesses collection (keyed by businessId)
-    await setDoc(businessRef, {
-      ownerName: formData.ownerName,
-      businessEmail: formData.businessEmail,
-      businessName: formData.businessName,
-      businessId: formData.businessId,
-      whatsappNumber: formData.whatsappNumber,
-      businessCategory: formData.businessCategory,
-      ownerUid: uid,
-      createdAt: new Date(),
+     await setDoc(businessRef, {
+    // Basic Info
+    businessEmail: formData.businessEmail || "",
+    businessId: formData.businessId || "",
+    businessName: formData.businessName || "My Store",
+    whatsappNumber: formData.whatsappNumber || "",
+    businessCategory: formData.businessCategory || "General",
+    ownerName: formData.ownerName || "",
+    ownerUid: uid,
+    createdAt: new Date(),
 
-      // Plan info
-      plan: {
-        plan: "free",
-        dateStarted: new Date().toISOString(),
+    // Plan
+    plan: {
+      plan: "pro",
+      dateStarted: new Date().toISOString()
+    },
+
+    // Currency
+    storeCurrency: "Naira",
+    currencySymbol: "₦",
+    credits: 0,
+
+    // Branding
+    customTheme: {
+      logo: "",
+      primaryColor: "#1C2230",
+      secondaryColor: "#43B5F4"
+    },
+
+    // Layout Themes
+    layoutThemes: {
+      topBanner: {
+        align: "center",
+        darkOverlay: true,
+        image: "",
+        mainText: "Welcome to My Store",
+        subText: "Quality products, affordable prices",
+        extraText: ""
       },
-
-      // Branding
-      customTheme: {
-        primaryColor: "",
-        secondaryColor: "",
-        logo: "",
+      midBannerOne: {
+        align: "left",
+        darkOverlay: true,
+        image: "",
+        mainText: "Shop with ease",
+        subText: "10% off for new customers"
       },
+      midBannerTwo: {
+        align: "right",
+        darkOverlay: true,
+        image: "",
+        mainText: "",
+        subText: ""
+      }
+    },
 
-      // Currency and Payments
-      storeCurrency: "Naira",
-      paymentMethods: [],
-
-      // Banners
-      layoutThemes: {
-        topBanner: { image: "", mainText: "", subText: "" },
-        midBannerOne: { image: "", mainText: "", subText: "" },
-        midBannerTwo: { image: "", mainText: "", subText: "" }
+    // Other Info
+    otherInfo: {
+      storeLocation: "",
+      description: "This store is brand new. Add your description here.",
+      openingHours: {
+        from: "00:00",
+        to: "00:00",
       },
+       phoneNumber: formData.whatsappNumber || "",
+      shippingInformation: "",
+      ownerName: formData.ownerName || "",
+      ownerUid: uid
+    },
 
-      // Other Info
-      otherInfo: {
-        storeLocation: "",
-        description: ""
-      },
+    // Links
+    instagramLink: "",
+    tikTokLink: "",
+    youtubeLink: "",
 
-      // Status
-      verified: false,
-      credits: 0,
+    // Data arrays
+    featured: [],
+    products: [],
+    services: [],
+    orders: [],
+    pageViews: [],
+    viewedPage: [],
+    salesArray: [],
 
-      // Arrays
-      products: [],
-      services: [],
-      featured: [],
-      viewedPage: [],
-      orders: [],
-      searchedFor: [],
-      salesArray: [],
-      transactions: [],
+    // Engagement
+    storeLike: 0,
 
-      // Notifications
-      notifications: [
-        {
-          text: "Welcome to Minimart! Start by customizing your storefront.",
-          link: "/settings",
-          read: false,
-          date: new Date().toISOString()
-        }
-      ]
-    });
+    // Notifications
+    notifications: [
+      {
+        text: "Welcome to Minimart! Start by customizing your storefront.",
+        link: "/settings",
+        read: false,
+        date: new Date().toISOString()
+      }
+    ],
+
+    // Verification
+    verified: false
+  });
 
   
     toast.success("Business created successfully!");
