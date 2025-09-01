@@ -31,9 +31,10 @@ const Navbar = () => {
 
         {/* Desktop Nav */}
         <div className={styles.hamburgerArea}>
-          <Link><p>Join now</p></Link>
-          <Link><p>Login</p></Link>
-          <Link><p>About</p></Link>
+            <Link to={"/"}><p>Home</p></Link>
+          <Link to={"/signup"}><p>Join now</p></Link>
+          <Link to={"/signin"}><p>Login</p></Link>
+          <Link to={"/about"}><p>About</p></Link>
         </div>
 
         {/* Mobile Hamburger Icon */}
@@ -61,9 +62,10 @@ const Navbar = () => {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               ref={menuRef}
             >
-              <Link onClick={() => setIsOpen(false)}><p>Join now</p></Link>
-              <Link onClick={() => setIsOpen(false)}><p>Login</p></Link>
-              <Link onClick={() => setIsOpen(false)}><p>About</p></Link>
+              <Link to={"/"} onClick={() => setIsOpen(false)}><p>Home</p></Link>
+              <Link to={"/signup"} onClick={() => setIsOpen(false)}><p>Join now</p></Link>
+              <Link to={"/signin"} onClick={() => setIsOpen(false)}><p>Login</p></Link>
+              <Link to={"/about"} onClick={() => setIsOpen(false)}><p>About</p></Link>
             </motion.div>
           </div>
         )}

@@ -8,6 +8,8 @@
     background-color: #1C2230;
     color: white;
     padding: 20px 0px;
+    gap: 30px;
+    min-height: 300px;
 }
 
 .textSection {
@@ -16,7 +18,9 @@
     justify-content: center;
     align-items: start;
     flex-direction: column;
+    gap: 10px;
 }
+
 
 .textSection button {
     background-color: #43B5F4 ;
@@ -40,4 +44,52 @@
 
 .imageArea i {
     font-size: 700%;
+}
+
+   .imageArea img {
+    width: 300px;
+   }
+@media (max-width: 1200px) { 
+   .heroSection {
+      flex-direction: column;
+      gap: 30px;
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      height: 600px;
+      overflow: hidden;
+   }
+
+   .textSection {
+    width: 98%;
+    min-height: 300px;
+    gap: 10px;
+    align-items: center;
+   }
+
+   .textSection h1 {
+      width: 95%;
+      font-size: 150%;
+      text-align: start;
+      margin: 20px;
+   }
+
+   .textSection p {
+    width: 95%;
+    text-align: start;
+    color: #6e6e6e;
+   }
+
+   .imageArea {
+    width: 100%;
+   }
+
+   .imageArea img {
+    width: 300px;
+   }
+
+   .textSection button {
+    width: 95%;
+    padding: 20px 10px;
+   }
 }

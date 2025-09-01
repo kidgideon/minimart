@@ -1,0 +1,151 @@
+.footer {
+  width: 100%;
+  background-color: #1C2230; /* Minimart background */
+  color: white;
+  padding-top: 20px;
+  padding-bottom: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.topSection {
+  width: 96%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.companyInfo {
+  flex: 1 1 250px;
+  min-width: 250px;
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.logo {
+  width: 40px;
+}
+
+.contactInfo p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.linkGroup {
+  flex: 1 1 150px;
+  min-width: 150px;
+}
+
+.linkGroup h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.linkGroup ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linkGroup ul li {
+  margin-bottom: 8px;
+}
+
+.linkGroup ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.linkGroup ul li a:hover {
+  text-decoration: underline;
+}
+
+.newsletter {
+  flex: 1 1 250px;
+  min-width: 250px;
+}
+
+.subscribe {
+  display: flex;
+  margin: 10px 0;
+}
+
+.subscribe input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 5px 0 0 5px;
+  border: none;
+}
+
+.subscribe button {
+  padding: 8px 12px;
+  background-color: #43B5F4;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  color: white;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.socialIcons a {
+  color: white;
+  font-size: 16px;
+}
+
+.bottomSection {
+  width: 100%;
+  border-top: 1px solid #333;
+  padding-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 30px;
+}
+
+.legalLinks a {
+  margin-left: 15px;
+  color: #aaa;
+  text-decoration: none;
+}
+
+.legalLinks a:hover {
+  color: white;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .topSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .companyInfo, .linkGroup, .newsletter {
+    align-items: flex-start;
+  }
+  .linkGroup ul li {
+    margin-bottom: 5px;
+  }
+  .bottomSection {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .legalLinks a {
+    margin-left: 0;
+    margin-right: 15px;
+  }
+}
