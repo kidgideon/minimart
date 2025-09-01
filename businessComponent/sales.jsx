@@ -5,26 +5,23 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import styles from "./sales.module.css";
 
-const isSameDate = (date1, date2) => {
-  return (
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getDate() === date2.getDate()
-  );
+// Convert any date string or Date object to YYYY-MM-DD (UTC safe)
+const formatDateOnly = (date) => {
+  const d = new Date(date);
+  return d.toISOString().split("T")[0];
 };
 
 const fetchSalesData = async (storeId) => {
-  const today = new Date();
+  const today = formatDateOnly(new Date());
   const businessRef = doc(db, "businesses", storeId);
   const businessSnap = await getDoc(businessRef);
   if (!businessSnap.exists()) return null;
 
   const businessData = businessSnap.data();
 
-  // Orders for today
+  // Filter orders where the full date-time falls on today
   const todayOrders = (businessData.orders || []).filter(order => {
-    const orderDate = new Date(order.date);
-    return isSameDate(orderDate, today);
+    return formatDateOnly(order.date) === today;
   });
 
   let totalAmount = 0;
@@ -38,12 +35,10 @@ const fetchSalesData = async (storeId) => {
     });
   }
 
-  // Page views for today
-  const pageViewsToday =
-    (businessData.pageViews || []).find(pv => {
-      const pvDate = pv.date?.toDate ? pv.date.toDate() : new Date(pv.date);
-      return isSameDate(pvDate, today);
-    })?.views || 0;
+  // Page views for today (only date is used)
+  const pageViewsToday = (businessData.pageViews || [])
+    .filter(pv => formatDateOnly(pv.date) === today)
+    .reduce((acc, pv) => acc + (pv.views || 0), 0);
 
   return {
     payoutTomorrow: totalAmount,
@@ -52,7 +47,6 @@ const fetchSalesData = async (storeId) => {
     storeLikes: businessData.storeLike || 0,
   };
 };
-
 
 const Sales = ({ storeId }) => {
   const navigate = useNavigate();

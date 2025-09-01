@@ -1,5 +1,5 @@
 .container {
-  width: 100%;
+  width: 95%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -18,7 +18,7 @@
 
 .salesBoxOne, .salesBoxTwo, .salesBoxThree, .salesBoxFour {
   flex: 1 1 180px;
-  max-width: 200px;
+  max-width: 150px;
   min-width: 160px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -45,7 +45,7 @@
 }
 
 .salesBoxFour {
-  background-color: rgb(255, 234, 234);
+  background-color: rgb(255, 255, 194);
 }
 
 .salesBox:hover {

@@ -4,6 +4,7 @@ import { db } from "../src/hooks/firebase";
 import { useQuery } from "@tanstack/react-query";
 import styles from "./pageviewanalysis.module.css";
 
+// Function to fetch and normalize page views with date-only consistency
 const fetchPageViews = async (storeId) => {
   if (!storeId) return [];
 
@@ -12,11 +13,23 @@ const fetchPageViews = async (storeId) => {
 
   const viewsMeta = bizSnap.data().pageViews || [];
 
-  // Convert Firestore timestamps to Date safely
-  return viewsMeta.map(v => ({
-    views: v.views || 0,
-    date: v.date?.toDate ? v.date.toDate() : new Date(v.date)
-  }));
+  // Normalize dates to YYYY-MM-DD
+  return viewsMeta.map(v => {
+    let dateOnly;
+    if (v.date?.toDate) {
+      // Firestore Timestamp
+      dateOnly = v.date.toDate().toISOString().split("T")[0];
+    } else if (typeof v.date === "string") {
+      // String date
+      dateOnly = new Date(v.date).toISOString().split("T")[0];
+    } else {
+      dateOnly = new Date().toISOString().split("T")[0];
+    }
+    return {
+      views: v.views || 0,
+      date: new Date(dateOnly) // ensure Date object
+    };
+  });
 };
 
 const PageViewAnalysis = ({ storeId }) => {
@@ -30,7 +43,7 @@ const PageViewAnalysis = ({ storeId }) => {
     staleTime: 1000 * 60 * 5,
   });
 
-  // For now, ignore range filtering to show all-time data
+  // Sort by date
   const sortedViews = [...pageViews].sort((a, b) => a.date - b.date);
 
   // Cumulative views
@@ -42,6 +55,7 @@ const PageViewAnalysis = ({ storeId }) => {
 
   const totalViews = pageViews.reduce((sum, v) => sum + v.views, 0);
 
+  // Generate line path for chart
   const generatePath = (data, width, height, padding) => {
     if (!data.length) return "";
     const maxViews = Math.max(...data.map((d) => d.views), 1);
@@ -61,6 +75,7 @@ const PageViewAnalysis = ({ storeId }) => {
     return path;
   };
 
+  // Generate fill path for chart
   const generateFillPath = (data, width, height, padding) => {
     if (!data.length) return "";
     const maxViews = Math.max(...data.map((d) => d.views), 1);
