@@ -1,8 +1,6 @@
-
 import { useState, useRef } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../src/hooks/firebase";
-import { startOfDay, startOfWeek, startOfMonth, startOfYear } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import styles from "./pageviewanalysis.module.css";
 
@@ -14,43 +12,35 @@ const fetchPageViews = async (storeId) => {
 
   const viewsMeta = bizSnap.data().pageViews || [];
 
-  return viewsMeta
-    .map(v => ({
-      views: v.views || 0,
-      date: v.date?.toDate ? v.date.toDate() : new Date(v.date)
-    }))
-    .sort((a, b) => a.date - b.date);
+  // Convert Firestore timestamps to Date safely
+  return viewsMeta.map(v => ({
+    views: v.views || 0,
+    date: v.date?.toDate ? v.date.toDate() : new Date(v.date)
+  }));
 };
 
 const PageViewAnalysis = ({ storeId }) => {
-  const [range, setRange] = useState("month"); // all, day, week, month, year
+  const [range, setRange] = useState("all"); // all, day, week, month, year
   const svgRef = useRef(null);
 
   const { data: pageViews = [], isLoading } = useQuery({
     queryKey: ["pageViews", storeId],
     queryFn: () => fetchPageViews(storeId),
     enabled: !!storeId,
-    staleTime: 1000 * 60 * 5, // cache for 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
-  const now = new Date();
-  let filteredViews = pageViews;
-  if (range === "day") filteredViews = pageViews.filter(v => v.date >= startOfDay(now));
-  if (range === "week") filteredViews = pageViews.filter(v => v.date >= startOfWeek(now));
-  if (range === "month") filteredViews = pageViews.filter(v => v.date >= startOfMonth(now));
-  if (range === "year") filteredViews = pageViews.filter(v => v.date >= startOfYear(now));
-
-  // If only one data point, treat as no data
-  if (filteredViews.length <= 1) filteredViews = [];
+  // For now, ignore range filtering to show all-time data
+  const sortedViews = [...pageViews].sort((a, b) => a.date - b.date);
 
   // Cumulative views
   let cumulative = 0;
-  const pageViewData = filteredViews.map((v) => {
+  const pageViewData = sortedViews.map((v) => {
     cumulative += v.views;
     return { date: v.date, views: cumulative };
   });
 
-  const totalViews = filteredViews.reduce((sum, v) => sum + v.views, 0);
+  const totalViews = pageViews.reduce((sum, v) => sum + v.views, 0);
 
   const generatePath = (data, width, height, padding) => {
     if (!data.length) return "";
@@ -91,32 +81,10 @@ const PageViewAnalysis = ({ storeId }) => {
     return path;
   };
 
-  const rangeLabels = {
-    all: "Total Page Views",
-    day: "Page Views Today",
-    week: "Page Views This Week",
-    month: "Page Views This Month",
-    year: "Page Views This Year",
-  };
-
   return (
     <div className={styles.container}>
-      <div className={styles.controls}>
-        <select
-          value={range}
-          onChange={(e) => setRange(e.target.value)}
-          className={styles.rangeSelect}
-        >
-          <option value="all">All Time</option>
-          <option value="day">Day</option>
-          <option value="week">Week</option>
-          <option value="month">Month</option>
-          <option value="year">Year</option>
-        </select>
-      </div>
-
       <div style={{ color: 'var(--secondary-color)' }} className={styles.totalViews}>
-        {rangeLabels[range]}: {totalViews.toLocaleString()}
+        Total Page Views: {totalViews.toLocaleString()}
       </div>
 
       {isLoading ? (

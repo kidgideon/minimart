@@ -50,6 +50,14 @@
   margin: 10px 0px;
 }
 
+.pageTitle {
+  font-size: 160%;
+  margin: 10px 0px;
+  color: var(--secondary-color);
+  font-weight: bold;
+}
+
+
 .modalOverlay {
   position: fixed;
   top: 0; left: 0;
@@ -72,6 +80,74 @@
   flex-direction: column;
   gap: 20px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.modal h3 {
+  margin-bottom: 10px;
+}
+
+.modal label {
+  color: gray;
+}
+
+.colorPickerArea {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.pickerColor {
+  margin: 10px 0px;
+}
+
+.btnArea {
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  flex-direction: row;
+  margin: 10px 0px;
+}
+
+.nextBn {
+   padding: 10px 20px;
+   border-radius: 5px;
+    border: none;
+    background-color: var(--secondary-color);
+    color: white;
+}
+.backBtn {
+ padding: 10px 20px;
+   border-radius: 5px;
+    border: none;
+    background-color: rgb(202, 202, 202);
+    color: white;
+    margin: 0px 10px;
+}
+.saveBtnS {
+ padding: 10px 20px;
+   border-radius: 5px;
+    border: none;
+    background-color: var(--secondary-color);
+    color: white;
+}
+.btnAreaEnd {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.cancelBtn {
+  width: 80%;
+  background-color: rgb(202, 202, 202);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .warningText {
@@ -80,48 +156,4 @@
   background: #f2dede;
   padding: 10px;
   border-radius: 6px;
-}
-
-.pickers {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.pickers div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.modalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.saveBtn {
-  background: var(--primary-color);
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.cancelBtn {
-  background: #eee;
-  color: #333;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.pageTitle {
-  font-size: 160%;
-  margin: 10px 0px;
-  color: var(--secondary-color);
-  font-weight: bold;
 }

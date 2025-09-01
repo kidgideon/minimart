@@ -8,25 +8,17 @@ import { db } from "../src/hooks/firebase"; // Adjust path as needed
 import styles from "./order.module.css";
 import Navbar from "../businessComponent/navbar";
 
+// Sorting helper
 const sortOrders = (orders, sortBy) => {
-  if (sortBy === "date") {
-    return [...orders].sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
-  if (sortBy === "amount") {
-    return [...orders].sort((a, b) => (b.amount || 0) - (a.amount || 0));
-  }
-  if (sortBy === "completed") {
-    return [...orders].filter((o) => o.completed && !o.cancelled);
-  }
-  if (sortBy === "cancelled") {
-    return [...orders].filter((o) => o.cancelled);
-  }
-  if (sortBy === "uncompleted") {
-    return [...orders].filter((o) => !o.completed && !o.cancelled);
-  }
+  if (sortBy === "date") return [...orders].sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (sortBy === "amount") return [...orders].sort((a, b) => (b.amount || 0) - (a.amount || 0));
+  if (sortBy === "completed") return [...orders].filter(o => o.completed && !o.cancelled);
+  if (sortBy === "cancelled") return [...orders].filter(o => o.cancelled);
+  if (sortBy === "uncompleted") return [...orders].filter(o => !o.completed && !o.cancelled);
   return orders;
 };
 
+// Status helpers
 const statusColor = {
   completed: "green",
   cancelled: "red",
@@ -41,12 +33,13 @@ const getOrderStatus = (order) => {
 
 // React Query fetcher
 const fetchOrders = async () => {
+  const auth = getAuth();
+
   return new Promise((resolve, reject) => {
-    const auth = getAuth();
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         unsub();
-        resolve([]); // No user, return empty
+        resolve([]);
         return;
       }
 
@@ -62,12 +55,7 @@ const fetchOrders = async () => {
         const bizDoc = await getDoc(doc(db, "businesses", businessId));
         const ordersArr = bizDoc.data()?.orders || [];
 
-        if (ordersArr.length <= 1) {
-          unsub();
-          resolve([]); // Rule: Don't fetch if only one or none
-          return;
-        }
-
+        // Remove the previous check for 1 order
         const orderPromises = ordersArr.map(async ({ orderId, date }) => {
           const orderDoc = await getDoc(doc(db, "orders", orderId));
           const orderData = orderDoc.exists() ? orderDoc.data() : {};
@@ -96,7 +84,7 @@ const DashboardOrder = () => {
   const { data: orders = [], isLoading, isError, error } = useQuery({
     queryKey: ["dashboardOrders"],
     queryFn: fetchOrders,
-    staleTime: 5 * 60 * 1000, // cache for 5 min
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
@@ -123,9 +111,7 @@ const DashboardOrder = () => {
 
         <div className={styles.orders}>
           {isLoading ? (
-            <p>
-              <i className="fa-solid fa-spinner fa-spin"></i>
-            </p>
+            <p><i className="fa-solid fa-spinner fa-spin"></i></p>
           ) : isError ? (
             <p>Error loading orders: {error.message}</p>
           ) : sortedOrders.length === 0 ? (
@@ -148,30 +134,23 @@ const DashboardOrder = () => {
                       <i className="fa-solid fa-circle-user"></i>
                     </div>
                     <div className={styles.customeInformation}>
-                      <p>
-                        {order.customerInfo?.firstName}{" "}
-                        {order.customerInfo?.lastName}
-                      </p>
+                      <p>{order.customerInfo?.firstName} {order.customerInfo?.lastName}</p>
                       <p>{order.customerInfo?.email}</p>
                       <p>{order.customerInfo?.whatsapp}</p>
-                      <p>
-                        ₦{(order.amount || 0).toLocaleString()}
-                      </p>
+                      <p>₦{(order.amount || 0).toLocaleString()}</p>
                       <p className={styles[status]}>
                         <i className="fa-solid fa-circle"></i> {status}
                       </p>
                     </div>
                   </div>
                   <div className={styles.dateArea}>
-                    <p>
-                      {new Date(order.date).toLocaleString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                    <p>{new Date(order.date).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}</p>
                     <i className="fa-solid fa-arrow-up-right-from-square"></i>
                   </div>
                 </motion.div>

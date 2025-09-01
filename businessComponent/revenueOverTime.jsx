@@ -47,7 +47,7 @@ const fetchOrdersData = async (storeId, range) => {
 };
 
 const RevenueOverTime = ({ storeId }) => {
-  const [range, setRange] = useState("month");
+  const [range, setRange] = useState("all");
 
   const { data, isLoading } = useQuery({
     queryKey: ["revenueOverTime", storeId, range],

@@ -18,6 +18,7 @@ import Analysis from "../businessPages/analysis";
 import { ThemeProvider } from "./ThemeContext";
 import ScrollToTop from "./hooks/scrolltotop";
 import Customers from "../businessPages/customers";
+import Help from "../businessPages/help";
 
 // Create a single QueryClient instance (recommended: create outside of component)
 const queryClient = new QueryClient({
@@ -129,6 +130,15 @@ function App() {
             element={
               <ThemeProvider>
                 <Customers />
+              </ThemeProvider>
+            }
+          />
+
+            <Route
+            path="/help"
+            element={
+              <ThemeProvider>
+                <Help />
               </ThemeProvider>
             }
           />

@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 import { db } from "../src/hooks/firebase";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -18,11 +17,11 @@ const fetchSalesData = async (storeId) => {
   const today = new Date();
   const businessRef = doc(db, "businesses", storeId);
   const businessSnap = await getDoc(businessRef);
-
   if (!businessSnap.exists()) return null;
 
   const businessData = businessSnap.data();
 
+  // Orders for today
   const todayOrders = (businessData.orders || []).filter(order => {
     const orderDate = new Date(order.date);
     return isSameDate(orderDate, today);
@@ -39,9 +38,10 @@ const fetchSalesData = async (storeId) => {
     });
   }
 
+  // Page views for today
   const pageViewsToday =
     (businessData.pageViews || []).find(pv => {
-      const pvDate = new Date(pv.date);
+      const pvDate = pv.date?.toDate ? pv.date.toDate() : new Date(pv.date);
       return isSameDate(pvDate, today);
     })?.views || 0;
 
@@ -53,27 +53,21 @@ const fetchSalesData = async (storeId) => {
   };
 };
 
+
 const Sales = ({ storeId }) => {
   const navigate = useNavigate();
 
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["salesData", storeId],
     queryFn: () => fetchSalesData(storeId),
     enabled: !!storeId,
-    staleTime: 1000 * 60 * 5, // Cache valid for 5 minutes
-    cacheTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
-    refetchOnWindowFocus: false, // Avoid unnecessary refetching when switching tabs
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
   });
 
   const handleClick = (index) => {
-    if (index === 0) {
-      navigate("/settings/payments");
-    } else if (index === 1) {
+    if (index === 0 || index === 1) {
       navigate("/orders");
     }
   };
@@ -94,18 +88,27 @@ const Sales = ({ storeId }) => {
     );
   }
 
+  const boxes = [
+    { title: "Payout Tomorrow", value: `₦${data.payoutTomorrow.toLocaleString()}`, icon: "fa-money-bill-wave" },
+    { title: "Sales Today", value: data.salesToday, icon: "fa-cart-shopping" },
+    { title: "Page Views Today", value: data.pageViewsToday, icon: "fa-eye", tooltip: `Total views: ${data.pageViewsToday}` },
+    { title: "Page Likes", value: data.storeLikes, icon: "fa-thumbs-up", tooltip: `Total likes: ${data.storeLikes}` },
+  ];
+
+  const boxClasses = [
+    styles.salesBoxOne,
+    styles.salesBoxTwo,
+    styles.salesBoxThree,
+    styles.salesBoxFour,
+  ];
+
   return (
     <div className={styles.container}>
       <div className={styles.salesBoxes}>
-        {[
-          { title: "Payout Tomorrow", value: `₦${data.payoutTomorrow.toLocaleString()}`, icon: "fa-money-bill-wave" },
-          { title: "Sales Today", value: data.salesToday, icon: "fa-cart-shopping" },
-          { title: "Page Views Today", value: data.pageViewsToday, icon: "fa-eye", tooltip: `Total views: ${data.pageViewsToday}` },
-          { title: "Page Likes", value: data.storeLikes, icon: "fa-thumbs-up", tooltip: `Total likes: ${data.storeLikes}` },
-        ].map((item, index) => (
+        {boxes.map((item, index) => (
           <motion.div
             key={index}
-            className={styles.salesBox}
+            className={boxClasses[index]}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.3 }}

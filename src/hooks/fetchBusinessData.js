@@ -30,7 +30,6 @@ export const fetchBusinessData = async () => {
 
   const { businessId } = userSnap.data();
   if (!businessId) throw new Error("No businessId linked to user");
-  console.log(businessId)
 
   // Step 2: Fetch business document
   const bizDocRef = doc(db, "businesses", businessId);
@@ -39,7 +38,6 @@ export const fetchBusinessData = async () => {
 
   const data = bizSnap.data();
 
-  console.log(data)
 
   return {
     bizName: data.businessName || "",

@@ -16,16 +16,36 @@
   gap: 24px;
 }
 
-.salesBox {
+.salesBoxOne, .salesBoxTwo, .salesBoxThree, .salesBoxFour {
   flex: 1 1 180px;
   max-width: 200px;
   min-width: 160px;
-  background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
+  height:  100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.salesBoxOne {
+  background-color: rgb(255, 228, 233);
+}
+
+.salesBoxTwo {
+  background-color: rgb(191, 255, 191);
+}
+
+.salesBoxThree {
+  background-color: rgb(212, 212, 255);
+}
+
+.salesBoxFour {
+  background-color: rgb(255, 234, 234);
 }
 
 .salesBox:hover {
@@ -34,8 +54,6 @@
 }
 
 .title {
-  background-color: var(--primary-color);
-  color: white;
   font-size: 60%;
   font-weight: 600;
   text-align: center;

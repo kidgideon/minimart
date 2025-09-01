@@ -1,0 +1,22 @@
+[
+  {
+    "question": "How do I create a store?",
+    "answer": "Go to the 'Create Store' section from the dashboard and fill in your store details. Upload at least one product to make it live."
+  },
+  {
+    "question": "How can I add products?",
+    "answer": "Navigate to your store dashboard, click 'Add Product', fill in the required details, and upload images."
+  },
+  {
+    "question": "I forgot my password. What do I do?",
+    "answer": "Click 'Forgot Password' on the login page and follow the steps to reset your password via email."
+  },
+  {
+    "question": "Why isn’t my product showing on the store?",
+    "answer": "Ensure your product has a name, price, and at least one image uploaded. Also, check that your store is live."
+  },
+  {
+    "question": "How do I check my sales or page views?",
+    "answer": "Go to the 'Sales' or 'Analytics' section in your dashboard. You will see detailed breakdowns of orders, payouts, and page views."
+  }
+]

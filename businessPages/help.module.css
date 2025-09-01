@@ -1,0 +1,114 @@
+.displayArea {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--secondary-color);
+}
+
+.topControls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  min-width: 0;
+}
+
+.contactButton {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s all;
+  white-space: nowrap;
+}
+
+
+.problemList {
+   width: 100%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+   align-items: center;
+   gap: 30px;
+}
+
+.problemCard {
+    width: 80%;
+  padding: 16px 5px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fafafa;
+  transition: 0.2s all;
+}
+
+.problemCard:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.question {
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question p {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-direction: row;
+}
+
+.question  i {
+    background-color: var(--secondary-color);
+    font-size: 200%;
+    border-radius: 200px;
+    margin-right: 10px;
+}
+
+.expandIcon {
+  font-size: 14px;
+}
+
+.answer {
+  color: #555;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: start;
+  margin-top: 10px;
+}
+
+.noMatch {
+  text-align: center;
+}
+
+
+@media (max-width: 1300px) {  
+  .problemCard {
+    width: 90%;
+  }
+}

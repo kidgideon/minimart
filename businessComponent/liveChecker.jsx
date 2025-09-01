@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +21,7 @@ const fetchBusinessData = async (storeId, user) => {
 
 const LiveChecker = ({ storeId }) => {
   const [user, setUser] = useState(null);
+  const [isSharing, setIsSharing] = useState(false);
   const navigate = useNavigate();
 
   // Listen for auth state change
@@ -41,27 +41,32 @@ const LiveChecker = ({ storeId }) => {
     retry: 1, // Retry once if failed
   });
 
-  const handleVisit = () => {
-    window.open(`https://${storeId}.minimart.ng`, "_blank");
-  };
+  const cleanStoreUrl = `https://${storeId}.minimart.ng`.replace(/\/+$/, ""); // Remove trailing slash
 
-  const handleShare = async () => {
-    try {
-      const shareData = { url: `https://${storeId}.minimart.ng` };
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(shareData.url);
-        toast.success("Link copied to clipboard!");
-      }
-    } catch (err) {
-      console.error("Share failed:", err);
-    }
+  const handleVisit = () => {
+    window.open(cleanStoreUrl, "_blank");
   };
+const handleShare = async (id) => {
+ 
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        url: cleanStoreUrl,
+      });
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+      alert("Link copied to clipboard!");
+    }
+  } catch (err) {
+    console.error("Share failed:", err);
+    alert("Unable to share this product.");
+  }
+};
+
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(`https://${storeId}.minimart.ng`);
+      await navigator.clipboard.writeText(cleanStoreUrl);
       toast.success("Link copied!");
     } catch (err) {
       console.error("Copy failed:", err);
@@ -142,8 +147,9 @@ const LiveChecker = ({ storeId }) => {
             <i className="fa-solid fa-braille"></i> Visit store
           </button>
 
-          <button onClick={handleShare}>
-            <i className="fa-solid fa-share-nodes"></i> Share link
+          <button onClick={handleShare} disabled={isSharing}>
+            <i className="fa-solid fa-share-nodes"></i> 
+            {isSharing ? " Sharing..." : " Share link"}
           </button>
 
           <button onClick={handleCopy}>

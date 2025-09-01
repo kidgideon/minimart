@@ -99,6 +99,24 @@
   color: var(--secondary-color);
 }
 
+.empty  {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  color: #585858;
+}
+
+.empty i {
+  color: #585858;
+  font-size: 250%;
+  margin: 10px 0px;
+}
+
+
+
 .modalSection p {
   margin: 3px 0;
   font-size: 0.9rem;
