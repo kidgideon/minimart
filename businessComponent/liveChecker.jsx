@@ -144,7 +144,7 @@ const handleShare = async (id) => {
 
         <div className={styles.bottomActive}>
           <button onClick={handleVisit}>
-            <i className="fa-solid fa-braille"></i> Visit store
+            <i className="fa-solid fa-braille"></i> Visit
           </button>
 
           <button onClick={handleShare} disabled={isSharing}>

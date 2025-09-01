@@ -19,7 +19,6 @@
 .salesBoxOne, .salesBoxTwo, .salesBoxThree, .salesBoxFour {
   flex: 1 1 180px;
   max-width: 150px;
-  min-width: 160px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
@@ -88,6 +87,8 @@
 
 @media (max-width: 700px) {  
   .salesBox {
-    max-width: 150px;
+    max-width: 130px;
+    min-width: none;
   }
+
 }
