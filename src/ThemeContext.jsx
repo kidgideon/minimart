@@ -1,8 +1,8 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./hooks/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 const DEFAULT_PRIMARY = "#1C2230";
 const DEFAULT_SECONDARY = "#43B5F4";
@@ -12,6 +12,7 @@ const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [theme, setTheme] = useState({
     primaryColor: DEFAULT_PRIMARY,
     secondaryColor: DEFAULT_SECONDARY,
@@ -22,7 +23,8 @@ export const ThemeProvider = ({ children }) => {
     let unsubscribed = false;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-      if (!user || unsubscribed) {
+      if (!user) {
+        navigate("/"); // Redirect to home if not logged in
         setLoading(false);
         return;
       }
@@ -70,7 +72,7 @@ export const ThemeProvider = ({ children }) => {
       unsubscribed = true;
       unsubscribeAuth();
     };
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (

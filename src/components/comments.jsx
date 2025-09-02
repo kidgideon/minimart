@@ -57,7 +57,7 @@ const Comments = () => {
   return (
     <div className={styles.interface}>
       <h2 className={styles.commentsTitle}>
-        How Minimart is helping business women grow faster
+       what business owners say?
       </h2>
 
       <div className={styles.commentsArea}>

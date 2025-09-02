@@ -46,7 +46,7 @@ const Hero = () => {
         animate="visible"
       >
         <h1>Turn Your Business Into a Profitable Online Storefront</h1>
-        <p>Create your own branded page, list your products or services, receive payments, and manage everything — all without writing a single line of code.</p>
+        <p>Create your own branded online storefront, list your products or services, receive payments, and manage everything with ease</p>
         <motion.button 
           onClick={() => navigate("/signup")}
           variants={buttonVariant}

@@ -34,7 +34,7 @@ const Navbar = () => {
             <Link to={"/"}><p>Home</p></Link>
           <Link to={"/signup"}><p>Join now</p></Link>
           <Link to={"/signin"}><p>Login</p></Link>
-          <Link to={"/about"}><p>About</p></Link>
+          <Link to={"/signin"}><p>About</p></Link>
         </div>
 
         {/* Mobile Hamburger Icon */}
