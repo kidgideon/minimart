@@ -46,6 +46,19 @@ const Appearance = () => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+  if (showColorModal) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "auto";
+  }
+
+  return () => {
+    document.body.style.overflow = "auto"; // cleanup on unmount
+  };
+}, [showColorModal]);
+
+
   // Fetch theme
   useEffect(() => {
     if (!businessId) return;
