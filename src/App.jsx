@@ -19,6 +19,7 @@ import { ThemeProvider } from "./ThemeContext";
 import ScrollToTop from "./hooks/scrolltotop";
 import Customers from "../businessPages/customers";
 import Help from "../businessPages/help";
+import AdminDashboard from "../admin/home";
 
 // Create a single QueryClient instance (recommended: create outside of component)
 const queryClient = new QueryClient({
@@ -140,6 +141,13 @@ function App() {
               <ThemeProvider>
                 <Help />
               </ThemeProvider>
+            }
+          />
+
+          <Route
+            path="/admin/ceo/area"
+            element={
+                <AdminDashboard />
             }
           />
         </Routes>
