@@ -41,20 +41,20 @@ const LiveChecker = ({ storeId }) => {
     retry: 1, // Retry once if failed
   });
 
-  const cleanStoreUrl = `https://${storeId}.minimart.ng`.replace(/\/+$/, ""); // Remove trailing slash
+  const cleanStoreUrl = `https://${storeId}.minimart.ng`;
 
   const handleVisit = () => {
     window.open(cleanStoreUrl, "_blank");
   };
-const handleShare = async (id) => {
- 
+
+  const handleShare = async () => {
   try {
     if (navigator.share) {
       await navigator.share({
         url: cleanStoreUrl,
       });
     } else {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(cleanStoreUrl);
       alert("Link copied to clipboard!");
     }
   } catch (err) {
