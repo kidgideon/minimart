@@ -3,6 +3,11 @@ import Navbar from "../components/navBar";
 import Hero from "../components/hero";
 import Evaluations from "../components/evaluations";
 import Footer from "../components/footer";
+import HowItWorks from "../components/works";
+import Features from "../components/features";
+import Comments from "../components/comments";
+import CallToAction from "../components/cta";
+
 
 const Home = () => {
     return(
@@ -10,6 +15,10 @@ const Home = () => {
       <Navbar/>
         <Hero/>
         <Evaluations/>
+         <Features/>
+        <HowItWorks/>
+        <Comments/>
+        <CallToAction/>
         <Footer/>
         </div>
     )

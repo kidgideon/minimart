@@ -16,9 +16,9 @@ const Footer = () => {
           </div>
           <p>Create your online storefront, list products, manage orders, and receive payments easily.</p>
           <div className={styles.contactInfo}>
-            <p><i className="fa-solid fa-map-pin"></i> 12 Tech Street, Lagos</p>
-            <p><i className="fa-solid fa-phone"></i> +234 800 123 4567</p>
-            <p><i className="fa-solid fa-envelope"></i> support@minimart.com.ng</p>
+            <p><i className="fa-solid fa-map-pin"></i> yenagoa , Bayelsa State</p>
+            <p><i className="fa-solid fa-phone"></i> +234 7046578294</p>
+            <p><i className="fa-solid fa-envelope"></i> @minimart.com.ng@gmail.com</p>
           </div>
         </div>
 
@@ -27,9 +27,9 @@ const Footer = () => {
           <h4>Quick Links</h4>
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/products">Products</a></li>
-            <li><a href="/about">About Us</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><a href="/signup">Products</a></li>
+            <li><a href="/signup">About Us</a></li>
+            <li><a href="/signup">Contact</a></li>
           </ul>
         </div>
 
@@ -37,10 +37,10 @@ const Footer = () => {
         <div className={styles.linkGroup}>
           <h4>Our Services</h4>
           <ul>
-            <li><a href="/create-store">Create Store</a></li>
-            <li><a href="/manage-products">Manage Products</a></li>
-            <li><a href="/analytics">Analytics</a></li>
-            <li><a href="/support">Support</a></li>
+            <li><a href="/signup">Create Store</a></li>
+            <li><a href="/signup">Manage Products</a></li>
+            <li><a href="/signup">Analytics</a></li>
+            <li><a href="/signup">Support</a></li>
           </ul>
         </div>
 

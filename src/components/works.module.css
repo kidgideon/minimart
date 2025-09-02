@@ -1,0 +1,59 @@
+.worksSection {
+  width: 100%;
+  padding: 100px 0px;
+  background: #ffffff; /* White for clean contrast */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.worksTitle {
+  text-align: center;
+  font-size: 2rem;
+  color: #1C2230;
+  margin-bottom: 5rem;
+  font-weight: 600;
+}
+
+.worksContainer {
+    width: 95%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 2rem;
+}
+
+.stepCard {
+  flex: 1 1 260px;
+  max-width: 300px;
+  background: #fefefe;
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stepCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.stepIcon {
+  width: 100px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.stepTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1C2230;
+  margin-bottom: 0.5rem;
+}
+
+.stepText {
+  font-size: 0.9rem;
+  color: #555;
+}
