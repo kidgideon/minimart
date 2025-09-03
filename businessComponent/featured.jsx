@@ -88,6 +88,10 @@ const Featured = () => {
     }, 400);
   };
 
+   // Truncate description
+  const truncate = (str, n) => (str && str.length > n ? str.slice(0, n) + "..." : str);
+
+
   return (
     <div className={styles.featured}>
       <div className={styles.top}>
@@ -142,7 +146,7 @@ const Featured = () => {
                   <div className={design.featuredCardInfo}>
                     <p className={design.itemName}>{item.name}</p>
                     <p className={design.itemPrice}>{item.price ? `₦${item.price.toLocaleString()}` : ''}</p>
-                    <p className={design.itemDescription}>{item.description}</p>
+                    <p className={design.itemDescription}>{truncate(item.description, 60)}</p>
                     <div className={design.shareable}>
                       <p className={design.collection}>{item.category}</p>
                       <p
