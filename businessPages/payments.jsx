@@ -6,7 +6,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { getPaystackBanks, validateAccount, createSubAccount } from "../src/hooks/paystackHooks";
+import { getPaystackBanks, validateAccount, createSubAccount, createTransactionSplit } from "../src/hooks/paystackHooks";
 
 const Payments = () => {
   const [businessRef, setBusinessRef] = useState(null);
@@ -62,29 +62,46 @@ const Payments = () => {
     }
   };
 
-  const handleSaveAccount = async () => {
-    if (!businessRef || !form.accNo || !form.bankCode || !form.accName) {
-      toast.error("Fill all fields and validate account");
-      return;
-    }
-    setLoading(true);
-    try {
-      const subAcc = await createSubAccount({
-        businessName,
-        accNo: form.accNo,
-        bankCode: form.bankCode,
-        accName: form.accName,
-      });
-      await updateDoc(businessRef, { subAccount: subAcc });
-      setSubAccount(subAcc);
-      setPopupOpen(false);
-      toast.success(isEditing ? "Business account updated" : "Business account added");
-    } catch {
-      toast.error("Failed to save account");
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleSaveAccount = async () => {
+  if (!businessRef || !form.accNo || !form.bankCode || !form.accName) {
+    toast.error("Fill all fields and validate account");
+    return;
+  }
+  setLoading(true);
+
+  try {
+    // 1. Create subaccount first
+    const subAcc = await createSubAccount({
+      businessName,
+      accNo: form.accNo,
+      bankCode: form.bankCode,
+      accName: form.accName,
+    });
+
+    // 2. Create a transaction split for this subaccount
+    const splitCode = await createTransactionSplit({
+      subaccount_code: subAcc.subaccount_code,
+      vendorShare: 98, // vendor gets 98%, you keep 2%
+      splitName: `${businessName} Split`,
+    });
+
+    // 3. Save both subAccount and splitCode to Firestore
+    await updateDoc(businessRef, { 
+      subAccount: subAcc,
+      splitCode: splitCode,
+    });
+
+    setSubAccount(subAcc);
+    setPopupOpen(false);
+    toast.success(isEditing ? "Business account updated" : "Business account added");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to save account");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const openEditModal = () => {
     if (!subAccount) return;
