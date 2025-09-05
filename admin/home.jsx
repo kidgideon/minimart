@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./home.module.css";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../src/hooks/firebase"; // adjust path if necessary
 import { format } from "date-fns";
 
@@ -16,12 +16,10 @@ const sortOptions = [
 ];
 
 export default function AdminDashboard() {
-  // PIN gating
   const [pinInput, setPinInput] = useState(["", "", "", ""]);
   const [authorized, setAuthorized] = useState(false);
   const [pinError, setPinError] = useState("");
 
-  // Businesses & UI
   const [loading, setLoading] = useState(false);
   const [businesses, setBusinesses] = useState([]);
   const [query, setQuery] = useState("");
@@ -29,18 +27,15 @@ export default function AdminDashboard() {
   const [selectedBiz, setSelectedBiz] = useState(null);
   const [fetchError, setFetchError] = useState(null);
 
-  // PIN handlers
-  useEffect(() => {
-    // focus first empty input automatically handled by UI via input refs? we'll handle simple.
-  }, []);
+  // New: Metrics state
+  const [siteViews, setSiteViews] = useState(0);
 
   const handlePinChange = (index, value) => {
-    if (!/^\d{0,1}$/.test(value)) return; // only single digit
+    if (!/^\d{0,1}$/.test(value)) return; 
     const next = [...pinInput];
     next[index] = value;
     setPinInput(next);
     setPinError("");
-    // auto-advance focus handled in DOM (not included here) — we keep UI simple for portability
   };
 
   const tryPin = () => {
@@ -48,15 +43,14 @@ export default function AdminDashboard() {
     if (attempt === PIN_ENV) {
       setAuthorized(true);
       setPinError("");
-      // load businesses on authorize
       fetchBusinesses();
+      fetchMetrics(); // Fetch metrics on login
     } else {
       setPinError("Incorrect pin — try again.");
       setPinInput(["", "", "", ""]);
     }
   };
 
-  // Fetch businesses from Firestore
   const fetchBusinesses = async () => {
     setLoading(true);
     setFetchError(null);
@@ -73,7 +67,19 @@ export default function AdminDashboard() {
     }
   };
 
-  // Derived: filtered + sorted
+  // New: Fetch metrics once
+  const fetchMetrics = async () => {
+    try {
+      const docRef = doc(db, "metrics", "analysis");
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        setSiteViews(snap.data().siteViewValue || 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch metrics:", err);
+    }
+  };
+
   const processed = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = businesses.slice();
@@ -96,21 +102,17 @@ export default function AdminDashboard() {
     return list;
   }, [businesses, query, sortBy]);
 
-  // Average page views per day across all businesses
   const avgPageViewsPerDay = useMemo(() => {
-    // Collect unique date keys and total views
     const dateSet = new Set();
     let totalViews = 0;
 
     businesses.forEach((biz) => {
       const pvs = Array.isArray(biz.pageViews) ? biz.pageViews : [];
       pvs.forEach((pv) => {
-        // Accept either "YYYY-MM-DD" string or ISO-like string. Normalize to date-only string.
         const raw = pv?.date;
         if (!raw) return;
         let dateOnly;
         if (typeof raw === "string") {
-          // sometimes stored as "2025-08-27" or "2025-08-27T00:00:00+01:00"
           dateOnly = raw.split("T")[0];
         } else if (raw?.toDate) {
           dateOnly = raw.toDate().toISOString().split("T")[0];
@@ -126,16 +128,14 @@ export default function AdminDashboard() {
       });
     });
 
-    const days = Math.max(1, dateSet.size); // avoid div0
-    return Math.round((totalViews / days) * 100) / 100; // 2dp
+    const days = Math.max(1, dateSet.size);
+    return Math.round((totalViews / days) * 100) / 100;
   }, [businesses]);
 
-  // Select a business -> load minimal details already in object
   const openBusiness = (biz) => {
     setSelectedBiz(biz);
   };
 
-  // UI: simple keypad for pin (phone-like)
   return (
     <div className={styles.adminWrap}>
       {!authorized ? (
@@ -161,10 +161,6 @@ export default function AdminDashboard() {
                   onChange={(e) => handlePinChange(i, e.target.value.replace(/\D/g, ""))}
                   className={styles.pinInput}
                   onKeyDown={(e) => {
-                    if (e.key === "Backspace" && !pinInput[i] && i > 0) {
-                      // move focus back: minimal DOM-focused behaviour not enforced for portability
-                      // in your implementation you can add refs to auto-focus
-                    }
                     if (e.key === "Enter") tryPin();
                   }}
                 />
@@ -193,6 +189,10 @@ export default function AdminDashboard() {
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Avg. Page Views / Day</div>
                 <div className={styles.statValue}>{avgPageViewsPerDay}</div>
+              </div>
+              <div className={styles.statCard}>
+                <div className={styles.statLabel}>Total Site Views</div>
+                <div className={styles.statValue}>{siteViews}</div>
               </div>
             </div>
           </header>
@@ -238,16 +238,15 @@ export default function AdminDashboard() {
                           <div className={styles.rowMain}>
                             <div className={styles.bizName}>{b.businessName || b.businessId || b.id}</div>
                             <div className={styles.bizMeta}>
-                             <span>
-  Created:{" "}
-  {b.createdAt
-    ? format(
-        b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt),
-        "yyyy-MM-dd"
-      )
-    : "—"}
-</span>
-
+                              <span>
+                                Created:{" "}
+                                {b.createdAt
+                                  ? format(
+                                      b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt),
+                                      "yyyy-MM-dd"
+                                    )
+                                  : "—"}
+                              </span>
                               <span>Views: {totalViews}</span>
                             </div>
                           </div>

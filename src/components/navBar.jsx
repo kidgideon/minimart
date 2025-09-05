@@ -3,12 +3,38 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./navBar.module.css";
 import Logo from "../images/logo.png";
+import { db } from "../hooks/firebase";
+import { doc, getDoc, setDoc, updateDoc, increment } from "firebase/firestore";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef();
 
-  // Outside click handler
+  // Update site view on mount
+  useEffect(() => {
+    const updateSiteView = async () => {
+      try {
+        const docRef = doc(db, "metrics", "analysis");
+        const snap = await getDoc(docRef);
+
+        if (snap.exists()) {
+          await updateDoc(docRef, {
+            siteViewValue: increment(1),
+          });
+        } else {
+          await setDoc(docRef, {
+            siteViewValue: 1,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to update site view:", err);
+      }
+    };
+
+    updateSiteView();
+  }, []);
+
+  // Outside click handler for mobile menu
   useEffect(() => {
     const handler = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -31,17 +57,16 @@ const Navbar = () => {
 
         {/* Desktop Nav */}
         <div className={styles.hamburgerArea}>
-            <Link to={"/"}><p>Home</p></Link>
+          <Link to={"/"}><p>Home</p></Link>
           <Link to={"/signup"}><p>Join now</p></Link>
           <Link to={"/signin"}><p>Login</p></Link>
           <Link to={"/signin"}><p>About</p></Link>
         </div>
 
         {/* Mobile Hamburger Icon */}
-         <div className={styles.mobileIcon} onClick={() => setIsOpen(true)}>
-         <i class="fa-solid fa-bars"></i>
+        <div className={styles.mobileIcon} onClick={() => setIsOpen(true)}>
+          <i className="fa-solid fa-bars"></i>
         </div>
-      
       </div>
 
       {/* Mobile Dropdown */}
