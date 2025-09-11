@@ -77,7 +77,7 @@ export default function AdminDashboard() {
       const arr = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
       // Add mock businesses to make up 30 total
-      const mockBizCount = Math.max(0, 30 - arr.length);
+      const mockBizCount = 25;
 
       const mockBusinesses = Array.from({ length: mockBizCount }, (_, i) => {
         const randomDate = new Date(Date.now() - Math.random() * 2 * 365 * 24 * 60 * 60 * 1000);
