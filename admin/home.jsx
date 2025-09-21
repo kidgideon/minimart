@@ -15,24 +15,6 @@ const sortOptions = [
   { value: "views_desc", label: "Page Views (High → Low)" },
 ];
 
-// Realistic mock data arrays
-const mockBusinessNames = [
-  "Lagos Tech Solutions", "Naija Fresh Market", "Oluwa Fashion Hub", "Jollof Express",
-  "Greenfield Logistics", "Pearl Electronics", "Sunrise Bakery", "Harmony Pharmacy",
-  "Savvy Digital Agency", "Apex Auto Repairs", "Bright Future School", "Elite Fitness Center",
-  "Urban Crafts", "Royal Interiors", "NextGen Media", "Golden Touch Spa", "Prime Consultancy",
-  "Infinity Electronics", "FreshCuts Grocery", "Eko Printing Press", "Visionary Studio",
-  "Ace Ventures", "Diamond Realty", "Swift Delivery Services", "BlueWave Solutions"
-];
-
-const mockOwnerNames = [
-  "Chinedu Okafor", "Fatima Bello", "Tunde Adebayo", "Ngozi Eze", "Emeka Nwosu",
-  "Aisha Musa", "David Johnson", "Rashidah Abdul", "Samuel Adekunle", "Grace Ojo",
-  "Kingsley Uche", "Bola Adeniran", "Ifeoma Nwankwo", "Obinna Chukwu", "Maryam Ali",
-  "Emmanuel Okeke", "Sade Afolayan", "Chuka Obi", "Funke Adeyemi", "Olamide Balogun",
-  "Uchechi Nwafor", "Ahmed Suleiman", "Ngozi Obi", "Chisom Eze", "Tosin Ajayi"
-];
-
 export default function AdminDashboard() {
   const [pinInput, setPinInput] = useState(["", "", "", ""]);
   const [authorized, setAuthorized] = useState(false);
@@ -48,7 +30,7 @@ export default function AdminDashboard() {
   const [siteViews, setSiteViews] = useState(0);
 
   const handlePinChange = (index, value) => {
-    if (!/^\d{0,1}$/.test(value)) return; 
+    if (!/^\d{0,1}$/.test(value)) return;
     const next = [...pinInput];
     next[index] = value;
     setPinInput(next);
@@ -61,7 +43,7 @@ export default function AdminDashboard() {
       setAuthorized(true);
       setPinError("");
       fetchBusinesses();
-      fetchMetrics(); 
+      fetchMetrics();
     } else {
       setPinError("Incorrect pin — try again.");
       setPinInput(["", "", "", ""]);
@@ -75,37 +57,7 @@ export default function AdminDashboard() {
       const col = collection(db, "businesses");
       const snap = await getDocs(col);
       const arr = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-      // Add mock businesses to make up 30 total
-      const mockBizCount = 25;
-
-      const mockBusinesses = Array.from({ length: mockBizCount }, (_, i) => {
-        const randomDate = new Date(Date.now() - Math.random() * 2 * 365 * 24 * 60 * 60 * 1000);
-        const pageViews = Array.from({ length: Math.floor(Math.random() * 4) }, () => ({
-          date: new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString(),
-          views: Math.floor(Math.random() * 4) // 0-3
-        }));
-        const orders = Array.from({ length: Math.floor(Math.random() * 3) }, (_, idx) => ({
-          orderId: `MOCKORD${i + 1}_${idx + 1}`,
-          total: Math.floor(Math.random() * 5000) + 100,
-        }));
-
-        const nameIdx = i % mockBusinessNames.length;
-        const ownerIdx = i % mockOwnerNames.length;
-
-        return {
-          id: `mock_${i + 1}`,
-          businessName: mockBusinessNames[nameIdx],
-          businessEmail: `${mockBusinessNames[nameIdx].toLowerCase().replace(/\s+/g, "")}@gmail.com`,
-          createdAt: randomDate,
-          orders,
-          pageViews,
-          plan: { plan: Math.random() > 0.7 ? "pro" : "pro" },
-          otherInfo: { ownerName: mockOwnerNames[ownerIdx] },
-        };
-      });
-
-      setBusinesses([...arr, ...mockBusinesses]); // merge real + mock
+      setBusinesses(arr); // Only real businesses
     } catch (err) {
       console.error("Failed to fetch businesses:", err);
       setFetchError("Failed to load businesses. Check console.");
